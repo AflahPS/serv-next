@@ -5,8 +5,11 @@ import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
-export const Signup = () => {
+export const SignupVendor = () => {
+  const router = useRouter();
+
   return (
     <Box
       // flex={2}
@@ -16,7 +19,7 @@ export const Signup = () => {
       minWidth={"34%"}
     >
       <Stack height={"100%"} paddingY={3} paddingX={5}>
-        <AuthHeading main="Sign Up As User" />
+        <AuthHeading main="Sign Up As Vendor" />
         <Box
           display={"flex"}
           height={"100%"}
@@ -52,10 +55,11 @@ export const Signup = () => {
             <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
               Already have an account ?
               <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
-                <Link href={"/signin"}>Sign In</Link>
+                <Link href={"/signin/vender"}>Sign In</Link>
               </Button>
             </Typography>
             <PrimaryButton
+              onClick={() => router.push("/signup/vendor")}
               text="Sign up as vendor"
               endIcon={<ChevronRightOutlined />}
             />

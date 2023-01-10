@@ -1,5 +1,84 @@
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  Typography,
+} from "@mui/material";
+import { Stack } from "@mui/system";
 import React from "react";
+import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
+import { COLOR } from "../../constants";
+import { ChevronRightOutlined } from "@mui/icons-material";
+import Link from "next/link";
 
 export const Signin = () => {
-  return <div>Signin</div>;
+  return (
+    <Box
+      // flex={2}
+      sx={{ flex: { xs: 1, md: 2 } }}
+      bgcolor="black"
+      height={"100vh"}
+      minWidth={"34%"}
+    >
+      <Stack height={"100%"} paddingY={3} paddingX={5}>
+        <AuthHeading
+          main="Sign in As User"
+          sub="Enter your email address and password to access more."
+        />
+        <Box
+          display={"flex"}
+          height={"100%"}
+          justifyContent="space-between"
+          flexDirection="column"
+        >
+          <Box
+            flex={3}
+            display="flex"
+            flexDirection={"column"}
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
+            width={"100%"}
+          >
+            <TextFieldCustom inLabel="Email" outLabel="Email" />
+            <TextFieldCustom inLabel="Password" outLabel="Password" />
+            <Stack direction={"row"} alignItems={"center"}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox sx={{ color: COLOR["H1d-font-primary"] }} />
+                  }
+                  sx={{ color: COLOR["H1d-font-primary"] }}
+                  label="Remember me."
+                />
+              </FormGroup>
+              <PrimaryButton text="Sign In" />
+            </Stack>
+          </Box>
+          <Divider color="grey" />
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection={"column"}
+            justifyContent="space-around"
+            width={"100%"}
+          >
+            <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
+              Dont have an account ?
+              <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
+                <Link href={"/signup"}>Sign Up</Link>
+              </Button>
+            </Typography>
+            <PrimaryButton
+              text="Sign in as vendor"
+              endIcon={<ChevronRightOutlined />}
+            />
+          </Box>
+        </Box>
+      </Stack>
+    </Box>
+  );
 };

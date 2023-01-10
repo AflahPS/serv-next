@@ -1,12 +1,23 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  Typography,
+} from "@mui/material";
 import { Stack } from "@mui/system";
 import React from "react";
 import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
-export const Signup = () => {
+export const SigninVendor = () => {
+  const router = useRouter();
+
   return (
     <Box
       // flex={2}
@@ -16,7 +27,10 @@ export const Signup = () => {
       minWidth={"34%"}
     >
       <Stack height={"100%"} paddingY={3} paddingX={5}>
-        <AuthHeading main="Sign Up As User" />
+        <AuthHeading
+          main="Sign in As Vendor"
+          sub="Enter your email address and password to access more."
+        />
         <Box
           display={"flex"}
           height={"100%"}
@@ -29,17 +43,23 @@ export const Signup = () => {
             flexDirection={"column"}
             alignItems="center"
             justifyContent="center"
-            gap={1}
+            gap={2}
             width={"100%"}
           >
-            <TextFieldCustom inLabel="Full Name" outLabel="Name" />
             <TextFieldCustom inLabel="Email" outLabel="Email" />
             <TextFieldCustom inLabel="Password" outLabel="Password" />
-            <TextFieldCustom inLabel="Repeat Password" outLabel="Password" />
-            <PrimaryButton
-              sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
-              text="Sign Up"
-            />
+            <Stack direction={"row"} alignItems={"center"}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox sx={{ color: COLOR["H1d-font-primary"] }} />
+                  }
+                  sx={{ color: COLOR["H1d-font-primary"] }}
+                  label="Remember me."
+                />
+              </FormGroup>
+              <PrimaryButton text="Sign In" />
+            </Stack>
           </Box>
           <Divider color="grey" />
           <Box
@@ -50,13 +70,14 @@ export const Signup = () => {
             width={"100%"}
           >
             <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
-              Already have an account ?
+              Dont have an account ?
               <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
-                <Link href={"/signin"}>Sign In</Link>
+                <Link href={"/signup/vendor"}>Sign Up</Link>
               </Button>
             </Typography>
             <PrimaryButton
-              text="Sign up as vendor"
+              onClick={() => router.push("/signin/vendor")}
+              text="Sign in as vendor"
               endIcon={<ChevronRightOutlined />}
             />
           </Box>
