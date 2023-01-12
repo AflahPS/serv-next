@@ -5,17 +5,24 @@ import { ChatLi } from "../../ui";
 export const ChatRight = () => {
   return (
     <Box
+      overflow={"auto"}
       bgcolor={"black"}
       flex={1}
       p={2}
       sx={{ display: { xs: "none", lg: "block" } }}
     >
-      <ChatLi />
-      <ChatLi />
-      <ChatLi />
-      <ChatLi />
-      <ChatLi />
-      <ChatLi />
+      <Box position={"fixed"}>
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+        <ChatLi />
+      </Box>
     </Box>
   );
 };

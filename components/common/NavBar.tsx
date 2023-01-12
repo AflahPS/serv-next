@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ExitToAppOutlined,
   HomeOutlined,
   Mail,
   Notifications,
@@ -12,6 +13,7 @@ import {
   Avatar,
   Badge,
   Box,
+  IconButton,
   InputBase,
   Menu,
   MenuItem,
@@ -20,6 +22,8 @@ import {
   styled,
 } from "@mui/material";
 import { COLOR } from "../../constants";
+import { useDispatch, useSelector } from "react-redux";
+import { authActions } from "../../store/auth.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -58,9 +62,16 @@ const UserBox = styled(Box)(({ theme }) => ({
 
 export const NavBar = () => {
   const [openAnchor, setOpenAnchor] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const isAuth: boolean = useSelector((state: any) => state?.auth?.isAuth);
 
   const handleMenuClick = () => {
     setOpenAnchor(false);
+  };
+
+  const handleSignout = () => {
+    setOpenAnchor(false);
+    dispatch(authActions.logout());
   };
   return (
     <AppBar position="sticky">
@@ -81,6 +92,14 @@ export const NavBar = () => {
           <Badge badgeContent={4} color="error">
             <Mail />
           </Badge>
+          {isAuth && (
+            <IconButton
+              onClick={handleSignout}
+              sx={{ color: COLOR["H1d-ui-primary"] }}
+            >
+              <ExitToAppOutlined />
+            </IconButton>
+          )}
           <Avatar
             sx={{ width: "32px", height: "32px" }}
             src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
@@ -137,6 +156,15 @@ export const NavBar = () => {
           <Notifications />
           <Typography variant="h6">Notifications</Typography>
         </MenuItem>
+        {isAuth && (
+          <MenuItem
+            onClick={handleSignout}
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <ExitToAppOutlined />
+            <Typography variant="h6">Sign Out</Typography>
+          </MenuItem>
+        )}
       </Menu>
     </AppBar>
   );

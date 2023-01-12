@@ -8,16 +8,18 @@ export const AuthHeading = (props: { main: string; sub?: string }) => {
       <Typography variant="h4" sx={{ color: COLOR["H1d-font-primary"] }}>
         {props.main}
       </Typography>
-      <Typography
-        variant="body2"
-        fontWeight="200"
-        sx={{
-          color: COLOR["H1d-font-primary"],
-          display: { xs: "none", sm: "block" },
-        }}
-      >
-        {props.sub}
-      </Typography>
+      {props.sub && (
+        <Typography
+          variant="body2"
+          fontWeight="200"
+          sx={{
+            color: COLOR["H1d-font-primary"],
+            display: { xs: "none", sm: "block" },
+          }}
+        >
+          {props.sub}
+        </Typography>
+      )}
     </Stack>
   );
 };

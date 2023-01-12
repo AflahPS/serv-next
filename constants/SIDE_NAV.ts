@@ -41,8 +41,8 @@ export const SIDE_NAV_LINKS = [
     href: "/notifications",
   },
   {
-    title: "Calender",
+    title: "Calendar",
     icon: CalendarMonthOutlined,
-    href: "/calender",
+    href: "/calendar",
   },
 ];

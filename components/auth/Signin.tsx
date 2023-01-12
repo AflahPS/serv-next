@@ -1,3 +1,5 @@
+import React, { useRef } from "react";
+import { useDispatch } from "react-redux";
 import {
   Box,
   Button,
@@ -5,16 +7,52 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
+  TextFieldProps,
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import React from "react";
-import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
+import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { nest } from "../../utils";
+import { authActions } from "../../store/auth.slice";
 
 export const Signin = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const emailRef = useRef<TextFieldProps>(null);
+  const passwordRef = useRef<TextFieldProps>(null);
+
+  const handleSignin = async (event: any): Promise<void> => {
+    event.preventDefault();
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    try {
+      const res = await nest({
+        url: "auth/signin",
+        method: "POST",
+        data: {
+          email,
+          password,
+        },
+      });
+      console.log({ res });
+
+      if (res.status === 200) {
+        dispatch(authActions.login());
+        router.push("/");
+      }
+    } catch (err: any) {
+      if (err?.response) {
+        console.log({ errMessage: err.response.data.message });
+      }
+    }
+  };
+
   return (
     <Box
       // flex={2}
@@ -43,9 +81,24 @@ export const Signin = () => {
             gap={2}
             width={"100%"}
           >
-            <TextFieldCustom inLabel="Email" outLabel="Email" />
-            <TextFieldCustom inLabel="Password" outLabel="Password" />
-            <Stack direction={"row"} alignItems={"center"}>
+            <TextFieldCustom
+              inputRef={emailRef}
+              type="email"
+              inLabel="Email"
+              outLabel="Email"
+            />
+            <TextFieldCustom
+              inputRef={passwordRef}
+              type="password"
+              inLabel="Password"
+              outLabel="Password"
+            />
+            <Stack
+              width={"90%"}
+              direction={"row"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
@@ -55,7 +108,9 @@ export const Signin = () => {
                   label="Remember me."
                 />
               </FormGroup>
-              <PrimaryButton text="Sign In" />
+              <LinkButton onClick={handleSignin} variant="outlined">
+                Sign In
+              </LinkButton>
             </Stack>
           </Box>
           <Divider color="grey" />
@@ -72,13 +127,21 @@ export const Signin = () => {
                 <Link href={"/signup"}>Sign Up</Link>
               </Button>
             </Typography>
-            <PrimaryButton
-              text="Sign in as vendor"
+            <LinkButton
+              variant="outlined"
+              onClick={() => {
+                router.push("/signin/vendor");
+              }}
               endIcon={<ChevronRightOutlined />}
-            />
+            >
+              Sign in as vendor
+            </LinkButton>
           </Box>
         </Box>
       </Stack>
     </Box>
   );
 };
+function dispatch(arg0: any) {
+  throw new Error("Function not implemented.");
+}

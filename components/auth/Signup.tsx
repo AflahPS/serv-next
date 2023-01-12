@@ -1,12 +1,58 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  TextFieldProps,
+  Typography,
+} from "@mui/material";
 import { Stack } from "@mui/system";
-import React from "react";
-import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
+import React, { useRef } from "react";
+import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { nest } from "../../utils";
+import { useDispatch } from "react-redux";
+import { authActions } from "../../store/auth.slice";
 
 export const Signup = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const nameRef = useRef<TextFieldProps>(null);
+  const emailRef = useRef<TextFieldProps>(null);
+  const passwordRef = useRef<TextFieldProps>(null);
+  const repeatPasswordRef = useRef<TextFieldProps>(null);
+
+  const handleSignup = async (event: any): Promise<void> => {
+    event.preventDefault();
+
+    const name = nameRef.current?.value;
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+    const repeatPassword = repeatPasswordRef.current?.value;
+
+    try {
+      const res = await nest({
+        url: "auth/signup",
+        method: "POST",
+        data: {
+          name,
+          email,
+          password,
+          repeatPassword,
+        },
+      });
+      if (res.data?.status === "success") {
+        dispatch(authActions.login());
+        router.push("/");
+      }
+    } catch (error: any) {
+      console.log({ errMessage: error?.response?.data?.message });
+    }
+  };
+
   return (
     <Box
       // flex={2}
@@ -32,14 +78,37 @@ export const Signup = () => {
             gap={1}
             width={"100%"}
           >
-            <TextFieldCustom inLabel="Full Name" outLabel="Name" />
-            <TextFieldCustom inLabel="Email" outLabel="Email" />
-            <TextFieldCustom inLabel="Password" outLabel="Password" />
-            <TextFieldCustom inLabel="Repeat Password" outLabel="Password" />
-            <PrimaryButton
-              sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
-              text="Sign Up"
+            <TextFieldCustom
+              type="text"
+              inputRef={nameRef}
+              inLabel="Name"
+              outLabel="Full Name"
             />
+            <TextFieldCustom
+              type="email"
+              inputRef={emailRef}
+              inLabel="Email"
+              outLabel="Email"
+            />
+            <TextFieldCustom
+              type="password"
+              inputRef={passwordRef}
+              inLabel="Password"
+              outLabel="Password"
+            />
+            <TextFieldCustom
+              type="password"
+              inputRef={repeatPasswordRef}
+              inLabel="Password"
+              outLabel="Repeat Password"
+            />
+            <LinkButton
+              onClick={handleSignup}
+              variant="outlined"
+              sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
+            >
+              Sign Up
+            </LinkButton>
           </Box>
           <Divider color="grey" />
           <Box
@@ -55,10 +124,15 @@ export const Signup = () => {
                 <Link href={"/signin"}>Sign In</Link>
               </Button>
             </Typography>
-            <PrimaryButton
-              text="Sign up as vendor"
+            <LinkButton
+              variant="outlined"
+              onClick={() => {
+                router.push("/signup/vendor");
+              }}
               endIcon={<ChevronRightOutlined />}
-            />
+            >
+              Sign up as vendor
+            </LinkButton>
           </Box>
         </Box>
       </Stack>

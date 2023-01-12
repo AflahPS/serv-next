@@ -1,11 +1,19 @@
-import { TextField, Typography } from "@mui/material";
+import { TextField, Typography, styled } from "@mui/material";
 import React from "react";
 import { COLOR } from "../constants";
+
+const CssTextField = styled(TextField)({
+  "& input": {
+    color: COLOR["H1d-font-primary"],
+  },
+});
 
 export const TextFieldCustom = (props: {
   inLabel?: string;
   outLabel?: string;
   moreStyle?: {};
+  inputRef?: any;
+  type?: string;
 }) => {
   const styles = {
     backgroundColor: COLOR["H1d-ui-secondary"],
@@ -26,7 +34,8 @@ export const TextFieldCustom = (props: {
         {props.outLabel}
       </Typography>
       <TextField
-        id="outlined-basic"
+        type={props.type}
+        inputRef={props.inputRef}
         size="small"
         InputLabelProps={{
           style: {

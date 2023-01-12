@@ -5,21 +5,24 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Switch,
 } from "@mui/material";
 import React from "react";
 import { COLOR, SIDE_NAV_LINKS } from "../../constants";
-import { ModeNight } from "@mui/icons-material";
+import { Stack } from "@mui/system";
+import { NextRouter, useRouter } from "next/router";
 
 export const SideNav = () => {
+  const router: NextRouter = useRouter();
+
   return (
     <>
+      {/* Laptop or more */}
       <Box
         flex={1}
         bgcolor="black"
         p={2}
         sx={{
-          display: { xs: "none", sm: "block" },
+          display: { xs: "none", md: "block" },
           color: COLOR["H1d-font-primary"],
         }}
       >
@@ -29,7 +32,11 @@ export const SideNav = () => {
               const Icon = link.icon;
               return (
                 <ListItem key={link.title} disablePadding>
-                  <ListItemButton>
+                  <ListItemButton
+                    onClick={() => {
+                      router.push(link.href);
+                    }}
+                  >
                     <ListItemIcon>
                       <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
                     </ListItemIcon>
@@ -38,16 +45,41 @@ export const SideNav = () => {
                 </ListItem>
               );
             })}
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <ModeNight sx={{ color: COLOR["H1d-ui-primary"] }} />
-                </ListItemIcon>
-                <Switch color="primary" />
-              </ListItemButton>
-            </ListItem>
           </List>
         </Box>
+      </Box>
+      {/* less than Laptop */}
+      <Box position="fixed">
+        <Stack
+          bgcolor="black"
+          paddingTop={2}
+          gap={1}
+          // justifyContent={"center"}
+          width={"10%"}
+          sx={{
+            marginLeft: 0,
+            display: { xs: "flex", md: "none" },
+            color: COLOR["H1d-font-primary"],
+          }}
+        >
+          {SIDE_NAV_LINKS.map((link) => {
+            const Icon = link.icon;
+            return (
+              // <ListItem key={link.title}>
+              <ListItemButton
+                onClick={() => {
+                  router.push(link.href);
+                }}
+                key={link.title}
+              >
+                <ListItemIcon>
+                  <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+                </ListItemIcon>
+              </ListItemButton>
+              // </ListItem>
+            );
+          })}
+        </Stack>
       </Box>
     </>
   );

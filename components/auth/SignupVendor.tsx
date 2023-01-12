@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
 import React from "react";
-import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
+import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
@@ -39,10 +39,12 @@ export const SignupVendor = () => {
             <TextFieldCustom inLabel="Email" outLabel="Email" />
             <TextFieldCustom inLabel="Password" outLabel="Password" />
             <TextFieldCustom inLabel="Repeat Password" outLabel="Password" />
-            <PrimaryButton
+            <LinkButton
+              variant="outlined"
               sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
-              text="Sign Up"
-            />
+            >
+              Sign Up
+            </LinkButton>
           </Box>
           <Divider color="grey" />
           <Box
@@ -55,14 +57,18 @@ export const SignupVendor = () => {
             <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
               Already have an account ?
               <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
-                <Link href={"/signin/vender"}>Sign In</Link>
+                <Link href={"/signin/vendor"}>Sign In</Link>
               </Button>
             </Typography>
-            <PrimaryButton
-              onClick={() => router.push("/signup/vendor")}
-              text="Sign up as vendor"
+            <LinkButton
+              variant="outlined"
+              onClick={() => {
+                router.push("/signup");
+              }}
               endIcon={<ChevronRightOutlined />}
-            />
+            >
+              Sign up as user
+            </LinkButton>
           </Box>
         </Box>
       </Stack>

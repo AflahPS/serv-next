@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import React from "react";
-import { AuthHeading, PrimaryButton, TextFieldCustom } from "../../ui";
+import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
 import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
@@ -46,9 +46,18 @@ export const SigninVendor = () => {
             gap={2}
             width={"100%"}
           >
-            <TextFieldCustom inLabel="Email" outLabel="Email" />
-            <TextFieldCustom inLabel="Password" outLabel="Password" />
-            <Stack direction={"row"} alignItems={"center"}>
+            <TextFieldCustom inLabel="Email" type="email" outLabel="Email" />
+            <TextFieldCustom
+              inLabel="Password"
+              type="password"
+              outLabel="Password"
+            />
+            <Stack
+              width={"90%"}
+              direction={"row"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+            >
               <FormGroup>
                 <FormControlLabel
                   control={
@@ -58,7 +67,7 @@ export const SigninVendor = () => {
                   label="Remember me."
                 />
               </FormGroup>
-              <PrimaryButton text="Sign In" />
+              <LinkButton variant="outlined">Sign In</LinkButton>
             </Stack>
           </Box>
           <Divider color="grey" />
@@ -75,11 +84,13 @@ export const SigninVendor = () => {
                 <Link href={"/signup/vendor"}>Sign Up</Link>
               </Button>
             </Typography>
-            <PrimaryButton
-              onClick={() => router.push("/signin/vendor")}
-              text="Sign in as vendor"
+            <LinkButton
+              variant="outlined"
+              onClick={() => router.push("/signin")}
               endIcon={<ChevronRightOutlined />}
-            />
+            >
+              Sign in as user
+            </LinkButton>
           </Box>
         </Box>
       </Stack>
