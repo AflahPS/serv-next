@@ -1,14 +1,50 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { Stack } from "@mui/system";
-import React from "react";
-import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
-import { COLOR } from "../../constants";
-import { ChevronRightOutlined } from "@mui/icons-material";
+import React, { ChangeEvent, useRef, useState } from "react";
+import {
+  AuthHeading,
+  LinkButton,
+  TextFieldCustom2,
+  LabelCustom,
+} from "../../ui";
+import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { geoCords, geoLocator } from "../../utils";
 
 export const SignupVendor = () => {
-  const router = useRouter();
+  const aboutRef = useRef<any>();
+  const serviceRef = useRef();
+
+  const [place, setPlace] = useState("");
+  const [location, setLocation] = useState({ lat: 0, lon: 0 });
+
+  const getLocation = async () => {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      setLocation({
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+      });
+    });
+    const loc: any = await geoLocator(location.lat, location.lon);
+    setPlace(loc);
+    console.log(loc);
+  };
+
+  const gatherPLace = async () => {
+    const cords = await geoCords(place);
+    if (cords) setLocation({ lat: cords[0], lon: cords[1] });
+  };
+
+  const handleVerifyButton = (event: any) => {};
+  const handleMobileVerification = (event: any) => {};
 
   return (
     <Box
@@ -35,10 +71,67 @@ export const SignupVendor = () => {
             gap={1}
             width={"100%"}
           >
-            <TextFieldCustom inLabel="Full Name" outLabel="Name" />
-            <TextFieldCustom inLabel="Email" outLabel="Email" />
-            <TextFieldCustom inLabel="Password" outLabel="Password" />
-            <TextFieldCustom inLabel="Repeat Password" outLabel="Password" />
+            <LabelCustom variant="h6">Service Category/Profession</LabelCustom>
+            <TextFieldCustom2
+              inputRef={serviceRef}
+              size="small"
+              fullWidth
+              select
+            >
+              <MenuItem value={"painter"}>Painter</MenuItem>
+              <MenuItem value={"driver"}>Driver</MenuItem>
+              <MenuItem value={"masonry"}>Masonry</MenuItem>
+            </TextFieldCustom2>
+
+            <LabelCustom variant="h6">Location</LabelCustom>
+            <TextFieldCustom2
+              size="small"
+              fullWidth
+              onChange={(e: any) => {
+                setPlace(e?.target?.value);
+              }}
+              onBlur={gatherPLace}
+              value={place}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={getLocation}>
+                      <LocationOnOutlined />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <LabelCustom variant="h6">Phone</LabelCustom>
+            <TextFieldCustom2
+              size="small"
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Box borderRadius={1} marginY={0} textAlign={"center"}>
+                      <Typography variant="body1">+91</Typography>
+                    </Box>
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button onClick={handleVerifyButton}>Verify</Button>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <LabelCustom variant="h6">About Me</LabelCustom>
+            <TextFieldCustom2
+              inputRef={aboutRef}
+              size="small"
+              fullWidth
+              multiline
+              rows={2}
+            />
+
             <LinkButton
               variant="outlined"
               sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
@@ -46,28 +139,18 @@ export const SignupVendor = () => {
               Sign Up
             </LinkButton>
           </Box>
+
           <Divider color="grey" />
           <Box
             flex={1}
-            display="flex"
+            marginY={1}
+            display={"flex"}
             flexDirection={"column"}
-            justifyContent="space-around"
+            justifyContent={"center"}
             width={"100%"}
           >
-            <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
-              Already have an account ?
-              <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
-                <Link href={"/signin/vendor"}>Sign In</Link>
-              </Button>
-            </Typography>
-            <LinkButton
-              variant="outlined"
-              onClick={() => {
-                router.push("/signup");
-              }}
-              endIcon={<ChevronRightOutlined />}
-            >
-              Sign up as user
+            <LinkButton variant="outlined" endIcon={<ChevronRightOutlined />}>
+              <Link href={"/"}>Continue as user</Link>
             </LinkButton>
           </Box>
         </Box>

@@ -36,6 +36,8 @@ const SearchContainer = styled("div")(({ theme }) => ({
   backgroundColor: COLOR["H1d-ui-secondary"],
   color: COLOR["H1d-font-primary"],
   padding: "0 10px",
+  display: "flex",
+  alignItems: "center",
   borderRadius: theme.shape.borderRadius,
   width: "40%",
   height: "36px",

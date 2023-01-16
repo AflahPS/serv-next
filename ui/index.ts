@@ -4,3 +4,6 @@ export * from "./ChatLi";
 export * from "./AuthLogo";
 export * from "./AuthHeading";
 export * from "./LinkButton";
+export * from "./SimpleCard";
+export * from "./TextFieldCustom2";
+export * from "./LabelCustom";

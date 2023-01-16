@@ -9,7 +9,6 @@ import { Stack } from "@mui/system";
 import React, { useRef } from "react";
 import { AuthHeading, LinkButton, TextFieldCustom } from "../../ui";
 import { COLOR } from "../../constants";
-import { ChevronRightOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { nest } from "../../utils";
@@ -105,7 +104,7 @@ export const Signup = () => {
             <LinkButton
               onClick={handleSignup}
               variant="outlined"
-              sx={{ marginLeft: "auto", marginRight: "12px", marginY: "12px" }}
+              sx={{ marginLeft: "auto", marginRight: "12px", marginY: "16px" }}
             >
               Sign Up
             </LinkButton>
@@ -124,15 +123,6 @@ export const Signup = () => {
                 <Link href={"/signin"}>Sign In</Link>
               </Button>
             </Typography>
-            <LinkButton
-              variant="outlined"
-              onClick={() => {
-                router.push("/signup/vendor");
-              }}
-              endIcon={<ChevronRightOutlined />}
-            >
-              Sign up as vendor
-            </LinkButton>
           </Box>
         </Box>
       </Stack>

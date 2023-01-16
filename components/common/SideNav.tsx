@@ -10,6 +10,7 @@ import React from "react";
 import { COLOR, SIDE_NAV_LINKS } from "../../constants";
 import { Stack } from "@mui/system";
 import { NextRouter, useRouter } from "next/router";
+import Link from "next/link";
 
 export const SideNav = () => {
   const router: NextRouter = useRouter();
@@ -66,15 +67,12 @@ export const SideNav = () => {
             const Icon = link.icon;
             return (
               // <ListItem key={link.title}>
-              <ListItemButton
-                onClick={() => {
-                  router.push(link.href);
-                }}
-                key={link.title}
-              >
-                <ListItemIcon>
-                  <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
-                </ListItemIcon>
+              <ListItemButton key={link.title}>
+                <Link href={link.href}>
+                  <ListItemIcon>
+                    <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+                  </ListItemIcon>
+                </Link>
               </ListItemButton>
               // </ListItem>
             );

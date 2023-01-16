@@ -1,8 +1,8 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { Stack } from "@mui/system";
-import { AuthLogo } from "../../ui";
-import { SignupVendor } from "../../components/auth";
+import { AuthLogo } from "../../../ui";
+import { SignupVendor } from "../../../components/auth";
 
 const index = () => {
   return (
