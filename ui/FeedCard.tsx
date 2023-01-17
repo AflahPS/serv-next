@@ -18,9 +18,12 @@ export const FeedCard: React.FC<{ customSx?: {} }> = (props) => {
     <>
       <Card
         sx={{
+          backgroundColor: COLOR["H1d-ui-bg"],
           maxWidth: "80%",
           marginX: "auto",
           marginBottom: "16px",
+          boxShadow: 8,
+          borderRadius: 3,
           ...props.customSx,
         }}
       >

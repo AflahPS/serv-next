@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { FeedCard } from "../../ui";
+import { CreatePost, FeedCard } from "../../ui";
 
 export const Feed = () => {
   return (
     <>
+      <CreatePost />
       <FeedCard />
       <FeedCard />
       <FeedCard />

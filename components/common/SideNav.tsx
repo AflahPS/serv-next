@@ -1,10 +1,12 @@
 import {
   Box,
+  Fade,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import React from "react";
 import { COLOR, SIDE_NAV_LINKS } from "../../constants";
@@ -20,14 +22,23 @@ export const SideNav = () => {
       {/* Laptop or more */}
       <Box
         flex={1}
-        bgcolor="black"
-        p={2}
         sx={{
           display: { xs: "none", md: "block" },
-          color: COLOR["H1d-font-primary"],
         }}
       >
-        <Box position="fixed">
+        <Box
+          p={2}
+          position="fixed"
+          bgcolor={"black"}
+          height={"100%"}
+          flex={1}
+          sx={{
+            display: { xs: "none", md: "block" },
+            color: COLOR["H1d-font-primary"],
+            boxShadow: 8,
+            borderRadius: 3,
+          }}
+        >
           <List>
             {SIDE_NAV_LINKS.map((link) => {
               const Icon = link.icon;
@@ -50,29 +61,40 @@ export const SideNav = () => {
         </Box>
       </Box>
       {/* less than Laptop */}
+
       <Box position="fixed">
         <Stack
+          display={"flex"}
           bgcolor="black"
-          paddingTop={2}
+          paddingY={2}
+          width={"100%"}
           gap={1}
-          // justifyContent={"center"}
-          width={"10%"}
           sx={{
             marginLeft: 0,
             display: { xs: "flex", md: "none" },
             color: COLOR["H1d-font-primary"],
+            boxShadow: 8,
+            borderRadius: 3,
           }}
         >
           {SIDE_NAV_LINKS.map((link) => {
             const Icon = link.icon;
             return (
               // <ListItem key={link.title}>
-              <ListItemButton key={link.title}>
-                <Link href={link.href}>
-                  <ListItemIcon>
-                    <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+              <ListItemButton sx={{ paddingX: 1 }} key={link.title}>
+                <Tooltip
+                  title={link.title}
+                  placement="right"
+                  disableFocusListener
+                  TransitionComponent={Fade}
+                  TransitionProps={{ timeout: 600 }}
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    <Link href={link.href}>
+                      <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+                    </Link>
                   </ListItemIcon>
-                </Link>
+                </Tooltip>
               </ListItemButton>
               // </ListItem>
             );

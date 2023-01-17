@@ -7,3 +7,4 @@ export * from "./LinkButton";
 export * from "./SimpleCard";
 export * from "./TextFieldCustom2";
 export * from "./LabelCustom";
+export * from "./CreatePost";

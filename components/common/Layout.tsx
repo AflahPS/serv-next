@@ -15,7 +15,7 @@ export const Layout = (props: PropsWithChildren) => {
         marginY={1}
       >
         <SideNav />
-        <Box bgcolor={"black"} flex={3.5} paddingY={2} marginX={1}>
+        <Box flex={3.5} paddingY={2} marginX={1}>
           {props.children}
         </Box>
         <ChatRight />

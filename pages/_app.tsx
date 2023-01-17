@@ -5,14 +5,23 @@ import store from "../store";
 import { ThemeProvider, createTheme } from "@mui/material";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const darkTheme = createTheme({
+  const { palette } = createTheme();
+  const { augmentColor } = palette;
+  const createColor = (mainColor: string) =>
+    augmentColor({ color: { main: mainColor } });
+  const theme = createTheme({
     palette: {
       mode: "dark",
+      uiPrimary: createColor("#50B5FF"),
+      uiSecondary: createColor("#152027"),
+      fontPrimary: createColor("#C7C7C7"),
+      steelBlue: createColor("#5C76B7"),
+      violet: createColor("#BC00A3"),
     },
   });
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <Provider store={store}>
         <Component {...pageProps} />
       </Provider>

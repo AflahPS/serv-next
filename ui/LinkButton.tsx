@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { COLOR } from "../constants";
 
 export const LinkButton = styled(Button)({
-  backgroundColor: COLOR["H1d-ui-primary"],
   color: COLOR["H1d-font-primary"],
+  padding: "6px 16px",
   // variant: "outlined",
 });
