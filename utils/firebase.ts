@@ -1,9 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import "firebase/compat/auth";
+import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API,
   authDomain: "hireone-374909.firebaseapp.com",
@@ -13,5 +11,5 @@ const firebaseConfig = {
   appId: "1:50500538141:web:f42800c3c0e6082cb7dbf4",
 };
 
-// Initialize Firebase
-export const firebase = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+export const fbPhoneAuth = getAuth(app);

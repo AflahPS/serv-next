@@ -26,6 +26,7 @@ export async function geoCords(place: string) {
       method: "GET",
     });
     const loc = res?.data?.features;
+    if (!loc || loc.length === 0) return null;
     const cords: number[] = loc[0]?.geometry?.coordinates;
     return cords;
   } catch (err: any) {
