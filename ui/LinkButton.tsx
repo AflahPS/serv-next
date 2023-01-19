@@ -4,6 +4,8 @@ import { COLOR } from "../constants";
 
 export const LinkButton = styled(Button)({
   color: COLOR["H1d-font-primary"],
-  padding: "6px 16px",
+  // textAlign: "center",
+  // alignItems: "center",
+  // padding: " 16px",
   // variant: "outlined",
 });

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   ExitToAppOutlined,
   HomeOutlined,
+  LoginOutlined,
   Mail,
   Notifications,
   PersonAddAlt1Outlined,
@@ -18,12 +19,14 @@ import {
   Menu,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
   styled,
 } from "@mui/material";
 import { COLOR } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
+import Link from "next/link";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -79,29 +82,47 @@ export const NavBar = () => {
     <AppBar position="sticky">
       <StyledToolbar>
         <Typography variant="h6" sx={{ display: { xs: "none", md: "block" } }}>
-          HireOne
+          <Link href={"/"}>HireOne</Link>
         </Typography>
         <Tag sx={{ display: { xs: "block", md: "none" } }} />
         <SearchContainer>
           <InputBase sx={{ color: "inherit" }} placeholder="search..." />
         </SearchContainer>
         <IconsContainer>
-          <HomeOutlined />
-          <PersonAddAlt1Outlined />
-          <Badge badgeContent={4} color="error">
-            <Notifications />
-          </Badge>
-          <Badge badgeContent={4} color="error">
-            <Mail />
-          </Badge>
+          <Tooltip title="Home" placement="bottom">
+            <HomeOutlined />
+          </Tooltip>
+          <Tooltip title="Requests" placement="bottom">
+            <PersonAddAlt1Outlined />
+          </Tooltip>
+          <Tooltip title="Notifications" placement="bottom">
+            <Badge badgeContent={4} color="error">
+              <Notifications />
+            </Badge>
+          </Tooltip>
+          <Tooltip title="Messages" placement="bottom">
+            <Badge badgeContent={4} color="error">
+              <Mail />
+            </Badge>
+          </Tooltip>
           {isAuth && (
-            <IconButton
-              onClick={handleSignout}
-              sx={{ color: COLOR["H1d-ui-primary"] }}
-            >
-              <ExitToAppOutlined />
-            </IconButton>
+            <Tooltip title="Sign Out" placement="bottom">
+              <IconButton
+                onClick={handleSignout}
+                sx={{ color: COLOR["H1d-ui-primary"] }}
+              >
+                <ExitToAppOutlined />
+              </IconButton>
+            </Tooltip>
           )}
+          {!isAuth && (
+            <Tooltip title="Sign In" placement="bottom">
+              <Link href={"/auth/signin"}>
+                <LoginOutlined />
+              </Link>
+            </Tooltip>
+          )}
+
           <Avatar
             sx={{ width: "32px", height: "32px" }}
             src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"

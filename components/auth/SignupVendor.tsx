@@ -1,10 +1,12 @@
 import {
+  Alert,
   Box,
   Button,
   Divider,
   IconButton,
   InputAdornment,
   MenuItem,
+  Snackbar,
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
@@ -19,6 +21,8 @@ import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { fbPhoneAuth, geoCords, geoLocator, nest } from "../../utils";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
 export const SignupVendor = () => {
   const serviceRef = useRef<HTMLInputElement>();
@@ -39,6 +43,23 @@ export const SignupVendor = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
   const [location, setLocation] = useState({ lat: 0, lon: 0 });
+
+  const [errMessage, setErrMessage] = useState("");
+
+  const token = useSelector((state: any) => state.jwt.token);
+  const router = useRouter();
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   // Check if the entered number is valid
   const validatePhone = (num: string) => {
@@ -99,7 +120,9 @@ export const SignupVendor = () => {
         });
     });
     const loc: any = await geoLocator(location.lat, location.lon);
+    if (!loc) return setLocationVerified(false);
     setPlace(loc);
+    setLocationVerified(true);
   };
 
   // Get location if user typed a location
@@ -177,13 +200,32 @@ export const SignupVendor = () => {
     const verified = verifyBeforeSignup();
     if (!verified) return;
     try {
+      console.log(token);
+
       const res = await nest({
         url: "/auth/signup/vendor",
         method: "POST",
         data: verified,
+        headers: {
+          authorization: "Bearer " + token,
+        },
       });
-    } catch (err: any) {
-      console.log(err.message);
+      if (res.data?.status === "success") {
+        setOpen(true);
+        router.push("/");
+      }
+    } catch (error: any) {
+      if (error?.response) {
+        let errorResponeMessage = "";
+        if (Array.isArray(error?.response?.data?.message)) {
+          errorResponeMessage = error?.response?.data?.message[0];
+        } else {
+          errorResponeMessage = error?.response?.data?.message;
+        }
+        setErrMessage(errorResponeMessage);
+        return console.log({ errMessage: error?.response?.data?.message });
+      }
+      setErrMessage("Something went wrong ! Please try again.");
     }
   };
 
@@ -346,7 +388,14 @@ export const SignupVendor = () => {
                 Sign Up
               </LinkButton>
             </Box>
-
+            <Typography
+              color={"red"}
+              marginBottom={2}
+              textAlign={"center"}
+              variant="body2"
+            >
+              {errMessage}
+            </Typography>
             <Divider color="grey" />
             <Box
               flex={1}
@@ -362,6 +411,15 @@ export const SignupVendor = () => {
             </Box>
           </Box>
         </Stack>
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+          <Alert
+            onClose={handleClose}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            Successfully signed up !
+          </Alert>
+        </Snackbar>
       </Box>
       {/* -------Recaptcha Div-------- */}
       <div id="verify-otp"></div>
