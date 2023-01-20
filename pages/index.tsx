@@ -17,10 +17,3 @@ export default function Home() {
     </Layout>
   );
 }
-
-export async function getServerSideProps({ req }) {
-  console.log(req?.cookies);
-  return {
-    props: {},
-  };
-}
