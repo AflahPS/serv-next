@@ -6,7 +6,7 @@ import { SideNav } from "./SideNav";
 
 export const Layout = (props: PropsWithChildren) => {
   return (
-    <Box margin={0}>
+    <>
       <NavBar />
       <Stack
         minHeight={"100vh"}
@@ -20,6 +20,6 @@ export const Layout = (props: PropsWithChildren) => {
         </Box>
         <ChatRight />
       </Stack>
-    </Box>
+    </>
   );
 };

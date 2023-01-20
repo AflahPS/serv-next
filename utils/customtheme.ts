@@ -5,7 +5,7 @@ declare module "@mui/material/styles" {
     uiPrimary: PaletteColorOptions;
     uiSecondary: PaletteColorOptions;
     fontPrimary: PaletteColorOptions;
-    steelBlue: PaletteColorOptions;
+    uiBgLight: PaletteColorOptions;
     violet: PaletteColorOptions;
   }
   interface Palette extends CustomPalette {}
@@ -17,7 +17,7 @@ declare module "@mui/material/Button" {
     uiPrimary: true;
     uiSecondary: true;
     fontPrimary: true;
-    steelBlue: true;
+    uiBgLight: true;
     violet: true;
   }
 }

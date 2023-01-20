@@ -14,8 +14,8 @@ export default function App({ Component, pageProps }: AppProps) {
       mode: "dark",
       uiPrimary: createColor("#50B5FF"),
       uiSecondary: createColor("#152027"),
+      uiBgLight: createColor("#243642"),
       fontPrimary: createColor("#C7C7C7"),
-      steelBlue: createColor("#5C76B7"),
       violet: createColor("#BC00A3"),
     },
   });

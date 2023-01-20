@@ -4,6 +4,8 @@ import {
   HomeOutlined,
   LoginOutlined,
   Mail,
+  MenuOpenOutlined,
+  MenuOutlined,
   Notifications,
   PersonAddAlt1Outlined,
   Tag,
@@ -27,12 +29,14 @@ import { COLOR } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
+import { roleActions } from "../../store/role.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
   justifyContent: "space-between",
   backgroundColor: "black",
   color: COLOR["H1d-ui-primary"],
+  width: "100%",
 });
 
 const SearchContainer = styled("div")(({ theme }) => ({
@@ -77,6 +81,7 @@ export const NavBar = () => {
   const handleSignout = () => {
     setOpenAnchor(false);
     dispatch(authActions.logout());
+    dispatch(roleActions.guest());
   };
   return (
     <AppBar position="sticky">
@@ -89,31 +94,38 @@ export const NavBar = () => {
           <InputBase sx={{ color: "inherit" }} placeholder="search..." />
         </SearchContainer>
         <IconsContainer>
-          <Tooltip title="Home" placement="bottom">
-            <HomeOutlined />
-          </Tooltip>
-          <Tooltip title="Requests" placement="bottom">
-            <PersonAddAlt1Outlined />
-          </Tooltip>
-          <Tooltip title="Notifications" placement="bottom">
-            <Badge badgeContent={4} color="error">
-              <Notifications />
-            </Badge>
-          </Tooltip>
-          <Tooltip title="Messages" placement="bottom">
-            <Badge badgeContent={4} color="error">
-              <Mail />
-            </Badge>
-          </Tooltip>
           {isAuth && (
-            <Tooltip title="Sign Out" placement="bottom">
-              <IconButton
-                onClick={handleSignout}
-                sx={{ color: COLOR["H1d-ui-primary"] }}
-              >
-                <ExitToAppOutlined />
-              </IconButton>
-            </Tooltip>
+            <>
+              <Tooltip title="Home" placement="bottom">
+                <HomeOutlined />
+              </Tooltip>
+              <Tooltip title="Requests" placement="bottom">
+                <PersonAddAlt1Outlined />
+              </Tooltip>
+              <Tooltip title="Notifications" placement="bottom">
+                <Badge badgeContent={4} color="error">
+                  <Notifications />
+                </Badge>
+              </Tooltip>
+              <Tooltip title="Messages" placement="bottom">
+                <Badge badgeContent={4} color="error">
+                  <Mail />
+                </Badge>
+              </Tooltip>
+              <Tooltip title="Sign Out" placement="bottom">
+                <IconButton
+                  onClick={handleSignout}
+                  sx={{ color: COLOR["H1d-ui-primary"] }}
+                >
+                  <ExitToAppOutlined />
+                </IconButton>
+              </Tooltip>
+
+              <Avatar
+                sx={{ width: "32px", height: "32px" }}
+                // src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              />
+            </>
           )}
           {!isAuth && (
             <Tooltip title="Sign In" placement="bottom">
@@ -122,19 +134,26 @@ export const NavBar = () => {
               </Link>
             </Tooltip>
           )}
-
-          <Avatar
-            sx={{ width: "32px", height: "32px" }}
-            src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          />
         </IconsContainer>
 
-        <UserBox onClick={(e) => setOpenAnchor(true)}>
-          <Avatar
-            sx={{ width: "32px", height: "32px" }}
-            src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          />
-        </UserBox>
+        {!isAuth && (
+          <UserBox>
+            <Tooltip title="Sign In" placement="bottom">
+              <Link href={"/auth/signin"}>
+                <LoginOutlined />
+              </Link>
+            </Tooltip>
+          </UserBox>
+        )}
+
+        {isAuth && (
+          <UserBox onClick={(e) => setOpenAnchor(true)}>
+            <Avatar
+              sx={{ width: "32px", height: "32px" }}
+              // src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            />
+          </UserBox>
+        )}
       </StyledToolbar>
       <Menu
         id="demo-positioned-menu"
@@ -179,15 +198,14 @@ export const NavBar = () => {
           <Notifications />
           <Typography variant="h6">Notifications</Typography>
         </MenuItem>
-        {isAuth && (
-          <MenuItem
-            onClick={handleSignout}
-            sx={{ display: "flex", justifyContent: "space-between" }}
-          >
-            <ExitToAppOutlined />
-            <Typography variant="h6">Sign Out</Typography>
-          </MenuItem>
-        )}
+
+        <MenuItem
+          onClick={handleSignout}
+          sx={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <ExitToAppOutlined />
+          <Typography variant="h6">Sign Out</Typography>
+        </MenuItem>
       </Menu>
     </AppBar>
   );
