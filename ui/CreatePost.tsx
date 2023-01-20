@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
+  ContentPaste,
   DeleteOutlineOutlined,
   PermMediaOutlined,
+  PhotoCamera,
   SendOutlined,
 } from "@mui/icons-material";
 import {
   Autocomplete,
   Avatar,
+  Button,
   Card,
   CardHeader,
   Divider,
@@ -14,16 +17,54 @@ import {
   ImageList,
   ImageListItem,
   ImageListItemBar,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   TextField,
+  TextFieldProps,
+  Typography,
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
-import { COLOR, SIDE_NAV_LINKS } from "../constants";
+import { COLOR, PROJECTS, SIDE_NAV_LINKS, USERS } from "../constants";
 import { TextFieldCustom2 } from "./TextFieldCustom2";
 import { LinkButton } from "./LinkButton";
 import Image from "next/image";
 
 export const CreatePost = () => {
+  const [tags, setTags] = useState([]);
+  const [medias, setMedias] = useState([]);
+  const [errMessage, setErrMessage] = useState("");
+
+  const captionRef = useRef<TextFieldProps>();
+  const projectRef = useRef<TextFieldProps>();
+
+  const handleMediaSelected = (event: React.FormEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
+    const files = target.files;
+    console.log(files);
+    if (files?.length && files?.length > 4) {
+      setErrMessage("Please select a maximum of 4 files !");
+      return;
+    }
+    // const uploadedFiles = upload(files);
+    // setMedias(uploadedFiles)
+  };
+
+  const verifyData = () => {
+    const captionRefInput = captionRef.current?.value;
+    const projectInput = projectRef.current?.value;
+
+    console.log({
+      captionRefInput,
+      projectInput,
+      tags,
+    });
+  };
+
+  const handlePost = async () => {
+    verifyData();
+  };
+
   return (
     <>
       <Card
@@ -57,6 +98,7 @@ export const CreatePost = () => {
           </Box>
           <Box flex={6}>
             <TextFieldCustom2
+              inputRef={captionRef}
               multiline
               maxRows={3}
               placeholder="Write something here..."
@@ -101,10 +143,13 @@ export const CreatePost = () => {
         >
           <Autocomplete
             multiple
+            onChange={(event: any, value: any) => {
+              setTags(value);
+            }}
             limitTags={2}
             id="multiple-limit-tags"
-            options={SIDE_NAV_LINKS}
-            getOptionLabel={(option) => option.title}
+            options={USERS}
+            getOptionLabel={(option) => option.name}
             defaultValue={[]}
             renderInput={(params) => (
               <TextFieldCustom2
@@ -125,24 +170,36 @@ export const CreatePost = () => {
             justifyContent={"space-around"}
             flex={1}
           >
-            <LinkButton
+            <Button
               className="bg-H1d-ui-secondary "
               color="uiBgLight"
               variant="contained"
+              component="label"
               startIcon={<PermMediaOutlined />}
+              sx={{ color: COLOR["H1d-font-primary"] }}
             >
               Media
-            </LinkButton>
+              <input
+                accept="image/*"
+                hidden
+                multiple
+                type="file"
+                onChange={handleMediaSelected}
+              />
+            </Button>
 
             <TextFieldCustom2
+              inputRef={projectRef}
               select
               label="Project"
               size="small"
               sx={{ minWidth: 98 }}
             >
-              <MenuItem value={"painter"}>Painter</MenuItem>
-              <MenuItem value={"driver"}>Driver</MenuItem>
-              <MenuItem value={"masonry"}>Masonry</MenuItem>
+              {PROJECTS.map((project) => (
+                <MenuItem key={project._id} value={project._id}>
+                  {project.title}
+                </MenuItem>
+              ))}
             </TextFieldCustom2>
           </Stack>
           <Box
@@ -158,11 +215,20 @@ export const CreatePost = () => {
               color="uiBgLight"
               className="bg-H1d-ui-secondary"
               endIcon={<SendOutlined />}
+              onClick={handlePost}
             >
               Post
             </LinkButton>
           </Box>
         </Stack>
+        <Typography
+          color={"red"}
+          marginTop={2}
+          textAlign={"center"}
+          variant="body2"
+        >
+          {errMessage}
+        </Typography>
       </Card>
     </>
   );
