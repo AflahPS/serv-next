@@ -6,7 +6,7 @@ export const Feed = () => {
   const role = useSelector((state: any) => state?.role?.currentUser);
   return (
     <>
-      {role === "guest" && <CreatePost />}
+      {role === "vendor" && <CreatePost />}
       <FeedCard />
       <FeedCard />
       <FeedCard />

@@ -1,73 +1,179 @@
 import React, { useRef, useState } from "react";
 import {
-  ContentPaste,
   DeleteOutlineOutlined,
   PermMediaOutlined,
-  PhotoCamera,
   SendOutlined,
 } from "@mui/icons-material";
 import {
+  Alert,
   Autocomplete,
   Avatar,
   Button,
   Card,
   CardHeader,
+  CircularProgress,
   Divider,
   IconButton,
   ImageList,
   ImageListItem,
   ImageListItemBar,
-  ListItemIcon,
-  ListItemText,
   MenuItem,
-  TextField,
+  Snackbar,
   TextFieldProps,
   Typography,
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
-import { COLOR, PROJECTS, SIDE_NAV_LINKS, USERS } from "../constants";
+import { COLOR, PROJECTS, USERS } from "../constants";
 import { TextFieldCustom2 } from "./TextFieldCustom2";
 import { LinkButton } from "./LinkButton";
 import Image from "next/image";
+import { nest, uploadImages } from "../utils";
+import { useSelector } from "react-redux";
+
+// const uploadImages = async (images: File[]) => {
+//   const uploadedUrls = [];
+//   for (let i = 0; i < images.length; i++) {
+//     const uploaded = await uploadImageToS3(images[i]);
+//     uploadedUrls.push(uploaded);
+//   }
+//   return uploadedUrls;
+// };
 
 export const CreatePost = () => {
   const [tags, setTags] = useState([]);
-  const [medias, setMedias] = useState([]);
+  const [medias, setMedias] = useState<File[]>([]);
+  const [previewUrl, setPreviewUrl] = useState<string[]>([]);
   const [errMessage, setErrMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const captionRef = useRef<TextFieldProps>();
-  const projectRef = useRef<TextFieldProps>();
+  const [caption, setCaption] = useState("");
+  const [project, setProject] = useState("");
 
-  const handleMediaSelected = (event: React.FormEvent<HTMLInputElement>) => {
+  const token = useSelector((state: any) => state.jwt?.token);
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
+  // const projectRef = useRef<TextFieldProps>();
+
+  const handleMediaSelected = async (
+    event: React.FormEvent<HTMLInputElement>
+  ) => {
     const target = event.target as HTMLInputElement;
-    const files = target.files;
-    console.log(files);
-    if (files?.length && files?.length > 4) {
+    const filesInput = target.files;
+
+    // If more than 4 files or no files
+    if (medias.length >= 4) {
+      return setErrMessage("Maximum of 4 images are allowed !");
+    }
+    if (filesInput?.length && filesInput?.length > 4) {
       setErrMessage("Please select a maximum of 4 files !");
       return;
     }
-    // const uploadedFiles = upload(files);
-    // setMedias(uploadedFiles)
+    if (!filesInput?.length) return;
+
+    // Pushing files to medias array
+    for (let i = 0; i < filesInput.length; i++) {
+      if (!filesInput[i].type.startsWith("image")) {
+        setErrMessage("We support images only for now !");
+      }
+
+      const tempUrl = URL.createObjectURL(filesInput[i]);
+      setPreviewUrl((cur) => [tempUrl, ...cur]);
+      setMedias((cur) => [filesInput[i], ...cur]);
+    }
   };
 
-  const verifyData = () => {
-    const captionRefInput = captionRef.current?.value;
-    const projectInput = projectRef.current?.value;
+  const handleRemoveSelected = (index: number) => {
+    setMedias((cur) => {
+      const latest = [...cur];
+      latest.splice(index, 1);
+      return latest;
+    });
 
-    console.log({
-      captionRefInput,
-      projectInput,
-      tags,
+    setPreviewUrl((cur) => {
+      const latest = [...cur];
+      latest.splice(index, 1);
+      return latest;
     });
   };
 
+  const verifyData = async () => {
+    try {
+      setLoading(true);
+      const uploadedUrls = await uploadImages(medias);
+      const tagged = tags.map((tag: any) => tag._id);
+
+      const captionInput = caption;
+      if (captionInput.length < 2) {
+        setErrMessage("Please write something about this post !");
+        return false;
+      }
+
+      if (!project) {
+        setErrMessage("Please select the project related to this post !");
+        return false;
+      }
+
+      return {
+        mediaType: "image",
+        media: uploadedUrls,
+        caption: captionInput,
+        tagged,
+        project,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handlePost = async () => {
-    verifyData();
+    try {
+      const data = await verifyData();
+      if (!data) {
+        setLoading(false);
+        return;
+      }
+      const res = await nest({
+        method: "POST",
+        url: "post",
+        data,
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (res.data?.status === "success") {
+        setLoading(false);
+        setOpen(true);
+        setCaption("");
+        setProject("");
+        setTags([]);
+        setMedias([]);
+        setPreviewUrl([]);
+        setErrMessage("");
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setErrMessage(err.message || "Something went wrong !");
+      console.log(err?.message);
+    }
   };
 
   return (
     <>
       <Card
+        onClick={() => {
+          setErrMessage("");
+        }}
         sx={{
           boxShadow: 8,
           borderRadius: 3,
@@ -98,7 +204,10 @@ export const CreatePost = () => {
           </Box>
           <Box flex={6}>
             <TextFieldCustom2
-              inputRef={captionRef}
+              value={caption}
+              onChange={(e) => {
+                setCaption(e.target.value);
+              }}
               multiline
               maxRows={3}
               placeholder="Write something here..."
@@ -107,30 +216,40 @@ export const CreatePost = () => {
           </Box>
         </Stack>
         <Stack>
-          {/* <ImageList
-            sx={{ minHeight: "162px", padding: 2 }}
-            cols={4}
-            rowHeight={125}
-          >
-            <ImageListItem>
-              <Image
-                src={`https://images.pexels.com/photos/14911739/pexels-photo-14911739.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1`}
-                alt=""
-                loading="lazy"
-                width={90}
-                height={90}
-                className="my-auto"
-              />
-              <ImageListItemBar
-                sx={{ backgroundColor: "transparent" }}
-                actionIcon={
-                  <IconButton sx={{ color: "red" }}>
-                    <DeleteOutlineOutlined />
-                  </IconButton>
-                }
-              />
-            </ImageListItem>
-          </ImageList> */}
+          {previewUrl.length > 0 && (
+            <ImageList
+              sx={{ minHeight: "162px", padding: 2 }}
+              cols={4}
+              rowHeight={125}
+            >
+              {previewUrl.map((preview, ind) => (
+                <ImageListItem key={preview}>
+                  <Image
+                    src={preview}
+                    alt=""
+                    // loading="lazy"
+
+                    width={90}
+                    height={90}
+                    className="my-auto"
+                  />
+                  <ImageListItemBar
+                    sx={{ backgroundColor: "transparent" }}
+                    actionIcon={
+                      <IconButton
+                        onClick={() => {
+                          handleRemoveSelected(ind);
+                        }}
+                        sx={{ color: "red" }}
+                      >
+                        <DeleteOutlineOutlined />
+                      </IconButton>
+                    }
+                  />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          )}
         </Stack>
         <Divider variant="middle" sx={{ color: COLOR["H1d-font-primary"] }} />
         <Box
@@ -146,6 +265,7 @@ export const CreatePost = () => {
             onChange={(event: any, value: any) => {
               setTags(value);
             }}
+            value={tags}
             limitTags={2}
             id="multiple-limit-tags"
             options={USERS}
@@ -189,8 +309,12 @@ export const CreatePost = () => {
             </Button>
 
             <TextFieldCustom2
-              inputRef={projectRef}
+              value={project}
+              onChange={(e) => {
+                setProject(e.target.value);
+              }}
               select
+              defaultValue={""}
               label="Project"
               size="small"
               sx={{ minWidth: 98 }}
@@ -214,7 +338,13 @@ export const CreatePost = () => {
               variant="contained"
               color="uiBgLight"
               className="bg-H1d-ui-secondary"
-              endIcon={<SendOutlined />}
+              endIcon={
+                loading ? (
+                  <CircularProgress color="inherit" size={18} />
+                ) : (
+                  <SendOutlined />
+                )
+              }
               onClick={handlePost}
             >
               Post
@@ -230,6 +360,12 @@ export const CreatePost = () => {
           {errMessage}
         </Typography>
       </Card>
+
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+          Successfully created new post !
+        </Alert>
+      </Snackbar>
     </>
   );
 };

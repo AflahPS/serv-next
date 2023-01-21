@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
 import { COLOR } from "../constants";
+import Link from "next/link";
 
 export const AuthLogo = () => {
   return (
@@ -13,7 +14,7 @@ export const AuthLogo = () => {
       sx={{ display: { xs: "none", sm: "flex" }, flex: { xs: 1, md: 3 } }}
     >
       <Typography variant="h3" sx={{ color: COLOR["H1d-ui-primary"] }}>
-        HireOne
+        <Link href={"/"}>HireOne</Link>
       </Typography>
     </Box>
   );
