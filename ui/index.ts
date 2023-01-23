@@ -9,3 +9,4 @@ export * from "./TextFieldCustom2";
 export * from "./LabelCustom";
 export * from "./CreatePost";
 export * from "./LoadingCard";
+export * from "./StatsStack";

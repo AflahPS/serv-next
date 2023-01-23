@@ -39,7 +39,7 @@ import { useSelector } from "react-redux";
 //   return uploadedUrls;
 // };
 
-export const CreatePost = () => {
+export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [tags, setTags] = useState([]);
   const [medias, setMedias] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string[]>([]);
@@ -177,11 +177,13 @@ export const CreatePost = () => {
         sx={{
           boxShadow: 8,
           borderRadius: 3,
-          maxWidth: "80%",
+          // maxWidth: "80%",
+          // width: "100%",
           marginX: "auto",
           paddingBottom: 3,
           marginBottom: "16px",
           backgroundColor: COLOR["H1d-ui-bg"],
+          ...props.extraSx,
         }}
       >
         <CardHeader

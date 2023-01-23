@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { Box } from "@mui/system";
+import React, { useState } from "react";
 import useSWR from "swr";
-import { Feed, Layout } from "../components/common";
-import { nest } from "../utils";
-import { CreatePost, LoadingCard } from "../ui";
-import { Alert, Snackbar } from "@mui/material";
-import { StoreState } from "../store";
+import { CreatePost, LoadingCard } from "../../ui";
+import { Feed } from "../common";
+import { Snackbar, Alert } from "@mui/material";
+import error from "next/error";
+import { useSelector } from "react-redux";
+import { StoreState } from "../../store";
+import { nest } from "../../utils";
 
-export default function Home() {
-  const role = useSelector((state: StoreState) => state.role.currentUser);
+export const Timeline = () => {
   const token = useSelector((state: StoreState) => state.jwt.token);
 
   // For Error snackbar
@@ -37,15 +38,21 @@ export default function Home() {
   const { data, error } = useSWR("posts", fetcher);
 
   return (
-    <Layout>
-      {role === "guest" && <CreatePost extraSx={{ maxWidth: "80%" }} />}
+    <Box
+      sx={{
+        boxShadow: 8,
+        borderRadius: 3,
+        marginY: 2,
+      }}
+    >
+      <CreatePost />
       {data && <Feed posts={data.posts} />}{" "}
       {!data && (
         <>
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
+          <LoadingCard />
+          <LoadingCard />
+          <LoadingCard />
+          <LoadingCard />
         </>
       )}
       {error && (
@@ -55,6 +62,6 @@ export default function Home() {
           </Alert>
         </Snackbar>
       )}
-    </Layout>
+    </Box>
   );
-}
+};
