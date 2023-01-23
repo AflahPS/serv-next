@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
 import { roleActions } from "../../store/role.slice";
+import { jwtActions } from "../../store/jwt.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -82,6 +83,7 @@ export const NavBar = () => {
     setOpenAnchor(false);
     dispatch(authActions.logout());
     dispatch(roleActions.guest());
+    dispatch(jwtActions.setToken(null));
   };
   return (
     <AppBar position="sticky">

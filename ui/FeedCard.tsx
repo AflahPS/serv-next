@@ -10,10 +10,14 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import { COLOR } from "../constants";
+import { Post } from "../types/Posts";
+import Carousel from "react-material-ui-carousel";
 
-export const FeedCard: React.FC<{ customSx?: {} }> = (props) => {
+export const FeedCard: React.FC<{ post: Post }> = ({ post }) => {
+  console.log({ post });
+
   return (
     <>
       <Card
@@ -24,7 +28,6 @@ export const FeedCard: React.FC<{ customSx?: {} }> = (props) => {
           marginBottom: "16px",
           boxShadow: 8,
           borderRadius: 3,
-          ...props.customSx,
         }}
       >
         <CardHeader
@@ -32,7 +35,7 @@ export const FeedCard: React.FC<{ customSx?: {} }> = (props) => {
             <Avatar
               sx={{ bgcolor: "red" }}
               aria-label="recipe"
-              src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src={post.owner.image}
             ></Avatar>
           }
           action={
@@ -40,20 +43,25 @@ export const FeedCard: React.FC<{ customSx?: {} }> = (props) => {
               <MoreVert />
             </IconButton>
           }
-          title="Dhamodar"
+          title={post.owner.name}
+        
           subheader="September 14, 2022"
         />
-        <CardMedia
-          component="img"
-          height="20%"
-          image="https://images.pexels.com/photos/461431/pexels-photo-461431.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="Paella dish"
-        />
+        {post.media.length > 0 && (
+          <Carousel autoPlay={false}>
+            {post.media.map((image, ind) => (
+              <CardMedia
+                key={ind}
+                component={"img"}
+                image={image}
+                alt={`Post image`}
+              />
+            ))}
+          </Carousel>
+        )}
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            This impressive paella is a perfect party dish and a fun meal to
-            cook together with your guests. Add 1 cup of frozen peas along with
-            the mussels, if you like.
+            {post.caption}
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
