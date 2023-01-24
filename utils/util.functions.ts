@@ -14,3 +14,9 @@ export const lengthChecker = (word: string, min: number, max: number) => {
   if (len < min) return false;
   return true;
 };
+// Check if the entered number is valid
+export const validatePhone = (num: string) => {
+  let isOnlyNum = /^\d+$/.test(num);
+  let isLengthTen = num.length === 10;
+  return isOnlyNum && isLengthTen;
+};

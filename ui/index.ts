@@ -10,3 +10,5 @@ export * from "./LabelCustom";
 export * from "./CreatePost";
 export * from "./LoadingCard";
 export * from "./StatsStack";
+export * from "./TabHeader";
+export * from "./profile";

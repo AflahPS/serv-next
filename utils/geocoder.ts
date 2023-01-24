@@ -8,10 +8,9 @@ export async function geoLocator(lat: number, lon: number) {
       method: "GET",
     });
     const loc = res?.data?.features;
-    let place: string = loc.find((el: any) =>
-      el.id.startsWith("place")
-    )?.place_name;
-    place = place.split(",")[0];
+    console.log("🚀 ~ file: geocoder.ts:11 ~ geoLocator ~ loc", loc);
+    let place: string = loc[0].text;
+    // place = place.split(",")[0];
     return place || "Not Found";
   } catch (err: any) {
     console.log(err?.message);

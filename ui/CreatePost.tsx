@@ -30,15 +30,6 @@ import Image from "next/image";
 import { nest, uploadImages } from "../utils";
 import { useSelector } from "react-redux";
 
-// const uploadImages = async (images: File[]) => {
-//   const uploadedUrls = [];
-//   for (let i = 0; i < images.length; i++) {
-//     const uploaded = await uploadImageToS3(images[i]);
-//     uploadedUrls.push(uploaded);
-//   }
-//   return uploadedUrls;
-// };
-
 export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [tags, setTags] = useState([]);
   const [medias, setMedias] = useState<File[]>([]);

@@ -1,10 +1,9 @@
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import useSWR from "swr";
-import { CreatePost, LoadingCard } from "../../ui";
+import { CreatePost, LoadingCard, TabHeader } from "../../ui";
 import { Feed } from "../common";
 import { Snackbar, Alert } from "@mui/material";
-import error from "next/error";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { nest } from "../../utils";
@@ -27,7 +26,7 @@ export const Timeline = () => {
   // For fetching posts from backend
   const fetcher = async () => {
     const res = await nest({
-      url: Boolean(token) ? "/post/user" : "/post",
+      url: Boolean(token) ? "/post/user/id" /*ID of current user*/ : "/post",
       method: "GET",
       headers: {
         Authorization: "Bearer " + token,
@@ -42,9 +41,10 @@ export const Timeline = () => {
       sx={{
         boxShadow: 8,
         borderRadius: 3,
-        marginY: 2,
+        // marginY: 2,
       }}
     >
+      <TabHeader header="Timeline" />
       <CreatePost />
       {data && <Feed posts={data.posts} />}{" "}
       {!data && (

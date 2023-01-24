@@ -73,6 +73,8 @@ export const SignupVendor = () => {
 
   // Generate recaptcha
   const genRecaptcha = () => {
+    console.log(window.recaptchaVerifier);
+
     window.recaptchaVerifier = new RecaptchaVerifier(
       "verify-otp",
       {

@@ -3,7 +3,6 @@ import authSlice from "./auth.slice";
 import jwtSlice from "./jwt.slice";
 import roleSlice from "./role.slice";
 import profileTabSlice from "./profile-tab.slice";
-import { Interface } from "readline";
 
 const store = configureStore({
   reducer: {
