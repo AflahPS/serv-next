@@ -20,3 +20,5 @@ export const validatePhone = (num: string) => {
   let isLengthTen = num.length === 10;
   return isOnlyNum && isLengthTen;
 };
+
+export const IsValidString = (str: string): boolean => str.trim().length > 0;
