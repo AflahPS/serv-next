@@ -21,10 +21,15 @@ import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { fbPhoneAuth, geoCords, geoLocator, nest } from "../../utils";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { userDataActions } from "../../store/user-data.slice";
+import { roleActions } from "../../store/role.slice";
+import { jwtActions } from "../../store/jwt.slice";
 
 export const SignupVendor = () => {
+  const dispatch = useDispatch();
+
   const serviceRef = useRef<HTMLInputElement>();
   const locationRef = useRef<HTMLInputElement>();
   const phoneRef = useRef<HTMLInputElement>();
@@ -42,7 +47,10 @@ export const SignupVendor = () => {
   const [verifyOtpButton, setVerifyOtpButton] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
-  const [location, setLocation] = useState({ lat: 0, lon: 0 });
+  const [location, setLocation] = useState({
+    type: "Point",
+    coordinates: [0, 0],
+  });
 
   const [errMessage, setErrMessage] = useState("");
 
@@ -115,13 +123,18 @@ export const SignupVendor = () => {
   // Get the coordinates of the location
   const getLocation = async () => {
     navigator.geolocation.getCurrentPosition(function (position) {
+      if (!position) return console.log("COuld not locate -WEBAPI");
+
       if (position)
         setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
+          type: "Point",
+          coordinates: [position.coords.longitude, position.coords.latitude],
         });
     });
-    const loc: any = await geoLocator(location.lat, location.lon);
+    const loc: any = await geoLocator(
+      location.coordinates[0],
+      location.coordinates[1]
+    );
     if (!loc) return setLocationVerified(false);
     setPlace(loc);
     setLocationVerified(true);
@@ -131,7 +144,8 @@ export const SignupVendor = () => {
   const gatherPLace = async (place: string) => {
     const cords = await geoCords(place);
     if (!cords) return console.log("Coordinates not found");
-    if (cords) setLocation({ lat: cords[0], lon: cords[1] });
+    if (cords)
+      setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
   };
 
   // handle 'Send OTP' button click
@@ -163,7 +177,7 @@ export const SignupVendor = () => {
     const about = aboutRef.current?.value;
 
     const isService = Boolean(service);
-    const isLocation = Boolean(location.lat);
+    const isLocation = Boolean(location.coordinates[0]);
     const isPhone = otpVerified;
     const isAbout = Boolean(about);
 
@@ -193,6 +207,7 @@ export const SignupVendor = () => {
       location,
       phone,
       about,
+      place,
     };
   };
 
@@ -214,6 +229,10 @@ export const SignupVendor = () => {
       });
       if (res.data?.status === "success") {
         setOpen(true);
+        dispatch(jwtActions.setToken(res.data?.token));
+        dispatch(roleActions.vendor());
+        dispatch(userDataActions.addUserData(res.data?.user));
+
         router.push("/");
       }
     } catch (error: any) {

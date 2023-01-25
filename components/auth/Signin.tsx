@@ -24,6 +24,7 @@ import { lengthChecker, nest, validateEmail } from "../../utils";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const Signin = () => {
   const router = useRouter();
@@ -89,6 +90,7 @@ export const Signin = () => {
         dispatch(authActions.login());
         dispatch(jwtActions.setToken(res.data?.token));
         dispatch(roleActions.user());
+        dispatch(userDataActions.addUserData(res.data?.user));
         router.push("/");
       }
     } catch (err: any) {

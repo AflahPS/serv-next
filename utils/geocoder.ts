@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function geoLocator(lat: number, lon: number) {
+export async function geoLocator(lon: number, lat: number) {
   const query: string = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${process.env.MAPBOX_API}`;
   try {
     const res = await axios({
@@ -9,7 +9,7 @@ export async function geoLocator(lat: number, lon: number) {
     });
     const loc = res?.data?.features;
     console.log("🚀 ~ file: geocoder.ts:11 ~ geoLocator ~ loc", loc);
-    let place: string = loc[0].text;
+    let place: string = loc[2].text;
     // place = place.split(",")[0];
     return place || "Not Found";
   } catch (err: any) {

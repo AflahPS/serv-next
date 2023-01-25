@@ -15,7 +15,7 @@ export const AccountDetails = () => {
       }}
     >
       <PersonalDetails />
-      {role === "guest" && <ProfessionalDetails />}
+      {role === "vendor" && <ProfessionalDetails />}
     </Box>
   );
 };

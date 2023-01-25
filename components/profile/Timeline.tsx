@@ -9,6 +9,8 @@ import { StoreState } from "../../store";
 import { nest } from "../../utils";
 
 export const Timeline = () => {
+  const role = useSelector((state: StoreState) => state.role.currentUser);
+  const user = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
 
   // For Error snackbar
@@ -26,7 +28,7 @@ export const Timeline = () => {
   // For fetching posts from backend
   const fetcher = async () => {
     const res = await nest({
-      url: Boolean(token) ? "/post/user/id" /*ID of current user*/ : "/post",
+      url: role === "vendor" ? `/post/user/${user?._id}` : "/post",
       method: "GET",
       headers: {
         Authorization: "Bearer " + token,

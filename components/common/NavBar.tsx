@@ -84,7 +84,11 @@ export const NavBar = () => {
         </Typography>
         <Tag sx={{ display: { xs: "block", md: "none" } }} />
         <SearchContainer>
-          <InputBase sx={{ color: "inherit" }} placeholder="search..." />
+          <InputBase
+            fullWidth
+            sx={{ color: "inherit" }}
+            placeholder="search..."
+          />
         </SearchContainer>
         <IconsContainer>
           {isAuth && (

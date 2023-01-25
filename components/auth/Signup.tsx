@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const Signup = () => {
   const router = useRouter();
@@ -109,6 +110,8 @@ export const Signup = () => {
         dispatch(authActions.login());
         dispatch(jwtActions.setToken(res.data?.token));
         dispatch(roleActions.user());
+        dispatch(userDataActions.addUserData(res.data?.user));
+
         router.push("/auth/signup/checkpoint");
       }
     } catch (error: any) {

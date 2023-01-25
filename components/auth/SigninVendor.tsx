@@ -22,6 +22,7 @@ import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { validateEmail, lengthChecker, nest } from "../../utils";
 import { roleActions } from "../../store/role.slice";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const SigninVendor = () => {
   const router = useRouter();
@@ -74,20 +75,22 @@ export const SigninVendor = () => {
 
   const handleSignin = async (event: any): Promise<void> => {
     event.preventDefault();
-    const data = verifyData();
+    const dataV = verifyData();
     console.log("hello");
 
     try {
-      const res = await nest({
+      const { data } = await nest({
         url: "auth/signin/vendor",
         method: "POST",
-        data,
+        data: dataV,
       });
-      if (res.data?.status === "success") {
+      if (data?.status === "success") {
         setOpen(true);
         dispatch(authActions.login());
-        dispatch(jwtActions.setToken(res.data?.token));
+        dispatch(jwtActions.setToken(data?.token));
         dispatch(roleActions.vendor());
+        dispatch(userDataActions.addUserData(data?.user));
+
         router.push("/");
       }
     } catch (err: any) {

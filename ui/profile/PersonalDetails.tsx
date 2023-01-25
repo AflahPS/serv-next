@@ -18,24 +18,36 @@ import { COLOR } from "../../constants";
 import { LinkButton } from "../common";
 import { TabHeader } from "./TabHeader";
 import { StyledTextField } from "./StyledTextField";
-import { CreateOutlined, LocationOnOutlined } from "@mui/icons-material";
+import {
+  CreateOutlined,
+  LocationOnOutlined,
+  SaveAltOutlined,
+} from "@mui/icons-material";
 import {
   fbPhoneAuth,
   geoCords,
   geoLocator,
   lengthChecker,
+  nest,
   uploadImages,
   validateEmail,
   validatePhone,
 } from "../../utils";
+import { useDispatch, useSelector } from "react-redux";
+import { StoreState } from "../../store";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const PersonalDetails = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((state: StoreState) => state.user.data);
+  const token = useSelector((state: StoreState) => state.jwt.token);
+  const role = useSelector((state: StoreState) => state.role.currentUser);
+
   const [errMessage, setErrMessage] = useState<string>("");
-  const [infoMessage, setInfoMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [isDpUploading, setIsDpUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string>(
-    "https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-  );
+  const [isEditable, setIsEditable] = useState(false);
+  // const [previewUrl, setPreviewUrl] = useState<string>(user?.image || "");
 
   const nameRef = useRef<TextFieldProps>(null);
   const emailRef = useRef<TextFieldProps>(null);
@@ -47,18 +59,23 @@ export const PersonalDetails = () => {
   const [phoneVerified, setPhoneVerified] = useState(true);
   const [locationVerified, setLocationVerified] = useState(true);
 
-  const [place, setPlace] = useState("");
-  const [phone, setPhone] = useState("");
+  const [place, setPlace] = useState(user.place || "");
+  const [phone, setPhone] = useState(user.phone || "");
   const [otp, setOtp] = useState("");
   const [sendOtpButton, setSendOtpButton] = useState(false);
   const [verifyOtpButton, setVerifyOtpButton] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
-  const [location, setLocation] = useState({ lat: 0, lon: 0 });
+  const [location, setLocation] = useState(
+    user.location || {
+      type: "Point",
+      coordinates: [0, 0],
+    }
+  );
 
-  //----- ERROR, Info message Snackbar related properties
+  //----- ERROR, Success message Snackbar related properties
   const [openError, setOpenError] = React.useState(false);
-  const [openInfo, setOpenInfo] = React.useState(false);
+  const [openSuccess, setOpenSuccess] = React.useState(false);
 
   const handleCloseError = (
     event?: React.SyntheticEvent | Event,
@@ -70,14 +87,19 @@ export const PersonalDetails = () => {
     setOpenError(false);
   };
 
-  const handleCloseInfo = (
+  const handleCloseSuccess = (
     event?: React.SyntheticEvent | Event,
     reason?: string
   ) => {
     if (reason === "clickaway") {
       return;
     }
-    setOpenInfo(false);
+    setOpenSuccess(false);
+  };
+
+  const errorSetter = (message: string) => {
+    setErrMessage(message);
+    setOpenError(true);
   };
 
   //----- Profile Image updator function
@@ -98,14 +120,25 @@ export const PersonalDetails = () => {
       const uploadedUrl = await uploadImages([filesInput[0]]);
       const newDp = String(uploadedUrl[0]);
       if (!newDp) {
-        setErrMessage(
-          "Something went wrong while uploading image, Please try again !"
-        );
-        setOpenError(true);
+        errorSetter("Something went wrong while uploading image !");
         return;
       }
-      setPreviewUrl(newDp);
+      const { data } = await nest({
+        method: "PATCH",
+        url: `/${role}/image`,
+        data: { image: newDp },
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (!data || data?.status !== "success") {
+        errorSetter("Something went wrong while updating profile image !");
+        return;
+      }
+      dispatch(userDataActions.addUserData(data?.user));
       setIsDpUploading(false);
+      setSuccessMessage("Successfully uploaded profile image !");
+      setOpenSuccess(true);
       return;
     } catch (err: any) {
       setIsDpUploading(false);
@@ -191,11 +224,14 @@ export const PersonalDetails = () => {
     navigator.geolocation.getCurrentPosition(function (position) {
       if (position)
         setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
+          type: "Point",
+          coordinates: [position.coords.longitude, position.coords.latitude],
         });
     });
-    const loc: any = await geoLocator(location.lat, location.lon);
+    const loc: any = await geoLocator(
+      location.coordinates[0],
+      location.coordinates[1]
+    );
     if (!loc) return setLocationVerified(false);
     setPlace(loc);
     setLocationVerified(true);
@@ -204,15 +240,12 @@ export const PersonalDetails = () => {
   // Get location if user typed a location
   const gatherPLace = async (place: string) => {
     const cords = await geoCords(place);
-    console.log(
-      "🚀 ~ file: PersonalDetails.tsx:192 ~ gatherPLace ~ cords",
-      cords
-    );
     if (!cords) {
       setLocationVerified(false);
       return console.log("Coordinates not found");
     }
-    if (cords) setLocation({ lat: cords[0], lon: cords[1] });
+    if (cords)
+      setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
   };
 
   // Verify all data before API call
@@ -227,8 +260,8 @@ export const PersonalDetails = () => {
 
     const isName = lengthChecker(name, 2, 50);
     const isEmail = validateEmail(email);
-    const isLocation = Boolean(location.lat);
-    const isPhone = otpVerified;
+    const isLocation = Boolean(location.coordinates[0]);
+    const isPhone = otpVerified || phone === user.phone;
 
     if (!isName) {
       setNameVerified(false);
@@ -256,12 +289,44 @@ export const PersonalDetails = () => {
       email,
       phone,
       location,
+      place,
     };
   };
 
-  const handleSaveClick = () => {
-    const data = verifiyData();
-    console.log({ data });
+  const handleSaveClick = async () => {
+    try {
+      if (!isEditable) {
+        setIsEditable(true);
+        return;
+      }
+      const dataV = verifiyData();
+      console.log(
+        "🚀 ~ file: PersonalDetails.tsx:303 ~ handleSaveClick ~ dataV",
+        dataV
+      );
+      if (!dataV) return;
+      const { data } = await nest({
+        method: "PATCH",
+        url: `/${role}/personal`,
+        data: dataV,
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (!data || data?.status !== "success") {
+        errorSetter("Something went wrong while updating profile image !");
+        return;
+      }
+      dispatch(userDataActions.addUserData(data?.user));
+      setSuccessMessage("Successfully updated personal informations !");
+      setOpenSuccess(true);
+      setIsEditable(false);
+    } catch (err: any) {
+      errorSetter(
+        "Something went wrong while updating profile personal informations !"
+      );
+      console.log(err?.message);
+    }
   };
 
   return (
@@ -298,8 +363,8 @@ export const PersonalDetails = () => {
               </IconButton>
             }
           >
-            <Avatar sx={{ height: 124, width: 124 }} src={previewUrl}>
-              Dhamodar
+            <Avatar sx={{ height: 124, width: 124 }} src={user?.image || ""}>
+              {user.name || "Username"}
             </Avatar>
           </Badge>
           <Typography
@@ -307,7 +372,7 @@ export const PersonalDetails = () => {
             fontWeight={400}
             color={COLOR["H1d-font-primary"]}
           >
-            Dhamodar
+            {user.name || "Username"}
           </Typography>
         </Stack>
 
@@ -322,12 +387,15 @@ export const PersonalDetails = () => {
           paddingY={2}
         >
           {/* NAME */}
+
           <StyledTextField
             type={"text"}
             inputRef={nameRef}
             size="small"
             label="Full Name"
             error={!nameVerified}
+            defaultValue={user.name}
+            disabled={!isEditable}
             helperText={
               !nameVerified ? "Provide a valid name (Min: 2, Max: 50) !" : ""
             }
@@ -337,11 +405,14 @@ export const PersonalDetails = () => {
           />
 
           {/* EMAIL */}
+
           <StyledTextField
             type={"email"}
             inputRef={emailRef}
             size="small"
             label="Email"
+            disabled={!isEditable}
+            defaultValue={user.email}
             error={!emailVerified}
             helperText={!emailVerified ? "Provide a valid email !" : ""}
             onChange={() => {
@@ -354,9 +425,11 @@ export const PersonalDetails = () => {
             inputRef={phoneRef}
             size="small"
             label="Phone"
+            disabled={!isEditable}
             error={!phoneVerified}
             helperText={!phoneVerified ? "Verify the number with OTP" : ""}
             value={phone}
+            defaultValue={user.phone}
             onChange={(e) => {
               setPhone(e.target?.value);
             }}
@@ -410,7 +483,9 @@ export const PersonalDetails = () => {
             inputRef={locationRef}
             size="small"
             label="Location"
+            disabled={!isEditable}
             error={!locationVerified}
+            // defaultValue={user.place}
             helperText={
               !locationVerified
                 ? "Sorry, Couldn't locate you. Try the pin icon after 10 seconds or type your location properly."
@@ -427,7 +502,7 @@ export const PersonalDetails = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={getLocation}>
+                  <IconButton disabled={!isEditable} onClick={getLocation}>
                     <LocationOnOutlined />
                   </IconButton>
                 </InputAdornment>
@@ -438,9 +513,10 @@ export const PersonalDetails = () => {
           <LinkButton
             variant="outlined"
             onClick={handleSaveClick}
-            sx={{ alignSelf: "end", paddingX: 4, marginY: 2, marginRight: 1 }}
+            sx={{ alignSelf: "end", paddingX: 3, marginY: 2, marginRight: 1 }}
+            startIcon={isEditable ? <SaveAltOutlined /> : <CreateOutlined />}
           >
-            Save
+            {isEditable ? "Save" : "Edit"}
           </LinkButton>
         </Box>
       </Box>
@@ -458,12 +534,16 @@ export const PersonalDetails = () => {
         </Alert>
       </Snackbar>
       <Snackbar
-        open={openInfo}
+        open={openSuccess}
         autoHideDuration={6000}
-        onClose={handleCloseInfo}
+        onClose={handleCloseSuccess}
       >
-        <Alert onClose={handleCloseInfo} severity="info" sx={{ width: "100%" }}>
-          {infoMessage}
+        <Alert
+          onClose={handleCloseSuccess}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
         </Alert>
       </Snackbar>
       {/* -------Recaptcha Div-------- */}
