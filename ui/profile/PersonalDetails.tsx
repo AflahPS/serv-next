@@ -15,8 +15,8 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { COLOR } from "../../constants";
-import { LinkButton } from "../LinkButton";
-import { TabHeader } from "../TabHeader";
+import { LinkButton } from "../common";
+import { TabHeader } from "./TabHeader";
 import { StyledTextField } from "./StyledTextField";
 import { CreateOutlined, LocationOnOutlined } from "@mui/icons-material";
 import {

@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 
 export const TabHeader: React.FC<{ header: string }> = (props) => {
   return (

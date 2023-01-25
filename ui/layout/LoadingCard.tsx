@@ -1,6 +1,6 @@
 import { Box, Skeleton, Avatar } from "@mui/material";
 import React from "react";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 
 export const LoadingCard: React.FC<{ extraSx?: {} }> = (props) => {
   return (

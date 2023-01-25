@@ -11,8 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { COLOR } from "../constants";
-import { Post } from "../types/Posts";
+import { COLOR } from "../../constants";
+import { Post } from "../../types/Posts";
 import Carousel from "react-material-ui-carousel";
 
 export const FeedCard: React.FC<{ post: Post }> = ({ post }) => {
@@ -44,7 +44,6 @@ export const FeedCard: React.FC<{ post: Post }> = ({ post }) => {
             </IconButton>
           }
           title={post.owner.name}
-        
           subheader="September 14, 2022"
         />
         {post.media.length > 0 && (

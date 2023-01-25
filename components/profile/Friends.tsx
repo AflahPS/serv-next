@@ -5,16 +5,33 @@ import {
   CardContent,
   CardMedia,
   Grid,
+  InputBase,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Typography,
 } from "@mui/material";
-import { CheckOutlined } from "@mui/icons-material";
-import { LinkButton, TabHeader } from "../../ui";
+import { CheckOutlined, ClearOutlined } from "@mui/icons-material";
+import { LinkButton, SearchContainer, TabHeader } from "../../ui";
 import { USERS } from "../../constants";
 
 export const Friends = () => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Box sx={{ boxShadow: 8, borderRadius: 3 }}>
       <TabHeader header="Friends" />
+      <SearchContainer marginBottom={3}>
+        <InputBase fullWidth placeholder="Search friends.." />
+      </SearchContainer>
       <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
         {USERS.map((_, index) => (
           <Grid
@@ -23,7 +40,6 @@ export const Friends = () => {
             sm={6}
             xl={4}
             height={200}
-            maxWidth={"80%"}
             justifyContent={"center"}
             key={index}
           >
@@ -64,10 +80,28 @@ export const Friends = () => {
                 </Typography>
                 <LinkButton
                   variant="outlined"
+                  id={`follow-button-${index}`}
                   startIcon={<CheckOutlined color="success" />}
+                  onClick={handleMenuClick}
                 >
                   Following
                 </LinkButton>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={openMenu}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    "aria-labelledby": `follow-button-${index}`,
+                  }}
+                >
+                  <MenuItem onClick={handleClose}>
+                    <ListItemIcon>
+                      <ClearOutlined color="error" fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Unfollow</ListItemText>
+                  </MenuItem>
+                </Menu>
               </CardContent>
             </Card>
           </Grid>

@@ -19,16 +19,14 @@ import {
   ImageListItemBar,
   MenuItem,
   Snackbar,
-  TextFieldProps,
   Typography,
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
-import { COLOR, PROJECTS, USERS } from "../constants";
-import { TextFieldCustom2 } from "./TextFieldCustom2";
-import { LinkButton } from "./LinkButton";
 import Image from "next/image";
-import { nest, uploadImages } from "../utils";
 import { useSelector } from "react-redux";
+import { nest, uploadImages } from "../../utils";
+import { LinkButton, TextFieldCustom2 } from "../../ui";
+import { COLOR, USERS, PROJECTS } from "../../constants";
 
 export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [tags, setTags] = useState([]);

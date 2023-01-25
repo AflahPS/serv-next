@@ -7,7 +7,7 @@ import {
   Button,
 } from "@mui/material";
 import React from "react";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 import Link from "next/link";
 
 export const SimpleCard = (props: {

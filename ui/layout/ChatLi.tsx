@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 
 export const ChatLi = () => {
   return (

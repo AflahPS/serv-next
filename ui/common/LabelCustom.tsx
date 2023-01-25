@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 import styled from "@emotion/styled";
 
 export const LabelCustom = styled(Typography)({

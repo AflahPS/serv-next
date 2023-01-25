@@ -1,8 +1,8 @@
 import { Autocomplete, Box, MenuItem } from "@mui/material";
 import React, { MouseEvent, useState } from "react";
 import { COLOR, USERS } from "../../constants";
-import { LinkButton } from "../LinkButton";
-import { TabHeader } from "../TabHeader";
+import { LinkButton } from "../common";
+import { TabHeader } from "./TabHeader";
 import { StyledTextField } from "./StyledTextField";
 import { IsValidString } from "../../utils";
 

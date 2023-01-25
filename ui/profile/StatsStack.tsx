@@ -1,5 +1,5 @@
 import { Stack, Box, Typography } from "@mui/material";
-import { COLOR } from "../constants";
+import { COLOR } from "../../constants";
 
 export const StatStack: React.FC<{ name: string; stat: string }> = (props) => {
   return (

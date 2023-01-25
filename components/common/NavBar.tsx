@@ -31,6 +31,7 @@ import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
 import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
+import { SearchContainer } from "../../ui";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -40,16 +41,6 @@ const StyledToolbar = styled(Toolbar)({
   width: "100%",
 });
 
-const SearchContainer = styled("div")(({ theme }) => ({
-  backgroundColor: COLOR["H1d-ui-secondary"],
-  color: COLOR["H1d-font-primary"],
-  padding: "0 10px",
-  display: "flex",
-  alignItems: "center",
-  borderRadius: theme.shape.borderRadius,
-  width: "40%",
-  height: "36px",
-}));
 const IconsContainer = styled("div")(({ theme }) => ({
   display: "none",
   cursor: "pointer",
