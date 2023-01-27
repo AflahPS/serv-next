@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import useSWR from "swr";
 import { Feed, Layout } from "../components/common";
 import { nest } from "../utils";
 import { CreatePost, LoadingCard } from "../ui";
 import { Alert, Snackbar } from "@mui/material";
 import { StoreState } from "../store";
+import { layoutLoadingActions } from "../store/layout-loading.slice";
 
 export default function Home() {
   const role = useSelector((state: StoreState) => state.role.currentUser);
@@ -36,18 +37,15 @@ export default function Home() {
   };
   const { data, error } = useSWR("posts", fetcher);
 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(layoutLoadingActions.finishedLoading());
+  }, [dispatch]);
+
   return (
     <Layout>
-      {role === "guest" && <CreatePost extraSx={{ maxWidth: "80%" }} />}
+      {role === "vendor" && <CreatePost extraSx={{ maxWidth: "80%" }} />}
       {data && <Feed posts={data.posts} />}{" "}
-      {!data && (
-        <>
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-          <LoadingCard extraSx={{ maxWidth: "80%" }} />
-        </>
-      )}
       {error && (
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>

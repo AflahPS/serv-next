@@ -13,9 +13,19 @@ import { COLOR, SIDE_NAV_LINKS } from "../../constants";
 import { Stack } from "@mui/system";
 import { NextRouter, useRouter } from "next/router";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { AnyAction, Dispatch } from "@reduxjs/toolkit";
+import { sideNavTabActions } from "../../store/sidenav-tab.slice";
+import { StoreState } from "../../store";
+import { layoutLoadingActions } from "../../store/layout-loading.slice";
 
 export const SideNav = () => {
+  const dispatch: Dispatch<AnyAction> = useDispatch();
   const router: NextRouter = useRouter();
+  const currentTab = useSelector(
+    (state: StoreState) => state.sideNavTab.currentTab
+  );
+  const role = useSelector((state: StoreState) => state.role.currentUser);
 
   return (
     <>
@@ -44,17 +54,35 @@ export const SideNav = () => {
           <List>
             {SIDE_NAV_LINKS.map((link) => {
               const Icon = link.icon;
+              if (!link.allowedRoles.includes(role)) return;
               return (
                 <ListItem key={link.title} disablePadding>
                   <ListItemButton
                     onClick={() => {
+                      dispatch(layoutLoadingActions.loading());
+                      dispatch(sideNavTabActions.push(link.title));
                       router.push(link.href);
                     }}
                   >
                     <ListItemIcon>
-                      <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+                      <Icon
+                        sx={{
+                          color:
+                            currentTab === link.title
+                              ? COLOR["H1d-ui-primary"]
+                              : "inherit",
+                        }}
+                      />
                     </ListItemIcon>
-                    <ListItemText primary={link.title} />
+                    <ListItemText
+                      sx={{
+                        color:
+                          currentTab === link.title
+                            ? COLOR["H1d-ui-primary"]
+                            : "inherit",
+                      }}
+                      primary={link.title}
+                    />
                   </ListItemButton>
                 </ListItem>
               );
@@ -93,8 +121,21 @@ export const SideNav = () => {
                     TransitionProps={{ timeout: 600 }}
                   >
                     <ListItemIcon sx={{ justifyContent: "center" }}>
-                      <Link href={link.href}>
-                        <Icon sx={{ color: COLOR["H1d-ui-primary"] }} />
+                      <Link
+                        href={link.href}
+                        onClick={() => {
+                          dispatch(layoutLoadingActions.loading());
+                          dispatch(sideNavTabActions.push(link.title));
+                        }}
+                      >
+                        <Icon
+                          sx={{
+                            color:
+                              currentTab === link.title
+                                ? COLOR["H1d-ui-primary"]
+                                : "inherit",
+                          }}
+                        />
                       </Link>
                     </ListItemIcon>
                   </Tooltip>

@@ -28,7 +28,7 @@ export const Timeline = () => {
   // For fetching posts from backend
   const fetcher = async () => {
     const res = await nest({
-      url: role === "vendor" ? `/post/user/${user?._id}` : "/post",
+      url: role === "vendor" ? `/post/owner/${user?._id}` : "/post",
       method: "GET",
       headers: {
         Authorization: "Bearer " + token,

@@ -3,8 +3,14 @@ import React from "react";
 import { StatStack } from "../../ui";
 import { Typography } from "@mui/material";
 import { COLOR } from "../../constants";
+import { useSelector } from "react-redux";
+import { StoreState } from "../../store";
 
 export const AboutProfile = () => {
+  const user = useSelector((state: StoreState) => state.user.data);
+
+  const service = typeof user.service !== "string" ? user.service?.title : "";
+
   return (
     <Stack
       sx={{
@@ -21,9 +27,7 @@ export const AboutProfile = () => {
           variant="body1"
           color={COLOR["H1d-font-primary"]}
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem,
-          molestias eveniet. Voluptatibus quas exercitationem vero voluptatem
-          labore necessitatibus sequi.
+          {user?.about || ""}
         </Typography>
       </Box>
       <Stack
@@ -32,9 +36,12 @@ export const AboutProfile = () => {
         paddingX={2}
         paddingY={1}
       >
-        <StatStack name="Service" stat="Painter" />
-        <StatStack name="Projects" stat="32" />
-        <StatStack name="Location" stat="Kozhikode" />
+        <StatStack name="Service" stat={service} />
+        <StatStack
+          name="Projects"
+          stat={(user?.projects && user?.projects.length.toString()) || ""}
+        />
+        <StatStack name="Location" stat={user.place} />
       </Stack>
     </Stack>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layout } from "../../components/common";
 import { LoadingCard } from "../../ui";
 
@@ -12,13 +12,19 @@ import {
   Timeline,
 } from "../../components/profile";
 import { Box, Card } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
+import { layoutLoadingActions } from "../../store/layout-loading.slice";
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const currentTab = useSelector(
     (state: StoreState) => state.profileTab.currentTab
   );
+
+  useEffect(() => {
+    dispatch(layoutLoadingActions.finishedLoading());
+  }, [dispatch]);
 
   return (
     <Layout>

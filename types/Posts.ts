@@ -1,5 +1,6 @@
-export interface Post {
-  _id: string;
+import { MongoDoc } from "./MongoDoc";
+
+export interface Post extends MongoDoc {
   owner: {
     name: string;
     image: string;

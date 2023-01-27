@@ -1,4 +1,6 @@
-export interface User {
+import { MongoDoc } from "./MongoDoc";
+
+export interface User extends MongoDoc {
   name: string;
   email: string;
   password: string;
@@ -8,7 +10,4 @@ export interface User {
   phone?: string;
   followers?: [string | {}];
   requests?: [string | {}];
-  createdAt: Date;
-  updatedAt: Date;
-  _id: string | {};
 }

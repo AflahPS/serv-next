@@ -128,6 +128,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const handlePost = async () => {
     try {
       const data = await verifyData();
+      console.log("🚀 ~ file: CreatePost.tsx:131 ~ handlePost ~ data", data);
       if (!data) {
         setLoading(false);
         return;
@@ -140,6 +141,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
           Authorization: "Bearer " + token,
         },
       });
+      console.log("🚀 ~ file: CreatePost.tsx:143 ~ handlePost ~ res", res);
       if (res.data?.status === "success") {
         setLoading(false);
         setOpen(true);

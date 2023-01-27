@@ -9,6 +9,7 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
+import useSWR from "swr";
 import { Stack } from "@mui/system";
 import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import {
@@ -26,6 +27,7 @@ import { useRouter } from "next/router";
 import { userDataActions } from "../../store/user-data.slice";
 import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
+import { Service } from "../../types";
 
 export const SignupVendor = () => {
   const dispatch = useDispatch();
@@ -52,11 +54,10 @@ export const SignupVendor = () => {
     coordinates: [0, 0],
   });
 
-  const [errMessage, setErrMessage] = useState("");
-
   const token = useSelector((state: any) => state.jwt.token);
   const router = useRouter();
 
+  const [errMessage, setErrMessage] = useState("");
   const [open, setOpen] = React.useState(false);
 
   const handleClose = (
@@ -119,6 +120,21 @@ export const SignupVendor = () => {
     const isOtpLegit = validateOtp(otp);
     setVerifyOtpButton(isOtpLegit);
   }, [otp]);
+
+  // For fetching posts from backend
+  const fetcher = async () => {
+    const { data } = await nest({
+      url: "/service",
+      method: "GET",
+    });
+    return data;
+  };
+  const { data, error } = useSWR("services", fetcher);
+  // if (error) {
+  //   setErrMessage("Something went wrong");
+  //   console.log(error?.message);
+  //   setOpen(true);
+  // }
 
   // Get the coordinates of the location
   const getLocation = async () => {
@@ -289,9 +305,13 @@ export const SignupVendor = () => {
                 defaultValue={""}
                 fullWidth
               >
-                <MenuItem value={"painter"}>Painter</MenuItem>
-                <MenuItem value={"driver"}>Driver</MenuItem>
-                <MenuItem value={"masonry"}>Masonry</MenuItem>
+                {data &&
+                  data.map((serv: Service) => (
+                    <MenuItem key={serv._id} value={serv._id}>
+                      {serv.title}
+                    </MenuItem>
+                  ))}
+                {error && <MenuItem value="">Something went wrong !</MenuItem>}
               </TextFieldCustom2>
 
               {/* --------Location----------- */}

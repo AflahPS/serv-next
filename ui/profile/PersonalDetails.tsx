@@ -43,11 +43,8 @@ export const PersonalDetails = () => {
   const token = useSelector((state: StoreState) => state.jwt.token);
   const role = useSelector((state: StoreState) => state.role.currentUser);
 
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
   const [isDpUploading, setIsDpUploading] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  // const [previewUrl, setPreviewUrl] = useState<string>(user?.image || "");
 
   const nameRef = useRef<TextFieldProps>(null);
   const emailRef = useRef<TextFieldProps>(null);
@@ -74,6 +71,8 @@ export const PersonalDetails = () => {
   );
 
   //----- ERROR, Success message Snackbar related properties
+  const [errMessage, setErrMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [openError, setOpenError] = React.useState(false);
   const [openSuccess, setOpenSuccess] = React.useState(false);
 

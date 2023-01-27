@@ -5,6 +5,8 @@ import roleSlice from "./role.slice";
 import profileTabSlice from "./profile-tab.slice";
 import userDataSlice from "./user-data.slice";
 import { User, Vendor } from "../types";
+import sideNavTabSlice from "./sidenav-tab.slice";
+import layoutLoadingSlice from "./layout-loading.slice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +15,8 @@ const store = configureStore({
     role: roleSlice.reducer,
     profileTab: profileTabSlice.reducer,
     user: userDataSlice.reducer,
+    sideNavTab: sideNavTabSlice.reducer,
+    layoutLoading: layoutLoadingSlice.reducer,
   },
 });
 
@@ -23,5 +27,7 @@ export interface StoreState {
   jwt: { token: string };
   role: { currentUser: string };
   profileTab: { currentTab: string };
-  user: { data: User | Vendor };
+  sideNavTab: { currentTab: string };
+  user: { data: User & Vendor };
+  layoutLoading: { isLayoutLoading: boolean };
 }

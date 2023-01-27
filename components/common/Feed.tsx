@@ -1,17 +1,15 @@
 import React from "react";
-import { CreatePost, FeedCard } from "../../ui";
-import { useSelector } from "react-redux";
+import { FeedCard } from "../../ui";
 import { Post } from "../../types/Posts";
 
 export const Feed: React.FC<{ posts: Post[] }> = (props) => {
+  console.log(props);
+
   return (
     <>
-      {props.posts.map((post) => (
+      {props?.posts?.map((post) => (
         <FeedCard key={post._id} post={post} />
       ))}
-      {/* <FeedCard />
-      <FeedCard />
-      <FeedCard /> */}
     </>
   );
 };

@@ -1,9 +1,11 @@
-export interface Vendor {
-  _id?: string;
+import { MongoDoc } from "./MongoDoc";
+import { Service } from "./Service";
+
+export interface Vendor extends MongoDoc {
   name: string;
   email: string;
   password: string;
-  service: string | {};
+  service: Service | string;
   location?: { type: string; coordinates: [number] };
   place?: string;
   phone: string;
@@ -15,6 +17,6 @@ export interface Vendor {
   employees?: [string | {}];
   jobs?: [string | {}];
   projects?: [string | {}];
-  createdAt?: Date;
-  updatedAt?: Date;
+  workingDays?: string;
+  workRadius?: string;
 }

@@ -4,8 +4,12 @@ import { Avatar, IconButton, Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
+import { useSelector } from "react-redux";
+import { StoreState } from "../../store";
 
 export const ProfileHeader = () => {
+  const user = useSelector((state: StoreState) => state.user.data);
+
   return (
     <Stack height={270} gap={1}>
       {/* ------COVER------- */}
@@ -24,9 +28,9 @@ export const ProfileHeader = () => {
       >
         <Avatar
           sx={{ marginLeft: 2, marginBottom: 1, height: 96, width: 96 }}
-          src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+          src={user.image || ""}
         >
-          Dhamodar
+          {user.name || ""}
         </Avatar>
         <IconButton
           color="primary"
@@ -57,14 +61,17 @@ export const ProfileHeader = () => {
       >
         <Stack marginLeft={2}>
           <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
-            Dhamodar
+            {user.name || ""}
           </Typography>
           <div></div>
         </Stack>
         <Box display={"flex"} gap={1} marginRight={2}>
-          <StatStack name="Posts" stat="65" />
-          <StatStack name="Follwers" stat="165" />
-          <StatStack name="Following" stat="105" />
+          <StatStack name="Posts" stat="5" />
+          <StatStack
+            name="Follwers"
+            stat={(user.followers && String(user.followers?.length)) || "0"}
+          />
+          <StatStack name="Following" stat="0" />
         </Box>
       </Box>
     </Stack>
