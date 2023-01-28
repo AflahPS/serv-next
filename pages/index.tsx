@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import useSWR from "swr";
 import { Feed, Layout } from "../components/common";
 import { nest } from "../utils";
-import { CreatePost, LoadingCard } from "../ui";
 import { Alert, Snackbar } from "@mui/material";
 import { StoreState } from "../store";
 import { layoutLoadingActions } from "../store/layout-loading.slice";
+import { CreatePost } from "../components";
 
 export default function Home() {
   const role = useSelector((state: StoreState) => state.role.currentUser);
@@ -40,6 +40,9 @@ export default function Home() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
+    return () => {
+      dispatch(layoutLoadingActions.finishedLoading());
+    };
   }, [dispatch]);
 
   return (

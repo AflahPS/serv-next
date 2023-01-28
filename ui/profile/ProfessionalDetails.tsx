@@ -1,5 +1,6 @@
 import { Alert, Autocomplete, Box, MenuItem, Snackbar } from "@mui/material";
 import React, { MouseEvent, useState } from "react";
+import useSWR from "swr";
 import { COLOR, USERS } from "../../constants";
 import { LinkButton } from "../common";
 import { TabHeader } from "./TabHeader";
@@ -9,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
 import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
+import { Service } from "../../types";
 
 interface ReturnData {
   service: string;
@@ -154,6 +156,16 @@ export const ProfessionalDetails = () => {
     }
   };
 
+  // For fetching posts from backend
+  const fetcher = async () => {
+    const { data } = await nest({
+      url: "/service",
+      method: "GET",
+    });
+    return data;
+  };
+  const { data, error } = useSWR("services", fetcher);
+
   return (
     <>
       <TabHeader header="Professional Details" />
@@ -180,9 +192,13 @@ export const ProfessionalDetails = () => {
             setService(e.target.value);
           }}
         >
-          <MenuItem value={"63c262e58bcefb58e544c250"}>Painter</MenuItem>
-          <MenuItem value={"63c262e58bcefb58e544c251"}>Driver</MenuItem>
-          <MenuItem value={"63c262e58bcefb58e544c252"}>Masonry</MenuItem>
+          {data &&
+            data.map((serv: Service) => (
+              <MenuItem key={serv._id} value={serv._id}>
+                {serv.title}
+              </MenuItem>
+            ))}
+          {error && <MenuItem value="">Something went wrong !</MenuItem>}
         </StyledTextField>
 
         {/* ----------- Working Days --------------- */}

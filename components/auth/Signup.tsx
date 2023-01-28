@@ -19,6 +19,7 @@ import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
+import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 
 export const Signup = () => {
   const router = useRouter();
@@ -111,6 +112,7 @@ export const Signup = () => {
         dispatch(jwtActions.setToken(res.data?.token));
         dispatch(roleActions.user());
         dispatch(userDataActions.addUserData(res.data?.user));
+        dispatch(sideNavTabActions.push("Posts"));
 
         router.push("/auth/signup/checkpoint");
       }

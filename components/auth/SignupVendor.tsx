@@ -28,6 +28,7 @@ import { userDataActions } from "../../store/user-data.slice";
 import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { Service } from "../../types";
+import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 
 export const SignupVendor = () => {
   const dispatch = useDispatch();
@@ -248,6 +249,7 @@ export const SignupVendor = () => {
         dispatch(jwtActions.setToken(res.data?.token));
         dispatch(roleActions.vendor());
         dispatch(userDataActions.addUserData(res.data?.user));
+        dispatch(sideNavTabActions.push("Posts"));
 
         router.push("/");
       }

@@ -1,12 +1,13 @@
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import useSWR from "swr";
-import { CreatePost, LoadingCard, TabHeader } from "../../ui";
+import { LoadingCard, TabHeader } from "../../ui";
 import { Feed } from "../common";
 import { Snackbar, Alert } from "@mui/material";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { nest } from "../../utils";
+import { CreatePost } from "..";
 
 export const Timeline = () => {
   const role = useSelector((state: StoreState) => state.role.currentUser);

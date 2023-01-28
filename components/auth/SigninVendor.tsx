@@ -23,6 +23,7 @@ import { jwtActions } from "../../store/jwt.slice";
 import { validateEmail, lengthChecker, nest } from "../../utils";
 import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
+import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 
 export const SigninVendor = () => {
   const router = useRouter();
@@ -90,6 +91,7 @@ export const SigninVendor = () => {
         dispatch(jwtActions.setToken(data?.token));
         dispatch(roleActions.vendor());
         dispatch(userDataActions.addUserData(data?.user));
+        dispatch(sideNavTabActions.push("Posts"));
 
         router.push("/");
       }

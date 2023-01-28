@@ -21,9 +21,13 @@ const Profile = () => {
   const currentTab = useSelector(
     (state: StoreState) => state.profileTab.currentTab
   );
+  const role = useSelector((state: StoreState) => state.role.currentUser);
 
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
+    return () => {
+      dispatch(layoutLoadingActions.finishedLoading());
+    };
   }, [dispatch]);
 
   return (
@@ -37,7 +41,7 @@ const Profile = () => {
         }}
       >
         <ProfileHeader />
-        <AboutProfile />
+        {role === "vendor" && <AboutProfile />}
         <ProfileTabs />
         {currentTab === "timeline" && <Timeline />}
         {currentTab === "accountDetails" && <AccountDetails />}

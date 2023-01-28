@@ -8,7 +8,7 @@ export const Feed: React.FC<{ posts: Post[] }> = (props) => {
   return (
     <>
       {props?.posts?.map((post) => (
-        <FeedCard key={post._id} post={post} />
+        <FeedCard key={post._id} post={post} maxWidth="80%" />
       ))}
     </>
   );
