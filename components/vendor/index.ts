@@ -1,1 +1,1 @@
-export * from "./CreatePost";
+export * from "../../ui/common/CreatePost";

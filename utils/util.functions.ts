@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 export const validateEmail = (email: string) => {
   return String(email)
     ?.toLowerCase()
@@ -22,3 +24,15 @@ export const validatePhone = (num: string) => {
 };
 
 export const IsValidString = (str: string): boolean => str.trim().length > 0;
+
+export const axiosThrowerByMessage = (
+  err: any,
+  message: string,
+  cb: () => any
+) => {
+  if (err instanceof AxiosError) {
+    if (err?.response?.data?.message == message) return cb();
+    console.log(err?.response?.data?.message);
+  }
+  console.log(err?.message);
+};

@@ -1,19 +1,10 @@
-import { MongoDoc } from "./MongoDoc";
 import { Service } from "./Service";
+import { User } from "./User";
 
-export interface Vendor extends MongoDoc {
-  name: string;
-  email: string;
-  password: string;
-  service: Service | string;
-  location?: { type: string; coordinates: [number] };
-  place?: string;
-  phone: string;
+export interface Vendor extends User {
+  service: Service;
   about: string;
-  image?: string;
   experience?: number;
-  followers?: [string | {}];
-  requests?: [string | {}];
   employees?: [string | {}];
   jobs?: [string | {}];
   projects?: [string | {}];

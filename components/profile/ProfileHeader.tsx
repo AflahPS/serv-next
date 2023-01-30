@@ -4,12 +4,12 @@ import { Avatar, IconButton, Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { User } from "../../types";
 
-export const ProfileHeader = () => {
-  const user = useSelector((state: StoreState) => state.user.data);
-
+export const ProfileHeader: React.FC<{
+  user: User;
+  isProfileOwner: boolean;
+}> = ({ user, isProfileOwner }) => {
   return (
     <Stack height={270} gap={1}>
       {/* ------COVER------- */}
@@ -32,20 +32,22 @@ export const ProfileHeader = () => {
         >
           {user.name || ""}
         </Avatar>
-        <IconButton
-          color="primary"
-          aria-label="upload picture"
-          component="label"
-          sx={{
-            margin: 2,
-            backgroundColor: COLOR["H1d-ui-bg"],
-            color: COLOR["H1d-ui-primary"],
-            borderRadius: 3,
-          }}
-        >
-          <input hidden accept="image/*" type="file" />
-          <CreateOutlined />
-        </IconButton>
+        {isProfileOwner && (
+          <IconButton
+            color="primary"
+            aria-label="upload picture"
+            component="label"
+            sx={{
+              margin: 2,
+              backgroundColor: COLOR["H1d-ui-bg"],
+              color: COLOR["H1d-ui-primary"],
+              borderRadius: 3,
+            }}
+          >
+            <input hidden accept="image/*" type="file" />
+            <CreateOutlined />
+          </IconButton>
+        )}
       </Box>
       {/* -----Title------- */}
       <Box
@@ -66,7 +68,7 @@ export const ProfileHeader = () => {
           <div></div>
         </Stack>
         <Box display={"flex"} gap={1} marginRight={2}>
-          <StatStack name="Posts" stat="5" />
+          <StatStack name="Posts" stat="0" />
           <StatStack
             name="Follwers"
             stat={(user.followers && String(user.followers?.length)) || "0"}

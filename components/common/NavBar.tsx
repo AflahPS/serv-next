@@ -32,6 +32,7 @@ import Link from "next/link";
 import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { SearchContainer } from "../../ui";
+import { userDataActions } from "../../store/user-data.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -75,6 +76,7 @@ export const NavBar = () => {
     dispatch(authActions.logout());
     dispatch(roleActions.guest());
     dispatch(jwtActions.setToken(null));
+    dispatch(userDataActions.removeUserData());
   };
   return (
     <AppBar position="sticky">

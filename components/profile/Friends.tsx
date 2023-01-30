@@ -15,8 +15,12 @@ import {
 import { CheckOutlined, ClearOutlined } from "@mui/icons-material";
 import { LinkButton, SearchContainer, TabHeader } from "../../ui";
 import { USERS } from "../../constants";
+import { Vendor } from "../../types";
 
-export const Friends = () => {
+export const Friends: React.FC<{
+  user: Vendor;
+  isProfileOwner: boolean;
+}> = ({ user, isProfileOwner }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -78,30 +82,43 @@ export const Friends = () => {
                 >
                   12 Mutual Friends
                 </Typography>
-                <LinkButton
-                  variant="outlined"
-                  id={`follow-button-${index}`}
-                  startIcon={<CheckOutlined color="success" />}
-                  onClick={handleMenuClick}
-                >
-                  Following
-                </LinkButton>
-                <Menu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={openMenu}
-                  onClose={handleClose}
-                  MenuListProps={{
-                    "aria-labelledby": `follow-button-${index}`,
-                  }}
-                >
-                  <MenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                      <ClearOutlined color="error" fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Unfollow</ListItemText>
-                  </MenuItem>
-                </Menu>
+                {isProfileOwner && (
+                  <>
+                    <LinkButton
+                      variant="outlined"
+                      id={`follow-button-${index}`}
+                      startIcon={<CheckOutlined color="success" />}
+                      onClick={handleMenuClick}
+                    >
+                      Following
+                    </LinkButton>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={openMenu}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        "aria-labelledby": `follow-button-${index}`,
+                      }}
+                    >
+                      <MenuItem onClick={handleClose}>
+                        <ListItemIcon>
+                          <ClearOutlined color="error" fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Unfollow</ListItemText>
+                      </MenuItem>
+                    </Menu>
+                  </>
+                )}
+                {!isProfileOwner && (
+                  <LinkButton
+                    variant="outlined"
+                    endIcon={<CheckOutlined color="success" />}
+                    //  onClick={handleMenuClick}
+                  >
+                    Follow
+                  </LinkButton>
+                )}
               </CardContent>
             </Card>
           </Grid>

@@ -3,13 +3,10 @@ import React from "react";
 import { StatStack } from "../../ui";
 import { Typography } from "@mui/material";
 import { COLOR } from "../../constants";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { Vendor } from "../../types";
 
-export const AboutProfile = () => {
-  const user = useSelector((state: StoreState) => state.user.data);
-
-  const service = typeof user.service !== "string" ? user.service?.title : "";
+export const AboutProfile: React.FC<{ user: Vendor }> = ({ user }) => {
+  const service = user?.vendor?.service?.title || "-";
 
   return (
     <Stack
@@ -39,7 +36,11 @@ export const AboutProfile = () => {
         <StatStack name="Service" stat={service} />
         <StatStack
           name="Projects"
-          stat={(user?.projects && user?.projects.length.toString()) || ""}
+          stat={
+            (user?.vendor?.projects &&
+              user?.vendor?.projects.length.toString()) ||
+            "0"
+          }
         />
         <StatStack name="Location" stat={user.place} />
       </Stack>

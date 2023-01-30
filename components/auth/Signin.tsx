@@ -26,6 +26,7 @@ import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
+import { User } from "../../types";
 
 export const Signin = () => {
   const router = useRouter();
@@ -59,7 +60,7 @@ export const Signin = () => {
     const password = String(passwordInput).trim();
 
     const isEmail = validateEmail(email);
-    const isPassword = lengthChecker(password, 8, 50);
+    const isPassword = lengthChecker(password, 6, 50);
 
     if (!isEmail) {
       setEmailVeriied(false);
@@ -87,10 +88,17 @@ export const Signin = () => {
         data,
       });
       if (res.data?.status === "success") {
+        const user: User = res.data?.user;
         setOpen(true);
         dispatch(authActions.login());
         dispatch(jwtActions.setToken(res.data?.token));
-        dispatch(roleActions.user());
+        dispatch(
+          user.role === "user"
+            ? roleActions.user()
+            : user.role === "vendor"
+            ? roleActions.vendor()
+            : roleActions.guest()
+        );
         dispatch(userDataActions.addUserData(res.data?.user));
         dispatch(sideNavTabActions.push("Posts"));
         router.push("/");
@@ -219,7 +227,7 @@ export const Signin = () => {
                 <Link href={"/auth/signup"}>Sign Up</Link>
               </Button>
             </Typography>
-            <LinkButton
+            {/* <LinkButton
               variant="outlined"
               onClick={() => {
                 router.push("/auth/signin/vendor");
@@ -227,7 +235,7 @@ export const Signin = () => {
               endIcon={<ChevronRightOutlined />}
             >
               Sign in as vendor
-            </LinkButton>
+            </LinkButton> */}
           </Box>
         </Box>
       </Stack>

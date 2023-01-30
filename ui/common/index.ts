@@ -5,3 +5,5 @@ export * from "./SearchContainer";
 export * from "./TextField";
 export * from "./TextFieldCustom2";
 export * from "./CommentCard";
+export * from "./CreatePost";
+export * from "./EditPost";

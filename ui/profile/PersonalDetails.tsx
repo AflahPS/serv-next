@@ -36,12 +36,16 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
+import { Vendor } from "../../types";
 
-export const PersonalDetails = () => {
+export const PersonalDetails: React.FC<{
+  user: Vendor;
+  isProfileOwner: boolean;
+}> = ({ user, isProfileOwner }) => {
   const dispatch = useDispatch();
-  const user = useSelector((state: StoreState) => state.user.data);
+  // const user = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
-  const role = useSelector((state: StoreState) => state.role.currentUser);
+  const role = user.role;
 
   const [isDpUploading, setIsDpUploading] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
@@ -124,7 +128,7 @@ export const PersonalDetails = () => {
       }
       const { data } = await nest({
         method: "PATCH",
-        url: `/${role}/image`,
+        url: `/user/image`,
         data: { image: newDp },
         headers: {
           Authorization: "Bearer " + token,
@@ -299,14 +303,11 @@ export const PersonalDetails = () => {
         return;
       }
       const dataV = verifiyData();
-      console.log(
-        "🚀 ~ file: PersonalDetails.tsx:303 ~ handleSaveClick ~ dataV",
-        dataV
-      );
+
       if (!dataV) return;
       const { data } = await nest({
         method: "PATCH",
-        url: `/${role}/personal`,
+        url: `/user/personal`,
         data: dataV,
         headers: {
           Authorization: "Bearer " + token,
@@ -509,14 +510,16 @@ export const PersonalDetails = () => {
             }}
           />
 
-          <LinkButton
-            variant="outlined"
-            onClick={handleSaveClick}
-            sx={{ alignSelf: "end", paddingX: 3, marginY: 2, marginRight: 1 }}
-            startIcon={isEditable ? <SaveAltOutlined /> : <CreateOutlined />}
-          >
-            {isEditable ? "Save" : "Edit"}
-          </LinkButton>
+          {isProfileOwner && (
+            <LinkButton
+              variant="outlined"
+              onClick={handleSaveClick}
+              sx={{ alignSelf: "end", paddingX: 3, marginY: 2, marginRight: 1 }}
+              startIcon={isEditable ? <SaveAltOutlined /> : <CreateOutlined />}
+            >
+              {isEditable ? "Save" : "Edit"}
+            </LinkButton>
+          )}
         </Box>
       </Box>
       <Snackbar

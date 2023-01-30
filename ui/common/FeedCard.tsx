@@ -35,6 +35,8 @@ import { LinkButton } from "./LinkButton";
 import { Comments } from "../../components/common";
 import { nest } from "../../utils";
 import { Like } from "../../types";
+import { CreatePost } from "../../components";
+import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -59,6 +61,10 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   const user = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
 
+  const isOwner =
+    user?.name && post.owner?._id?.toString() === user?._id?.toString();
+
+  const [isEditable, setIsEditable] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [likeCount, setLikeCount] = useState<number>(0);
 
@@ -86,8 +92,11 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
         if (!user || !data) return;
         setLikeCount(data?.results);
         if (!data?.results) return;
+        console.log(data?.likes);
+        console.log(user);
+
         const liked = data?.likes.some(
-          (like: Like) => like.user.toString() === user._id.toString()
+          (like: Like) => like?.user?._id?.toString() === user?._id?.toString()
         );
         liked && setIsChecked(liked);
       })();
@@ -126,134 +135,180 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
   };
 
+  const handleReportClick = async () => {
+    setAnchorEl(null);
+  };
+  const handleEditClick = async () => {
+    setAnchorEl(null);
+    setIsEditable(true);
+  };
+  const handleRemoveClick = async () => {
+    setAnchorEl(null);
+  };
+
   return (
     <>
-      <Card
-        sx={{
-          backgroundColor: COLOR["H1d-ui-bg"],
-          maxWidth: maxWidth || "100%",
-          marginX: "auto",
-          marginBottom: "16px",
-          boxShadow: 8,
-          borderRadius: 3,
-        }}
-      >
-        {/*  Header with avatar, name and morebutton */}
-        <CardHeader
-          avatar={
-            <Avatar
-              sx={{ bgcolor: "red" }}
-              aria-label="owner-image"
-              src={post.owner.image}
-            ></Avatar>
-          }
-          action={
-            role !== "guest" && (
-              <>
-                <IconButton onClick={handleMoreClick} aria-label="settings">
-                  <MoreVert />
-                </IconButton>
-                <Menu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                  }}
-                >
-                  <MenuItem onClick={handleClose}>Report</MenuItem>
-                </Menu>
-              </>
-            )
-          }
-          title={post.owner.name}
-          subheader="September 14, 2022"
-        />
+      {isEditable && (
+        <Card
+          sx={{
+            backgroundColor: COLOR["H1d-ui-bg"],
+            maxWidth: maxWidth || "100%",
+            marginX: "auto",
+            marginBottom: "16px",
+            boxShadow: 8,
+            borderRadius: 3,
+          }}
+        >
+          <EditPost post={post} setIsEditable={setIsEditable} />
+        </Card>
+      )}
+      {!isEditable && (
+        <Card
+          sx={{
+            backgroundColor: COLOR["H1d-ui-bg"],
+            maxWidth: maxWidth || "100%",
+            marginX: "auto",
+            marginBottom: "16px",
+            boxShadow: 8,
+            borderRadius: 3,
+          }}
+        >
+          {/*  Header with avatar, name and morebutton */}
+          <CardHeader
+            avatar={
+              <Avatar
+                sx={{ bgcolor: "red" }}
+                aria-label="owner-image"
+                src={post.owner?.image}
+              ></Avatar>
+            }
+            action={
+              (role !== "guest" && !isOwner && (
+                <>
+                  <IconButton onClick={handleMoreClick} aria-label="settings">
+                    <MoreVert />
+                  </IconButton>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      "aria-labelledby": "basic-button",
+                    }}
+                  >
+                    <MenuItem onClick={handleReportClick}>Report</MenuItem>
+                  </Menu>
+                </>
+              )) ||
+              (isOwner && (
+                <>
+                  <IconButton onClick={handleMoreClick} aria-label="settings">
+                    <MoreVert />
+                  </IconButton>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      "aria-labelledby": "basic-button",
+                    }}
+                  >
+                    <MenuItem onClick={handleEditClick}>Edit</MenuItem>
+                    <MenuItem onClick={handleRemoveClick}>Remove</MenuItem>
+                  </Menu>
+                </>
+              ))
+            }
+            title={post.owner.name}
+            subheader="September 14, 2022"
+          />
 
-        {/*  Image carousel  */}
+          {/*  Image carousel  */}
 
-        {post.media.length > 0 && (
-          <Carousel autoPlay={false}>
-            {post.media.map((image, ind) => (
-              <CardMedia
-                key={ind}
-                component={"img"}
-                image={image}
-                alt={`Post image`}
-              />
-            ))}
-          </Carousel>
-        )}
+          {post.media.length > 0 && (
+            <Carousel autoPlay={false}>
+              {post.media.map((image, ind) => (
+                <CardMedia
+                  key={ind}
+                  component={"img"}
+                  image={image}
+                  alt={`Post image`}
+                />
+              ))}
+            </Carousel>
+          )}
 
-        {/*  CAPTION */}
+          {/*  CAPTION */}
 
-        <CardContent>
-          <Typography variant="body2" color="text.secondary">
-            {post.caption}
-          </Typography>
-        </CardContent>
-
-        {/* ACTIOnssss */}
-
-        {role !== "guest" && (
-          <CardActions disableSpacing>
-            <IconButton aria-label="add to favorites">
-              {/* <Label  /> */}
-
-              <Checkbox
-                id={`checkbox-${post._id}`}
-                icon={<FavoriteBorder />}
-                checkedIcon={<Favorite sx={{ color: "red" }} />}
-                onClick={handleLikeClick}
-                checked={isChecked}
-              />
-            </IconButton>
-            <Typography variant="body2" color={"Menu"}>
-              {likeCount}
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {post.caption}
             </Typography>
-
-            <ExpandMore
-              expand={expanded}
-              onClick={handleExpandClick}
-              aria-expanded={expanded}
-              aria-label="show more"
-            >
-              <ChatBubbleOutlineOutlined />
-            </ExpandMore>
-          </CardActions>
-        )}
-
-        {/*  CoMMENTS SECTION  */}
-
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "end",
-            }}
-          >
-            <Comments comments={COMMENTS} />
-            <TextFieldCustom2
-              placeholder="Type a comment here..."
-              size="small"
-              sx={{ width: "88%", margin: 1 }}
-              InputProps={{
-                sx: { paddingX: 1, paddingY: 1 },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <LinkButton endIcon={<SendOutlined />} variant="outlined">
-                      Add
-                    </LinkButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
           </CardContent>
-        </Collapse>
-      </Card>
+
+          {/* ACTIOnssss */}
+
+          {role !== "guest" && (
+            <CardActions disableSpacing>
+              <IconButton aria-label="add to favorites">
+                {/* <Label  /> */}
+
+                <Checkbox
+                  id={`checkbox-${post._id}`}
+                  icon={<FavoriteBorder />}
+                  checkedIcon={<Favorite sx={{ color: "red" }} />}
+                  onClick={handleLikeClick}
+                  checked={isChecked}
+                />
+              </IconButton>
+              <Typography variant="body2" color={"Menu"}>
+                {likeCount}
+              </Typography>
+
+              <ExpandMore
+                expand={expanded}
+                onClick={handleExpandClick}
+                aria-expanded={expanded}
+                aria-label="show more"
+              >
+                <ChatBubbleOutlineOutlined />
+              </ExpandMore>
+            </CardActions>
+          )}
+
+          {/*  CoMMENTS SECTION  */}
+
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "end",
+              }}
+            >
+              <Comments comments={COMMENTS} />
+              <TextFieldCustom2
+                placeholder="Type a comment here..."
+                size="small"
+                sx={{ width: "88%", margin: 1 }}
+                InputProps={{
+                  sx: { paddingX: 1, paddingY: 1 },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LinkButton endIcon={<SendOutlined />} variant="outlined">
+                        Add
+                      </LinkButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </CardContent>
+          </Collapse>
+        </Card>
+      )}
     </>
   );
 };

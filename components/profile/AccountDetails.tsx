@@ -1,11 +1,13 @@
 import { Box } from "@mui/system";
 import React from "react";
 import { PersonalDetails, ProfessionalDetails } from "../../ui";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { Vendor } from "../../types";
 
-export const AccountDetails = () => {
-  const role = useSelector((state: StoreState) => state.role.currentUser);
+export const AccountDetails: React.FC<{
+  user: Vendor;
+  isProfileOwner: boolean;
+}> = ({ user, isProfileOwner }) => {
+  const role = user?.role;
 
   return (
     <Box
@@ -14,8 +16,10 @@ export const AccountDetails = () => {
         borderRadius: 3,
       }}
     >
-      <PersonalDetails />
-      {role === "vendor" && <ProfessionalDetails />}
+      <PersonalDetails user={user} isProfileOwner={isProfileOwner} />
+      {role === "vendor" && (
+        <ProfessionalDetails user={user} isProfileOwner={isProfileOwner} />
+      )}
     </Box>
   );
 };

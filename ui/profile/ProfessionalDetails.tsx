@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
 import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
-import { Service } from "../../types";
+import { Service, Vendor } from "../../types";
 
 interface ReturnData {
   service: string;
@@ -20,10 +20,13 @@ interface ReturnData {
   about: string;
 }
 
-export const ProfessionalDetails = () => {
+export const ProfessionalDetails: React.FC<{
+  user: Vendor;
+  isProfileOwner: boolean;
+}> = ({ user, isProfileOwner }) => {
   const dispatch = useDispatch();
   const token = useSelector((state: StoreState) => state.jwt.token);
-  const user = useSelector((state: StoreState) => state.user.data);
+  // const user = useSelector((state: StoreState) => state.user.data);
 
   const [serviceVerified, setServiceVerified] = useState(true);
   const [workingDaysVerified, setWorkingDaysVerified] = useState(true);
@@ -32,19 +35,19 @@ export const ProfessionalDetails = () => {
   const [descriptionVerified, setDescriptionVerified] = useState(true);
 
   const [service, setService] = useState(
-    (user?.service && String(user?.service)) || ""
+    (user?.vendor?.service?._id && String(user?.vendor?.service?._id)) || ""
   );
   const [workingDays, setWorkingDays] = useState(
-    (user?.workingDays && String(user?.workingDays)) || ""
+    (user?.vendor?.workingDays && String(user?.vendor?.workingDays)) || ""
   );
   const [workRadius, setWorkRadius] = useState(
-    (user?.workRadius && String(user?.workRadius)) || ""
+    (user?.vendor?.workRadius && String(user?.vendor?.workRadius)) || ""
   );
   const [experience, setExperience] = useState(
-    (user?.experience && String(user?.experience)) || ""
+    (user?.vendor?.experience && String(user?.vendor?.experience)) || ""
   );
   const [description, setDescription] = useState(
-    (user?.about && String(user?.about)) || ""
+    (user?.vendor?.about && String(user?.vendor?.about)) || ""
   );
 
   const [isEditable, setIsEditable] = useState(false);
@@ -108,6 +111,7 @@ export const ProfessionalDetails = () => {
     return data;
   };
 
+  // Save Button Click
   const handleSaveClick = async (event: MouseEvent) => {
     try {
       event.preventDefault();
@@ -116,10 +120,7 @@ export const ProfessionalDetails = () => {
         return;
       }
       const dataV = verifyData();
-      console.log(
-        "🚀 ~ file: ProfessionalDetails.tsx:114 ~ handleSaveClick ~ dataV",
-        dataV
-      );
+
       if (!dataV) return;
       console.log(dataV);
       const { data } = await nest({
@@ -158,11 +159,15 @@ export const ProfessionalDetails = () => {
 
   // For fetching posts from backend
   const fetcher = async () => {
-    const { data } = await nest({
-      url: "/service",
-      method: "GET",
-    });
-    return data;
+    try {
+      const { data } = await nest({
+        url: "/service",
+        method: "GET",
+      });
+      return data;
+    } catch (err: any) {
+      console.log(err?.message);
+    }
   };
   const { data, error } = useSWR("services", fetcher);
 
@@ -194,7 +199,13 @@ export const ProfessionalDetails = () => {
         >
           {data &&
             data.map((serv: Service) => (
-              <MenuItem key={serv._id} value={serv._id}>
+              <MenuItem
+                selected={
+                  serv._id.toString() === user.vendor?.service?._id?.toString()
+                }
+                key={serv._id}
+                value={serv._id}
+              >
                 {serv.title}
               </MenuItem>
             ))}
@@ -310,15 +321,22 @@ export const ProfessionalDetails = () => {
           }}
         />
 
-        <LinkButton
-          variant="outlined"
-          sx={{ alignSelf: "end", paddingX: 3, marginY: 2, marginRight: 1 }}
-          onClick={handleSaveClick}
-          startIcon={isEditable ? <SaveAltOutlined /> : <CreateOutlined />}
-        >
-          {isEditable ? "Save" : "Edit"}
-        </LinkButton>
+        {/* Save/Edit button */}
+
+        {isProfileOwner && (
+          <LinkButton
+            variant="outlined"
+            sx={{ alignSelf: "end", paddingX: 3, marginY: 2, marginRight: 1 }}
+            onClick={handleSaveClick}
+            startIcon={isEditable ? <SaveAltOutlined /> : <CreateOutlined />}
+          >
+            {isEditable ? "Save" : "Edit"}
+          </LinkButton>
+        )}
       </Box>
+
+      {/* Error Message */}
+
       <Snackbar
         open={openError}
         autoHideDuration={6000}
@@ -332,6 +350,9 @@ export const ProfessionalDetails = () => {
           {errMessage}
         </Alert>
       </Snackbar>
+
+      {/* Success message */}
+
       <Snackbar
         open={openSuccess}
         autoHideDuration={6000}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   DeleteOutlineOutlined,
   PermMediaOutlined,
@@ -25,7 +25,7 @@ import { Box, Stack } from "@mui/system";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { nest, uploadImages } from "../../utils";
-import { LinkButton, TextFieldCustom2 } from "../../ui";
+import { LinkButton, TextFieldCustom2 } from "..";
 import { COLOR, USERS, PROJECTS } from "../../constants";
 
 export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
@@ -34,14 +34,12 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [previewUrl, setPreviewUrl] = useState<string[]>([]);
   const [errMessage, setErrMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [caption, setCaption] = useState("");
   const [project, setProject] = useState("");
 
   const token = useSelector((state: any) => state.jwt?.token);
 
-  const [open, setOpen] = React.useState(false);
-
+  const [open, setOpen] = useState(false);
   const handleClose = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -51,8 +49,6 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
     }
     setOpen(false);
   };
-
-  // const projectRef = useRef<TextFieldProps>();
 
   const handleMediaSelected = async (
     event: React.FormEvent<HTMLInputElement>
@@ -141,7 +137,6 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
           Authorization: "Bearer " + token,
         },
       });
-      console.log("🚀 ~ file: CreatePost.tsx:143 ~ handlePost ~ res", res);
       if (res.data?.status === "success") {
         setLoading(false);
         setOpen(true);

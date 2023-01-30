@@ -1,53 +1,34 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
 import { Layout } from "../../components/common";
-import { LoadingCard } from "../../ui";
-
-import {
-  AboutProfile,
-  AccountDetails,
-  Activities,
-  Friends,
-  ProfileHeader,
-  ProfileTabs,
-  Timeline,
-} from "../../components/profile";
-import { Box, Card } from "@mui/material";
+import { ProfileComplete } from "../../components/profile";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
+import { useRouter } from "next/router";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const currentTab = useSelector(
-    (state: StoreState) => state.profileTab.currentTab
-  );
-  const role = useSelector((state: StoreState) => state.role.currentUser);
+  const router = useRouter();
+  const user = useSelector((state: StoreState) => state.user.data);
+  console.log("🚀 ~ file: index.tsx:14 ~ Profile ~ user", user);
 
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
     return () => {
       dispatch(layoutLoadingActions.finishedLoading());
     };
-  }, [dispatch]);
+  }, []);
+
+  useEffect(() => {
+    if (!user.name) {
+      router.push("/");
+    }
+  }, []);
 
   return (
     <Layout>
-      <Box
-        sx={{
-          maxWidth: "85%",
-          marginX: "auto",
-          marginBottom: "16px",
-          borderRadius: 3,
-        }}
-      >
-        <ProfileHeader />
-        {role === "vendor" && <AboutProfile />}
-        <ProfileTabs />
-        {currentTab === "timeline" && <Timeline />}
-        {currentTab === "accountDetails" && <AccountDetails />}
-        {currentTab === "friends" && <Friends />}
-        {currentTab === "activities" && <Activities />}
-      </Box>
+      <ProfileComplete user={user} />
     </Layout>
   );
 };

@@ -1,4 +1,5 @@
 import { MongoDoc } from "./MongoDoc";
+import { Vendor } from "./Vendor";
 
 export interface User extends MongoDoc {
   name: string;
@@ -10,4 +11,6 @@ export interface User extends MongoDoc {
   phone?: string;
   followers?: [string | {}];
   requests?: [string | {}];
+  role: string;
+  vendor?: Vendor;
 }
