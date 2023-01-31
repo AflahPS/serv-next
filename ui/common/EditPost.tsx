@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  CancelOutlined,
   DeleteOutlineOutlined,
   PermMediaOutlined,
   SendOutlined,
@@ -28,21 +29,22 @@ import { nest, uploadImages } from "../../utils";
 import { LinkButton, TextFieldCustom2 } from "..";
 import { COLOR, USERS, PROJECTS } from "../../constants";
 import { Post } from "../../types";
+import { StoreState } from "../../store";
 
 export const EditPost: React.FC<{
   extraSx?: {};
   post: Post;
   setIsEditable: (input: boolean) => void;
 }> = ({ extraSx, post, setIsEditable }) => {
-  const [tags, setTags] = useState(post.tagged || []);
-  const [medias, setMedias] = useState<File[]>([]);
+  const [tags, setTags] = useState([]);
+  const [medias, setMedias] = useState<(File | string)[]>(post.media || []);
   const [previewUrl, setPreviewUrl] = useState<string[]>(post.media || []);
   const [errMessage, setErrMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [caption, setCaption] = useState(post.caption || "");
-  const [project, setProject] = useState(post?.project || "");
+  const [project, setProject] = useState(post.project || "");
 
-  const token = useSelector((state: any) => state.jwt?.token);
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
   const [open, setOpen] = useState(false);
   const handleClose = (
@@ -130,7 +132,6 @@ export const EditPost: React.FC<{
   const handlePost = async () => {
     try {
       const data = await verifyData();
-      console.log("🚀 ~ file: EditPost.tsx:131 ~ handlePost ~ data", data);
       if (!data) {
         setLoading(false);
         return;
@@ -153,12 +154,13 @@ export const EditPost: React.FC<{
         setMedias([]);
         setPreviewUrl([]);
         setErrMessage("");
+        setIsEditable(false);
         // return props.setIsEditable(false);
       }
     } catch (err: any) {
       setLoading(false);
-      setErrMessage(err.message || "Something went wrong !");
-      console.log(err?.message);
+      setErrMessage("Something went wrong !");
+      console.log(err);
     }
   };
 
@@ -171,8 +173,6 @@ export const EditPost: React.FC<{
         sx={{
           boxShadow: 8,
           borderRadius: 3,
-          // maxWidth: "80%",
-          // width: "100%",
           marginX: "auto",
           paddingBottom: 3,
           marginBottom: "16px",
@@ -223,8 +223,6 @@ export const EditPost: React.FC<{
                   <Image
                     src={preview}
                     alt=""
-                    // loading="lazy"
-
                     width={90}
                     height={90}
                     className="my-auto"
@@ -248,14 +246,7 @@ export const EditPost: React.FC<{
           )}
         </Stack>
         <Divider variant="middle" sx={{ color: COLOR["H1d-font-primary"] }} />
-        <Box
-          padding={3}
-          // marginLeft={"auto"}
-          // marginRight={5}
-          display={"flex"}
-          justifyContent={"center"}
-          // alignItems={"center"}
-        >
+        <Box padding={3} display={"flex"} justifyContent={"center"}>
           <Autocomplete
             multiple
             onChange={(event: any, value: any) => {
@@ -326,9 +317,22 @@ export const EditPost: React.FC<{
             flex={1}
             display={"flex"}
             justifyContent={"end"}
+            gap={2}
             marginRight={2}
             sx={{ marginY: { xs: 3, md: 0 } }}
           >
+            <LinkButton
+              // style={{ backgroundColor: COLOR["H1d-ui-secondary"] }}
+              variant="contained"
+              color="uiBgLight"
+              className="bg-H1d-ui-secondary"
+              endIcon={<CancelOutlined />}
+              onClick={() => {
+                setIsEditable(false);
+              }}
+            >
+              Cancel
+            </LinkButton>
             <LinkButton
               // style={{ backgroundColor: COLOR["H1d-ui-secondary"] }}
               variant="contained"
@@ -343,7 +347,7 @@ export const EditPost: React.FC<{
               }
               onClick={handlePost}
             >
-              Post
+              Update
             </LinkButton>
           </Box>
         </Stack>
@@ -359,7 +363,7 @@ export const EditPost: React.FC<{
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfully created new post !
+          Successfullyupdated the post, changes will be in effect soon !
         </Alert>
       </Snackbar>
     </>

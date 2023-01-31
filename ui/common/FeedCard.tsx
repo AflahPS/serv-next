@@ -7,6 +7,7 @@ import {
   SendOutlined,
 } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Card,
   CardActions,
@@ -20,6 +21,7 @@ import {
   InputAdornment,
   Menu,
   MenuItem,
+  Snackbar,
   Typography,
   styled,
 } from "@mui/material";
@@ -82,6 +84,42 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     setExpanded(!expanded);
   };
 
+  //----- ERROR, Success message Snackbar related properties
+  const [errMessage, setErrMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [openError, setOpenError] = React.useState(false);
+  const [openSuccess, setOpenSuccess] = React.useState(false);
+
+  const handleCloseError = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenError(false);
+  };
+
+  const handleCloseSuccess = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSuccess(false);
+  };
+
+  const errorSetter = (message: string) => {
+    setErrMessage(message);
+    setOpenError(true);
+  };
+
+  const successSetter = (message: string) => {
+    setSuccessMessage(message);
+    setOpenSuccess(true);
+  };
+
   useEffect(() => {
     try {
       (async () => {
@@ -136,14 +174,39 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   };
 
   const handleReportClick = async () => {
-    setAnchorEl(null);
+    try {
+      setAnchorEl(null);
+      const { data } = await nest({
+        method: "PATCH",
+        url: `post/report/${post._id}`,
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (data.status === "success") successSetter("Reported successfully !");
+    } catch (err: any) {
+      console.error(err?.message);
+      errorSetter("Something went wrong while reporting !");
+    }
   };
+
   const handleEditClick = async () => {
     setAnchorEl(null);
     setIsEditable(true);
   };
+
   const handleRemoveClick = async () => {
     setAnchorEl(null);
+    const { data } = await nest({
+      method: "DELETE",
+      url: `post/${post._id}`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data.status === "success") {
+      successSetter("Post removed successfully !!");
+    }
   };
 
   return (
@@ -309,6 +372,34 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
           </Collapse>
         </Card>
       )}
+
+      <Snackbar
+        open={openError}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+      >
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {errMessage}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={openSuccess}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccess}
+      >
+        <Alert
+          onClose={handleCloseSuccess}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

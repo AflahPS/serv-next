@@ -43,10 +43,15 @@ async function uploadImageToS3(image: File) {
     });
 }
 
-export const uploadImages = async (images: File[]) => {
+export const uploadImages = async (images: (File | string)[]) => {
   const uploadedUrls = [];
   for (let i = 0; i < images.length; i++) {
-    const uploaded = await uploadImageToS3(images[i]);
+    let uploaded;
+    if (images[i] instanceof File) {
+      uploaded = await uploadImageToS3(images[i] as File);
+    } else {
+      uploaded = images[i];
+    }
     uploadedUrls.push(uploaded);
   }
   return uploadedUrls;
