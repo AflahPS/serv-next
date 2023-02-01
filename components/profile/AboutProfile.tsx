@@ -3,9 +3,9 @@ import React from "react";
 import { StatStack } from "../../ui";
 import { Typography } from "@mui/material";
 import { COLOR } from "../../constants";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 
-export const AboutProfile: React.FC<{ user: Vendor }> = ({ user }) => {
+export const AboutProfile: React.FC<{ user: User }> = ({ user }) => {
   const service = user?.vendor?.service?.title || "-";
 
   return (
@@ -24,7 +24,7 @@ export const AboutProfile: React.FC<{ user: Vendor }> = ({ user }) => {
           variant="body1"
           color={COLOR["H1d-font-primary"]}
         >
-          {user?.about || ""}
+          {user.vendor?.about || ""}
         </Typography>
       </Box>
       <Stack

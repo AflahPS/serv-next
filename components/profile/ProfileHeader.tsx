@@ -1,15 +1,51 @@
-import React from "react";
-import { CreateOutlined } from "@mui/icons-material";
-import { Avatar, IconButton, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  CreateOutlined,
+  HourglassBottomOutlined,
+  HowToRegOutlined,
+  PersonAddAlt1Outlined,
+} from "@mui/icons-material";
+import { Avatar, IconButton, Typography, fabClasses } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
 import { User } from "../../types";
+import { useSelector } from "react-redux";
+import { StoreState } from "../../store";
+import { checkIfFriends } from "../../utils";
 
 export const ProfileHeader: React.FC<{
   user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
+  const [isFriend, setIsFriend] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
+
+  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const currentUserRole = useSelector(
+    (state: StoreState) => state.role.currentUser
+  );
+
+  useEffect(() => {
+    if (checkIfFriends(currentUser, user)) {
+      setIsFriend(true);
+    }
+  }, [currentUser, user]);
+
+  const handleAddFriend = async () => {
+    // Write the code to add a friend
+    setIsAdded(true);
+  };
+  const handleRemoveFriend = async () => {
+    // Write the code to Remove a friend
+    // setIsFriend(false)
+  };
+  const handleCancelRequestFriend = async () => {
+    // Write the code to Cancel Request sent to a friend
+    // setAdded(false)
+    setIsAdded(false);
+  };
+
   return (
     <Stack height={270} gap={1}>
       {/* ------COVER------- */}
@@ -47,6 +83,58 @@ export const ProfileHeader: React.FC<{
             <input hidden accept="image/*" type="file" />
             <CreateOutlined />
           </IconButton>
+        )}
+        {!isProfileOwner && currentUserRole !== "guest" && (
+          <>
+            {!isAdded && !isFriend && (
+              <IconButton
+                color="primary"
+                aria-label="add-friend"
+                component="label"
+                onClick={handleAddFriend}
+                sx={{
+                  margin: 2,
+                  backgroundColor: COLOR["H1d-ui-bg"],
+                  color: COLOR["H1d-ui-primary"],
+                  borderRadius: 3,
+                }}
+              >
+                <PersonAddAlt1Outlined />
+              </IconButton>
+            )}
+            {isAdded && !isFriend && (
+              <IconButton
+                color="primary"
+                aria-label="cancel-friend-request"
+                component="label"
+                onClick={handleCancelRequestFriend}
+                sx={{
+                  margin: 2,
+                  backgroundColor: COLOR["H1d-ui-bg"],
+                  color: COLOR["H1d-ui-primary"],
+                  borderRadius: 3,
+                }}
+              >
+                <HourglassBottomOutlined />
+              </IconButton>
+            )}
+            {isFriend && (
+              <IconButton
+                color="primary"
+                aria-label="remove-friend"
+                component="label"
+                onClick={handleRemoveFriend}
+                sx={{
+                  margin: 2,
+                  backgroundColor: COLOR["H1d-ui-bg"],
+                  color: COLOR["H1d-ui-primary"],
+                  borderRadius: 3,
+                }}
+              >
+                <HowToRegOutlined />
+              </IconButton>
+            )}
+          </>
         )}
       </Box>
       {/* -----Title------- */}

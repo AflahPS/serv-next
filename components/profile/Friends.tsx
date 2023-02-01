@@ -15,10 +15,10 @@ import {
 import { CheckOutlined, ClearOutlined } from "@mui/icons-material";
 import { LinkButton, SearchContainer, TabHeader } from "../../ui";
 import { USERS } from "../../constants";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 
 export const Friends: React.FC<{
-  user: Vendor;
+  user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

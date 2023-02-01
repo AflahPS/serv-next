@@ -1,9 +1,31 @@
 import { List } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Comment } from "../../types";
 import { CommentCard } from "../../ui";
+import { nest } from "../../utils";
 
-export const Comments: React.FC<{ comments: Comment[] }> = ({ comments }) => {
+export const Comments: React.FC<{ post: string }> = ({ post }) => {
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    async function fetcher() {
+      try {
+        const { data } = await nest({
+          url: `comment/post/${post}`,
+          method: "GET",
+        });
+        if (data.status === "success") {
+          console.log(data);
+
+          setComments(data?.comments);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetcher();
+  }, [post]);
+
   return (
     <List
       sx={{
@@ -14,9 +36,11 @@ export const Comments: React.FC<{ comments: Comment[] }> = ({ comments }) => {
         flexDirection: "column-reverse",
       }}
     >
-      {comments.map((comment) => (
-        <CommentCard comment={comment} key={comment._id} />
-      ))}
+      {Array.isArray(comments) &&
+        comments.length &&
+        comments.map((comment: Comment) => (
+          <CommentCard comment={comment} key={comment._id} />
+        ))}
     </List>
   );
 };

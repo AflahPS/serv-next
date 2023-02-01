@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
 import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
-import { Service, Vendor } from "../../types";
+import { Service, User } from "../../types";
 
 interface ReturnData {
   service: string;
@@ -21,7 +21,7 @@ interface ReturnData {
 }
 
 export const ProfessionalDetails: React.FC<{
-  user: Vendor;
+  user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
   const dispatch = useDispatch();
@@ -169,7 +169,7 @@ export const ProfessionalDetails: React.FC<{
       console.log(err?.message);
     }
   };
-  const { data, error } = useSWR("services", fetcher);
+  const { data, error } = useSWR("", fetcher);
 
   return (
     <>

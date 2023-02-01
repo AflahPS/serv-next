@@ -1,4 +1,5 @@
 import { AxiosError } from "axios";
+import { User } from "../types";
 
 export const validateEmail = (email: string) => {
   return String(email)
@@ -35,4 +36,20 @@ export const axiosThrowerByMessage = (
     console.log(err?.response?.data?.message);
   }
   console.log(err?.message);
+};
+
+export const checkIfFriends = (currentUser: User, candidateUser: User) => {
+  if (
+    currentUser &&
+    currentUser.followers?.some((el: string | User) => {
+      if (typeof el === "string") {
+        return el.toString() === candidateUser._id.toString();
+      } else if (typeof el === "object") {
+        return el._id.toString() === candidateUser._id.toString();
+      }
+    })
+  ) {
+    return true;
+  }
+  return false;
 };

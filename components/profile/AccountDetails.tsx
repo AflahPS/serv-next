@@ -1,10 +1,10 @@
 import { Box } from "@mui/system";
 import React from "react";
 import { PersonalDetails, ProfessionalDetails } from "../../ui";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 
 export const AccountDetails: React.FC<{
-  user: Vendor;
+  user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
   const role = user?.role;

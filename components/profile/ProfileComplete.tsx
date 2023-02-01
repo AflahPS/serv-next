@@ -9,11 +9,11 @@ import {
   Timeline,
 } from ".";
 import { Box } from "@mui/material";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 
-export const ProfileComplete: React.FC<{ user: Vendor }> = ({ user }) => {
+export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
   const currentTab = useSelector(
     (state: StoreState) => state.profileTab.currentTab
   );

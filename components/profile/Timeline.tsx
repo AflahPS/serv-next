@@ -6,11 +6,11 @@ import { Feed } from "../common";
 import { Snackbar, Alert, Typography } from "@mui/material";
 import { axiosThrowerByMessage, nest } from "../../utils";
 import { CreatePost } from "..";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 import { COLOR } from "../../constants";
 
 export const Timeline: React.FC<{
-  user: Vendor;
+  user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
   // For Error snackbar

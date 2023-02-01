@@ -2,7 +2,6 @@ import {
   ChatBubbleOutlineOutlined,
   Favorite,
   FavoriteBorder,
-  Label,
   MoreVert,
   SendOutlined,
 } from "@mui/icons-material";
@@ -27,18 +26,16 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { COLOR } from "../../constants";
-import { Post } from "../../types/Posts";
 import Carousel from "react-material-ui-carousel";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { TextFieldCustom2 } from "./TextFieldCustom2";
-import { COMMENTS } from "../../constants";
-import { LinkButton } from "./LinkButton";
+import { LinkButton, EditPost } from ".";
 import { Comments } from "../../components/common";
 import { nest } from "../../utils";
-import { Like } from "../../types";
-import { CreatePost } from "../../components";
-import { EditPost } from "./EditPost";
+import { Like, Post } from "../../types";
+import { useRouter } from "next/router";
+// import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -59,6 +56,8 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   post,
   maxWidth,
 }) => {
+  const router = useRouter();
+
   const role = useSelector((state: StoreState) => state.role.currentUser);
   const user = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
@@ -120,6 +119,7 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     setOpenSuccess(true);
   };
 
+  // Gathering the "Likes" from DB
   useEffect(() => {
     try {
       (async () => {
@@ -143,6 +143,7 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
   }, [post, user]);
 
+  // Create a like on the DB
   const likerFunction = async (action: boolean) => {
     try {
       const { data } = await nest({
@@ -159,6 +160,7 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
   };
 
+  // If like is created on the DB, Change UI according to it
   const handleLikeClick = async () => {
     try {
       const done = await likerFunction(!isChecked);
@@ -173,6 +175,7 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
   };
 
+  // Report a post
   const handleReportClick = async () => {
     try {
       setAnchorEl(null);
@@ -190,11 +193,13 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
   };
 
+  // Enable post-editable UI
   const handleEditClick = async () => {
     setAnchorEl(null);
     setIsEditable(true);
   };
 
+  // Removes a post
   const handleRemoveClick = async () => {
     setAnchorEl(null);
     const { data } = await nest({
@@ -207,6 +212,32 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     if (data.status === "success") {
       successSetter("Post removed successfully !!");
     }
+  };
+
+  const [newComment, setNewComment] = useState("");
+
+  const handleAddCommentClick = async () => {
+    if (!newComment.length)
+      return errorSetter("Please type something on the comment field...");
+    const dataV = {
+      content: newComment,
+      post: post._id,
+    };
+    const { data } = await nest({
+      url: "/comment",
+      method: "POST",
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data.status === "success") {
+      successSetter("You have successfully added a new comment !");
+    }
+  };
+
+  const handleProfileClick = () => {
+    router.push(`/profile/${post.owner._id}`);
   };
 
   return (
@@ -239,11 +270,13 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
           {/*  Header with avatar, name and morebutton */}
           <CardHeader
             avatar={
-              <Avatar
-                sx={{ bgcolor: "red" }}
-                aria-label="owner-image"
-                src={post.owner?.image}
-              ></Avatar>
+              <IconButton onClick={handleProfileClick} sx={{ padding: 0 }}>
+                <Avatar
+                  sx={{ bgcolor: "red" }}
+                  aria-label="owner-image"
+                  src={post.owner?.image}
+                ></Avatar>
+              </IconButton>
             }
             action={
               (role !== "guest" && !isOwner && (
@@ -352,16 +385,29 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
                 alignItems: "end",
               }}
             >
-              <Comments comments={COMMENTS} />
+              {/* All Comments.... */}
+
+              <Comments post={post._id} />
+
+              {/*  LEave a acomment */}
+
               <TextFieldCustom2
                 placeholder="Type a comment here..."
                 size="small"
                 sx={{ width: "88%", margin: 1 }}
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                }}
+                value={newComment}
                 InputProps={{
                   sx: { paddingX: 1, paddingY: 1 },
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LinkButton endIcon={<SendOutlined />} variant="outlined">
+                      <LinkButton
+                        onClick={handleAddCommentClick}
+                        endIcon={<SendOutlined />}
+                        variant="outlined"
+                      >
                         Add
                       </LinkButton>
                     </InputAdornment>

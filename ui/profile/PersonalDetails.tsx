@@ -36,10 +36,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
-import { Vendor } from "../../types";
+import { User } from "../../types";
 
 export const PersonalDetails: React.FC<{
-  user: Vendor;
+  user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
   const dispatch = useDispatch();

@@ -48,9 +48,6 @@ export default function Home() {
   dispatch(sideNavTabActions.push("Posts"));
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
-    return () => {
-      dispatch(layoutLoadingActions.finishedLoading());
-    };
   }, []);
 
   return (

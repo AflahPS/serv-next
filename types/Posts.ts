@@ -1,8 +1,8 @@
 import { MongoDoc } from "./MongoDoc";
-import { Vendor } from "./Vendor";
+import { User } from "./User";
 
 export interface Post extends MongoDoc {
-  owner: Vendor;
+  owner: User;
   media: string[];
   mediaType: string;
   caption: string;

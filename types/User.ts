@@ -9,8 +9,9 @@ export interface User extends MongoDoc {
   location?: { type: string; coordinates: [number] };
   place: string;
   phone?: string;
-  followers?: [string | {}];
-  requests?: [string | {}];
+  followers?: string[] | User[];
+  following?: string[] | User[];
+  requests?: string[] | User[];
   role: string;
   vendor?: Vendor;
 }

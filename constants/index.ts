@@ -6,3 +6,4 @@ export * from "./DUMMY_PROJECTS";
 export * from "./DUMMY_POSTS";
 export * from "./DUMMY_SERVICES";
 export * from "./DUMMY_COMMENTS";
+export * from "./DUMMY_VENDORS";
