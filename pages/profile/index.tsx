@@ -11,7 +11,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state: StoreState) => state.user.data);
-  console.log("🚀 ~ file: index.tsx:14 ~ Profile ~ user", user);
 
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());

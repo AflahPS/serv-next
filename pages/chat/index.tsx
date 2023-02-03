@@ -10,7 +10,8 @@ const Chat = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Layout>

@@ -1,5 +1,6 @@
 export * from "./NAV";
 export * from "./SIDE_NAV";
+export * from "./PROFILE_TABS";
 export * from "./COLOR";
 export * from "./DUMMY_USERS";
 export * from "./DUMMY_PROJECTS";
@@ -7,3 +8,5 @@ export * from "./DUMMY_POSTS";
 export * from "./DUMMY_SERVICES";
 export * from "./DUMMY_COMMENTS";
 export * from "./DUMMY_VENDORS";
+export * from "./DUMMY_APPOINTMENTS";
+export * from "./DUMMY_EMPLOYEES";

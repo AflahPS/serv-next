@@ -36,10 +36,17 @@ export const ProfileHeader: React.FC<{
     // Write the code to add a friend
     setIsAdded(true);
   };
+
+  const handleMakeAppointment = async () => {
+    // Write the code to add a friend
+    setIsAdded(true);
+  };
+
   const handleRemoveFriend = async () => {
     // Write the code to Remove a friend
     // setIsFriend(false)
   };
+
   const handleCancelRequestFriend = async () => {
     // Write the code to Cancel Request sent to a friend
     // setAdded(false)

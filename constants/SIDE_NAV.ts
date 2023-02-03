@@ -1,13 +1,10 @@
 import {
   AccountBoxOutlined,
-  CalendarMonthOutlined,
   DashboardCustomizeOutlined,
   DynamicFeedOutlined,
-  EngineeringOutlined,
   HomeRepairServiceOutlined,
   MailOutline,
   NotificationsOutlined,
-  WorkOutlined,
 } from "@mui/icons-material";
 
 export const SIDE_NAV_LINKS = [
@@ -15,48 +12,48 @@ export const SIDE_NAV_LINKS = [
     title: "Posts",
     icon: DynamicFeedOutlined,
     href: "/",
-    allowedRoles: ["user", "guest", "vendor"],
+    allowedRoles: ["user", "guest", "vendor", "admin"],
   },
   {
     title: "Services Nearby",
     icon: HomeRepairServiceOutlined,
     href: "/services",
-    allowedRoles: ["user", "guest", "vendor"],
-  },
-  {
-    title: "Jobs Nearby",
-    icon: EngineeringOutlined,
-    href: "/jobs",
-    allowedRoles: ["user", "guest", "vendor"],
+    allowedRoles: ["user", "guest", "vendor", "admin"],
   },
   {
     title: "Profile",
     icon: AccountBoxOutlined,
     href: "/profile",
-    allowedRoles: ["user", "vendor"],
+    allowedRoles: ["user", "vendor", "admin"],
   },
   {
     title: "Messages",
     icon: MailOutline,
     href: "/chat",
-    allowedRoles: ["user", "vendor"],
+    allowedRoles: ["user", "vendor", "admin"],
   },
   {
     title: "Notifications",
     icon: NotificationsOutlined,
     href: "/notifications",
-    allowedRoles: ["user", "vendor"],
+    allowedRoles: ["user", "vendor", "admin"],
   },
-  {
-    title: "Calendar",
-    icon: CalendarMonthOutlined,
-    href: "/calendar",
-    allowedRoles: ["vendor"],
-  },
+  // {
+  //   title: "Calendar",
+  //   icon: CalendarMonthOutlined,
+  //   href: "/calendar",
+  //   allowedRoles: ["vendor","admin"],
+  // },
   {
     title: "Dashboard",
     icon: DashboardCustomizeOutlined,
-    href: "/dashboard",
-    allowedRoles: ["vendor"],
+    href: "/dashboard/admin",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Panel",
+    icon: DashboardCustomizeOutlined,
+    href: "/dashboard/vendor",
+    allowedRoles: ["guest", "vendor"],
   },
 ];

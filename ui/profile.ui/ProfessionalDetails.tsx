@@ -2,7 +2,7 @@ import { Alert, Autocomplete, Box, MenuItem, Snackbar } from "@mui/material";
 import React, { MouseEvent, useState } from "react";
 import useSWR from "swr";
 import { COLOR, USERS } from "../../constants";
-import { LinkButton } from "../common";
+import { LinkButton } from "../common.ui";
 import { TabHeader } from "./TabHeader";
 import { StyledTextField } from "./StyledTextField";
 import { IsValidString, nest } from "../../utils";

@@ -1,11 +1,10 @@
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import useSWR from "swr";
-import { LoadingCard, TabHeader } from "../../ui";
+import { CreatePost, LoadingCard, TabHeader } from "../../ui";
 import { Feed } from "../common";
 import { Snackbar, Alert, Typography } from "@mui/material";
 import { axiosThrowerByMessage, nest } from "../../utils";
-import { CreatePost } from "..";
 import { User } from "../../types";
 import { COLOR } from "../../constants";
 

@@ -1,11 +1,12 @@
+import React from "react";
 import styled from "@emotion/styled";
 import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { MouseEvent } from "react";
-import { COLOR, PROFILE_TABS } from "../../constants";
-import { profileTabActions } from "../../store/profile-tab.slice";
+import { COLOR } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
+import { panelTabActions } from "../../store/panel-tab.slice";
+import { PANEL_TABS } from "../../constants/PANEL_TABS";
 
 const StyledBox = styled(Box)({
   color: COLOR["H1d-font-primary"],
@@ -18,31 +19,11 @@ const StyledBox = styled(Box)({
   justifyContent: "center",
 });
 
-export const ProfileTabs = () => {
+export const PanelTabs = () => {
   const dispatch = useDispatch();
   const currentTab = useSelector(
-    (state: StoreState) => state.profileTab.currentTab
+    (state: StoreState) => state.panelTab.currentTab
   );
-
-  const handleTabClick = (event: MouseEvent, tab: string) => {
-    event.preventDefault();
-    switch (tab) {
-      case "timeline":
-        dispatch(profileTabActions.timeline());
-        break;
-      case "accountDetails":
-        dispatch(profileTabActions.accountDetails());
-        break;
-      case "friends":
-        dispatch(profileTabActions.friends());
-        break;
-      case "activities":
-        dispatch(profileTabActions.activities());
-        break;
-      default:
-        dispatch(profileTabActions.timeline());
-    }
-  };
 
   return (
     <Box
@@ -53,11 +34,13 @@ export const ProfileTabs = () => {
       bgcolor="black"
       sx={{ borderRadius: 3 }}
     >
-      {PROFILE_TABS.map((tab) => (
+      {PANEL_TABS.map((tab) => (
         <>
           <StyledBox
+            key={tab.value}
             onClick={(e) => {
-              handleTabClick(e, tab.value);
+              e.preventDefault();
+              dispatch(panelTabActions.push(tab.value));
             }}
             bgcolor={currentTab === tab.value ? COLOR["H1d-ui-primary"] : ""}
             flex={1}
@@ -66,7 +49,6 @@ export const ProfileTabs = () => {
               {tab.title}
             </Typography>
           </StyledBox>
-
           <Divider variant="middle" orientation="vertical" />
         </>
       ))}

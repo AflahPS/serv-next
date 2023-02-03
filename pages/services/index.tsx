@@ -21,9 +21,6 @@ const Services: React.FC<{ services: {} }> = ({ services }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
-    return () => {
-      dispatch(layoutLoadingActions.finishedLoading());
-    };
   }, []);
 
   const handleCardClick = (event: MouseEvent, id: string) => {

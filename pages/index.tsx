@@ -7,9 +7,9 @@ import { axiosThrowerByMessage, nest } from "../utils";
 import { Alert, Snackbar, Typography } from "@mui/material";
 import { StoreState } from "../store";
 import { layoutLoadingActions } from "../store/layout-loading.slice";
-import { CreatePost } from "../components";
 import { sideNavTabActions } from "../store/sidenav-tab.slice";
 import { COLOR } from "../constants";
+import { CreatePost } from "../ui";
 
 export default function Home() {
   const role = useSelector((state: StoreState) => state.role.currentUser);

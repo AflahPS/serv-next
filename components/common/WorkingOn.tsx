@@ -1,19 +1,10 @@
-import React, { useEffect } from "react";
-import { Layout } from "../../components/common";
-import { LoadingCard } from "../../ui";
-import { useDispatch } from "react-redux";
-import { layoutLoadingActions } from "../../store/layout-loading.slice";
-import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Card, CardHeader, CardContent, Typography } from "@mui/material";
+import React from "react";
 import { COLOR } from "../../constants";
 
-const Calendar = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(layoutLoadingActions.finishedLoading());
-  }, [dispatch]);
-
+export const WorkingOn = () => {
   return (
-    <Layout>
+    <>
       <Card
         sx={{
           backgroundColor: COLOR["H1d-ui-bg"],
@@ -31,8 +22,6 @@ const Calendar = () => {
           </Typography>
         </CardContent>
       </Card>
-    </Layout>
+    </>
   );
 };
-
-export default Calendar;
