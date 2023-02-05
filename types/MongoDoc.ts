@@ -1,5 +1,5 @@
 export interface MongoDoc {
-  _id?: string;
+  _id: string;
   createdAt?: string;
   updatedAt?: string;
 }

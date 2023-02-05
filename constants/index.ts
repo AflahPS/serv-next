@@ -10,3 +10,4 @@ export * from "./DUMMY_COMMENTS";
 export * from "./DUMMY_VENDORS";
 export * from "./DUMMY_APPOINTMENTS";
 export * from "./DUMMY_EMPLOYEES";
+export * from "./PROJECT_STATUSES";

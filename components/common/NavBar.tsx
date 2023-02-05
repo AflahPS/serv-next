@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ExitToAppOutlined,
   HomeOutlined,
   LoginOutlined,
   Mail,
-  MenuOpenOutlined,
-  MenuOutlined,
   Notifications,
   PersonAddAlt1Outlined,
   Tag,
@@ -18,6 +16,10 @@ import {
   Box,
   IconButton,
   InputBase,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
@@ -25,7 +27,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { COLOR } from "../../constants";
+import { COLOR, USERS } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
@@ -33,6 +35,10 @@ import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { SearchContainer } from "../../ui";
 import { userDataActions } from "../../store/user-data.slice";
+import { StoreState } from "../../store";
+import { nest } from "../../utils";
+import { User } from "../../types";
+import { useRouter } from "next/router";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -62,10 +68,64 @@ const UserBox = styled(Box)(({ theme }) => ({
   },
 }));
 
+const SearchList: React.FC<{ results: any[] }> = ({ results }) => {
+  const router = useRouter();
+
+  return (
+    <List
+      sx={{
+        width: "100%",
+        // maxWidth: 360,
+        bgcolor: COLOR["H1d-ui-bg"],
+        height: "40vh",
+        maxHeight: "60vh",
+        overflow: "auto",
+        position: "absolute",
+        top: "36px",
+        left: 0,
+      }}
+    >
+      {results.map((user) => (
+        <ListItem
+          sx={{ cursor: "pointer" }}
+          onClick={() => {
+            router.push(`/profile/${user._id}`);
+          }}
+          key={user._id}
+          alignItems="flex-start"
+        >
+          <ListItemAvatar>
+            <Avatar alt={user.name} src={user?.image} />
+          </ListItemAvatar>
+          <ListItemText
+            primary={user.name}
+            secondary={
+              <React.Fragment>
+                <Typography
+                  sx={{ display: "inline" }}
+                  component="span"
+                  variant="body2"
+                  color="text.primary"
+                >
+                  Email
+                </Typography>
+                {` : ${user.email}`}
+              </React.Fragment>
+            }
+          />
+        </ListItem>
+      ))}
+    </List>
+  );
+};
+
 export const NavBar = () => {
   const [openAnchor, setOpenAnchor] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const isAuth: boolean = useSelector((state: any) => state?.auth?.isAuth);
+  const isAuth: boolean = useSelector(
+    (state: StoreState) => state.auth?.isAuth
+  );
+  const currentUser = useSelector((state: StoreState) => state.user.data);
 
   const handleMenuClick = () => {
     setOpenAnchor(false);
@@ -78,6 +138,44 @@ export const NavBar = () => {
     dispatch(jwtActions.setToken(null));
     dispatch(userDataActions.removeUserData());
   };
+
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showList, setShowList] = useState(false);
+
+  const doSearch = async () => {
+    try {
+      console.log(searchText);
+      if (!searchText) return false;
+      const { data } = await nest({
+        method: "GET",
+        url: "/user/search/" + searchText,
+      });
+      console.log(data);
+      if (!data || data.status !== "success") return false;
+      return data;
+    } catch (err: any) {
+      console.log(err.message);
+      return false;
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      const results = await doSearch();
+      if (!results) {
+        setShowList(false);
+        return;
+      }
+      setSearchResults(results?.users);
+      setShowList(true);
+    } catch (err: any) {
+      setShowList(false);
+      console.log(err.message);
+      return;
+    }
+  };
+
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -85,13 +183,27 @@ export const NavBar = () => {
           <Link href={"/"}>HireOne</Link>
         </Typography>
         <Tag sx={{ display: { xs: "block", md: "none" } }} />
-        <SearchContainer>
+
+        <SearchContainer
+          onClick={() => {
+            setShowList(false);
+          }}
+          // onBlur={() => {
+          //   setShowList(false);
+          // }}
+        >
           <InputBase
             fullWidth
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              handleSearch();
+            }}
             sx={{ color: "inherit" }}
             placeholder="search..."
           />
+          {showList && <SearchList results={searchResults} />}
         </SearchContainer>
+
         <IconsContainer>
           {isAuth && (
             <>
@@ -122,7 +234,7 @@ export const NavBar = () => {
 
               <Avatar
                 sx={{ width: "32px", height: "32px" }}
-                // src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                src={currentUser?.image}
               />
             </>
           )}

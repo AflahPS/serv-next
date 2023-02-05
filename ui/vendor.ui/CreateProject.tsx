@@ -3,7 +3,6 @@ import { LocationOnOutlined, SendOutlined } from "@mui/icons-material";
 import {
   Alert,
   Autocomplete,
-  Avatar,
   Card,
   CardHeader,
   CircularProgress,
@@ -14,23 +13,26 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
+import dayjs, { Dayjs } from "dayjs";
 import { Box, Stack } from "@mui/system";
 import { useSelector } from "react-redux";
 import { geoCords, geoLocator, nest } from "../../utils";
 import { LinkButton, StyledTextField } from "..";
-import { COLOR, USERS } from "../../constants";
+import { COLOR, PROJ_STATUSES, USERS } from "../../constants";
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
+  const [title, setTitle] = useState("");
   const [client, setClient] = useState("");
   const [status, setStatus] = useState("");
-  const [startDate, setStartDate] = useState<Date>(new Date(Date.now()));
-  const [endDate, setEndDate] = useState<Date>(new Date(Date.now()));
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [place, setPlace] = useState("");
   const [location, setLocation] = useState({
     type: "Ponit",
     coordinates: [0, 0],
   });
-  const [cost, setCost] = useState("0");
   const [employees, setEmployees] = useState([]);
   const [errMessage, setErrMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -80,6 +82,13 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
     }
     if (cords)
       setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
+  };
+
+  const handleStartDateChange = (newValue: Dayjs | null) => {
+    setStartDate(newValue);
+  };
+  const handleEndDateChange = (newValue: Dayjs | null) => {
+    setStartDate(newValue);
   };
 
   const verifyData = async () => {
@@ -141,8 +150,6 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
       sx={{
         boxShadow: 8,
         borderRadius: 3,
-        // maxWidth: "80%",
-        // width: "100%",
         marginX: "auto",
         merginY: 3,
         paddingX: 3,
@@ -157,192 +164,190 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
         title="Create Project"
       />
       <Divider variant="fullWidth" />
-      <Stack
-        display={"flex"}
-        flexDirection={"row"}
-        justifyContent={"space-around"}
-        alignItems={"center"}
-        // width={"100%"}
-        height={"35%"}
-        paddingX={4}
-        paddingY={2}
-      >
-        <Box flex={1} sx={{ display: { xs: "none", md: "block" } }}>
-          <Avatar sx={{ width: 56, height: 56 }}></Avatar>
-        </Box>
-        <Box flex={6}>
-          <StyledTextField
-            value={caption}
-            onChange={(e) => {
-              setCaption(e.target.value);
-            }}
-            multiline
-            maxRows={3}
-            placeholder="Write something here..."
-            fullWidth
-          ></StyledTextField>
-        </Box>
-      </Stack>
-      <Divider variant="middle" sx={{ color: COLOR["H1d-font-primary"] }} />
-      <Box
-        padding={3}
-        // marginLeft={"auto"}
-        // marginRight={5}
-        display={"flex"}
-        justifyContent={"center"}
-        // alignItems={"center"}
-      >
-        <Autocomplete
-          multiple
-          onChange={(event: any, value: any) => {
-            setEmployees(value);
-          }}
-          value={employees}
-          limitTags={2}
-          id="multiple-limit-employees"
-          options={USERS}
-          getOptionLabel={(option) => option.name}
-          defaultValue={[]}
-          renderInput={(params) => (
+      <Stack height={"35%"} paddingX={4} paddingY={2}>
+        <Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <StyledTextField
-              {...params}
-              variant="outlined"
-              label="Employees Involved"
+              label="Project Title *"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
+              placeholder="Title to identify this project"
+              fullWidth
               size="small"
-              placeholder="Eployee"
+            ></StyledTextField>
+
+            <StyledTextField
+              label="Description"
+              value={caption}
+              onChange={(e) => {
+                setCaption(e.target.value);
+              }}
+              multiline
+              maxRows={3}
+              placeholder="Short description about the project..."
+              fullWidth
+            ></StyledTextField>
+            <Autocomplete
+              multiple
+              onChange={(event: any, value: any) => {
+                setEmployees(value);
+              }}
+              value={employees}
+              limitTags={2}
+              id="multiple-limit-employees"
+              options={USERS}
+              getOptionLabel={(option) => option.name}
+              defaultValue={[]}
+              renderInput={(params) => (
+                <StyledTextField
+                  {...params}
+                  variant="outlined"
+                  label="Employees Involved"
+                  size="small"
+                  placeholder="Eployee"
+                />
+              )}
+              sx={{ width: "100%" }}
             />
-          )}
-          sx={{ width: { xs: "100%", md: "93%" } }}
-        />
-      </Box>
-      <Stack sx={{ flexDirection: { xs: "column", md: "row" } }} paddingX={3}>
-        <Stack gap={3} justifyContent={"space-around"} flex={1}>
-          {/* CLIENTS */}
 
-          <StyledTextField
-            value={client}
-            onChange={(e) => {
-              setClient(e.target.value);
-            }}
-            select
-            defaultValue={""}
-            label="Client"
-            size="small"
-            sx={{ minWidth: 98 }}
-          >
-            {USERS.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </StyledTextField>
+            <Box
+              display={"flex"}
+              flexDirection={{ xs: "column", sm: "row" }}
+              justifyContent={"center"}
+              gap={1}
+            >
+              {/* CLIENTS */}
 
-          {/* STATUS */}
+              <StyledTextField
+                value={client}
+                onChange={(e) => {
+                  setClient(e.target.value);
+                }}
+                select
+                defaultValue={""}
+                label="Client"
+                size="small"
+                fullWidth
+                sx={{ minWidth: 98 }}
+              >
+                {USERS.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.name}
+                  </MenuItem>
+                ))}
+              </StyledTextField>
 
-          <StyledTextField
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-            }}
-            select
-            defaultValue={""}
-            label="Status"
-            size="small"
-            sx={{ minWidth: 98 }}
-          >
-            {USERS.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </StyledTextField>
+              {/* STATUS */}
 
-          {/* START DATE */}
+              <StyledTextField
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                }}
+                select
+                defaultValue={""}
+                label="Status"
+                size="small"
+                fullWidth
+                sx={{ minWidth: 98 }}
+              >
+                {PROJ_STATUSES.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.title}
+                  </MenuItem>
+                ))}
+              </StyledTextField>
+            </Box>
+            <Box
+              display={"flex"}
+              flexDirection={{ xs: "column", sm: "row" }}
+              justifyContent={"center"}
+              gap={1}
+            >
+              {/* START DATE */}
 
-          <StyledTextField
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-            }}
-            type={"date"}
-            defaultValue={""}
-            label="Start Date"
-            size="small"
-            sx={{ minWidth: 98 }}
-          >
-            {USERS.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </StyledTextField>
+              <DesktopDatePicker
+                label="Start Date"
+                inputFormat="DD/MM/YYYY"
+                value={startDate}
+                onChange={handleStartDateChange}
+                renderInput={(params) => (
+                  <StyledTextField size="small" fullWidth {...params} />
+                )}
+              />
 
-          {/* END DATE */}
+              {/* END DATE */}
 
-          <StyledTextField
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-            }}
-            type={"date"}
-            defaultValue={""}
-            label="End Date (If completed)"
-            size="small"
-            sx={{ minWidth: 98 }}
-          >
-            {USERS.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </StyledTextField>
+              <DesktopDatePicker
+                label="End Date"
+                inputFormat="DD/MM/YYYY"
+                value={endDate}
+                onChange={handleEndDateChange}
+                renderInput={(params) => (
+                  <StyledTextField size="small" fullWidth {...params} />
+                )}
+              />
+            </Box>
 
-          {/* LOCATION */}
+            {/* LOCATION */}
 
-          <StyledTextField
-            size="small"
-            label="Location"
-            error={!locationVerified}
-            // defaultValue={user.place}
-            helperText={
-              !locationVerified
-                ? "Sorry, Couldn't locate you. Try the pin icon after 10 seconds or type your location properly."
-                : ""
-            }
-            onChange={(e: any) => {
-              setLocationVerified(true);
-              setPlace(e?.target?.value);
-            }}
-            onBlur={() => {
-              gatherPLace(place);
-            }}
-            value={place}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={getLocation}>
-                    <LocationOnOutlined />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+            <StyledTextField
+              size="small"
+              fullWidth
+              label="Location"
+              error={!locationVerified}
+              // defaultValue={user.place}
+              helperText={
+                !locationVerified
+                  ? "Sorry, Couldn't locate you. Try the pin icon after 10 seconds or type your location properly."
+                  : ""
+              }
+              onChange={(e: any) => {
+                setLocationVerified(true);
+                setPlace(e?.target?.value);
+              }}
+              onBlur={() => {
+                gatherPLace(place);
+              }}
+              value={place}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={getLocation}>
+                      <LocationOnOutlined />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-          {/* COST */}
+            {/* COST
 
-          <StyledTextField
-            value={cost}
-            onChange={(e) => {
-              setCost(e.target.value);
-            }}
-            type={"number"}
-            defaultValue={""}
-            label="Cost"
-            size="small"
-            sx={{ minWidth: 98 }}
-          ></StyledTextField>
-        </Stack>
+            <StyledTextField
+              value={cost}
+              fullWidth
+              onChange={(e) => {
+                setCost(e.target.value);
+              }}
+              type={"number"}
+              defaultValue={""}
+              label="Cost"
+              size="small"
+              sx={{ minWidth: 98 }}
+            ></StyledTextField> */}
+          </LocalizationProvider>
+        </Box>
       </Stack>
+
+      {/* <Stack sx={{ flexDirection: { xs: "column", md: "row" } }} paddingX={3}>
+        <Stack gap={3} justifyContent={"space-around"} flex={1}> */}
+      {/* STATUS */}
+
+      {/* </Stack>
+      </Stack> */}
+
       <Box
         flex={1}
         display={"flex"}

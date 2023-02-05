@@ -11,4 +11,7 @@ export const SearchContainer = styled(Box)(({ theme }) => ({
   borderRadius: 3,
   // width: "40%",
   height: "36px",
+  maxWidth: "50%",
+  minWidth: "35%",
+  position: "relative",
 }));

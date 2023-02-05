@@ -3,7 +3,7 @@ export const PANEL_TABS = [
   { title: "Appointments", value: "appointments" },
   { title: "Employees", value: "employees" },
   { title: "Projects", value: "projects" },
-  { title: "Jobs", value: "jobs" },
+  // { title: "Jobs", value: "jobs" },
   { title: "Notifications", value: "notifications" },
   // { title: "calendar", value: "Calendar" },
 ];

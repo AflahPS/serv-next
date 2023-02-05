@@ -18,11 +18,11 @@ export const Layout = (props: PropsWithChildren) => {
       <Stack
         minHeight={"100vh"}
         direction={"row"}
-        justifyContent="space-between"
+        // justifyContent="space-between"
         marginY={1}
       >
         <SideNav />
-        <Box flex={3.5} paddingY={2} marginX={1}>
+        <Box flex={3.5} paddingY={2}>
           {isLoading && (
             <Card
               sx={{

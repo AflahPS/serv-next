@@ -43,9 +43,9 @@ export const checkIfFriends = (currentUser: User, candidateUser: User) => {
     currentUser &&
     currentUser.followers?.some((el: string | User) => {
       if (typeof el === "string") {
-        return el.toString() === candidateUser._id.toString();
+        return el.toString() === candidateUser?._id?.toString();
       } else if (typeof el === "object") {
-        return el._id.toString() === candidateUser._id.toString();
+        return el?._id?.toString() === candidateUser?._id?.toString();
       }
     })
   ) {
@@ -53,3 +53,5 @@ export const checkIfFriends = (currentUser: User, candidateUser: User) => {
   }
   return false;
 };
+
+export const deepCloneObject = (obj: {}) => JSON.parse(JSON.stringify(obj));

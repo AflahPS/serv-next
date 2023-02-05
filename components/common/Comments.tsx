@@ -4,7 +4,7 @@ import { Comment } from "../../types";
 import { CommentCard } from "../../ui";
 import { nest } from "../../utils";
 
-export const Comments: React.FC<{ post: string }> = ({ post }) => {
+export const Comments: React.FC<{ post: any }> = ({ post }) => {
   const [comments, setComments] = useState([]);
 
   useEffect(() => {

@@ -1,56 +1,105 @@
 import React, { useEffect, useState } from "react";
 import {
   CreateOutlined,
-  HourglassBottomOutlined,
   HowToRegOutlined,
   PersonAddAlt1Outlined,
 } from "@mui/icons-material";
-import { Avatar, IconButton, Typography, fabClasses } from "@mui/material";
+import { Alert, Avatar, IconButton, Snackbar, Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
 import { User } from "../../types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { checkIfFriends } from "../../utils";
+import { checkIfFriends, deepCloneObject, nest } from "../../utils";
+import { followFriend, unfollowFriend } from "../../APIs";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const ProfileHeader: React.FC<{
   user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
-  const [isFriend, setIsFriend] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
-
+  //----- ERROR, Success message Snackbar related properties
+  const [errMessage, setErrMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [openError, setOpenError] = React.useState(false);
+  const [openSuccess, setOpenSuccess] = React.useState(false);
+  const handleCloseError = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenError(false);
+  };
+  const handleCloseSuccess = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSuccess(false);
+  };
+  const errorSetter = (message: string) => {
+    setErrMessage(message);
+    setOpenError(true);
+  };
+  const successSetter = (message: string) => {
+    setSuccessMessage(message);
+    setOpenSuccess(true);
+  };
+  ///////
+  const dispatch = useDispatch();
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const currentUserRole = useSelector(
     (state: StoreState) => state.role.currentUser
   );
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
+  // Checking if the user and profile owner friends.
+  const [isFriend, setIsFriend] = useState(false);
   useEffect(() => {
     if (checkIfFriends(currentUser, user)) {
       setIsFriend(true);
     }
   }, [currentUser, user]);
 
+  // FOLLOW & UNFOLLOW
   const handleAddFriend = async () => {
-    // Write the code to add a friend
-    setIsAdded(true);
+    try {
+      const isAdded = await followFriend(user._id, token);
+      if (isAdded) {
+        const clonedUser = deepCloneObject(currentUser);
+        clonedUser.followers?.push(user._id);
+        dispatch(userDataActions.addUserData(clonedUser));
+        setIsFriend(true);
+        successSetter("Successfully followed !");
+      }
+    } catch (err: any) {
+      console.log(err);
+      errorSetter("Something went wrong !");
+    }
   };
-
-  const handleMakeAppointment = async () => {
-    // Write the code to add a friend
-    setIsAdded(true);
-  };
-
   const handleRemoveFriend = async () => {
-    // Write the code to Remove a friend
-    // setIsFriend(false)
-  };
-
-  const handleCancelRequestFriend = async () => {
-    // Write the code to Cancel Request sent to a friend
-    // setAdded(false)
-    setIsAdded(false);
+    try {
+      console.log(currentUser.followers);
+      const isRemoved = await unfollowFriend(user._id, token);
+      if (!isRemoved) throw new Error("Something went wrong");
+      const clonedUser = deepCloneObject(currentUser);
+      const removeIndex = clonedUser.followers?.indexOf(user._id);
+      if (removeIndex !== undefined && removeIndex > -1) {
+        clonedUser.followers?.splice(removeIndex, 1);
+        dispatch(userDataActions.addUserData(clonedUser));
+        setIsFriend(false);
+        successSetter("Successfully unfollowed !");
+        return;
+      }
+    } catch (err: any) {
+      console.log(err);
+      errorSetter("Something went wrong !");
+    }
   };
 
   return (
@@ -93,7 +142,7 @@ export const ProfileHeader: React.FC<{
         )}
         {!isProfileOwner && currentUserRole !== "guest" && (
           <>
-            {!isAdded && !isFriend && (
+            {!isFriend && (
               <IconButton
                 color="primary"
                 aria-label="add-friend"
@@ -109,22 +158,7 @@ export const ProfileHeader: React.FC<{
                 <PersonAddAlt1Outlined />
               </IconButton>
             )}
-            {isAdded && !isFriend && (
-              <IconButton
-                color="primary"
-                aria-label="cancel-friend-request"
-                component="label"
-                onClick={handleCancelRequestFriend}
-                sx={{
-                  margin: 2,
-                  backgroundColor: COLOR["H1d-ui-bg"],
-                  color: COLOR["H1d-ui-primary"],
-                  borderRadius: 3,
-                }}
-              >
-                <HourglassBottomOutlined />
-              </IconButton>
-            )}
+
             {isFriend && (
               <IconButton
                 color="primary"
@@ -171,6 +205,35 @@ export const ProfileHeader: React.FC<{
           <StatStack name="Following" stat="0" />
         </Box>
       </Box>
+
+      {/* SNACKBARS  */}
+
+      <Snackbar
+        open={openError}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+      >
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {errMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openSuccess}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccess}
+      >
+        <Alert
+          onClose={handleCloseSuccess}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

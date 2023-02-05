@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -6,29 +6,77 @@ import {
   CardMedia,
   Grid,
   InputBase,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
   Typography,
 } from "@mui/material";
 import { CheckOutlined, ClearOutlined } from "@mui/icons-material";
 import { LinkButton, SearchContainer, TabHeader } from "../../ui";
-import { USERS } from "../../constants";
 import { User } from "../../types";
+import { checkIfFriends, deepCloneObject, nest } from "../../utils";
+import { StoreState } from "../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { followFriend, unfollowFriend } from "../../APIs";
+import { userDataActions } from "../../store/user-data.slice";
 
 export const Friends: React.FC<{
   user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const openMenu = Boolean(anchorEl);
-  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const token = useSelector((state: StoreState) => state.jwt.token);
+  const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
+
+  const [followers, setFollowers] = useState<User[]>([]);
+
+  // Follow and Unfollow handlers
+  const handleFollowClick = async (user: User) => {
+    try {
+      const isAdded = await followFriend(user._id, token);
+      if (!isAdded) throw new Error(`Something went wrong`);
+      const clonedUser = deepCloneObject(currentUser);
+      clonedUser.followers?.push(user._id);
+      dispatch(userDataActions.addUserData(clonedUser));
+      if (isProfileOwner) setFollowers([...followers, user]);
+    } catch (err: any) {
+      console.log(err);
+    }
   };
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleUnfollowClick = async (userId: string) => {
+    try {
+      const isRemoved = await unfollowFriend(userId, token);
+      if (!isRemoved) throw new Error("Something went wrong");
+      const clonedUser = deepCloneObject(currentUser);
+      const removeIndex = clonedUser.followers?.indexOf(userId);
+      if (removeIndex !== undefined && removeIndex > -1) {
+        clonedUser.followers?.splice(removeIndex, 1);
+        dispatch(userDataActions.addUserData(clonedUser));
+        isProfileOwner &&
+          setFollowers(followers.filter((el) => el._id !== userId));
+        return;
+      }
+    } catch (err: any) {
+      console.log(err);
+    }
   };
+
+  // Populates the followers details when mounting
+  const getFollwers = async () => {
+    try {
+      const { data } = await nest({
+        method: "GET",
+        url: `user/followers/${user._id}`,
+      });
+      if (data.status === "success") {
+        setFollowers(data?.followers);
+      }
+    } catch (err: any) {
+      console.log(err?.message);
+    }
+  };
+  useEffect(() => {
+    getFollwers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box sx={{ boxShadow: 8, borderRadius: 3 }}>
@@ -36,8 +84,11 @@ export const Friends: React.FC<{
       <SearchContainer marginBottom={3}>
         <InputBase fullWidth placeholder="Search friends.." />
       </SearchContainer>
+
+      {/* GRID Container */}
       <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
-        {USERS.map((_, index) => (
+        {followers.map((follower, index) => (
+          // GRID Items
           <Grid
             item
             xs={12}
@@ -47,16 +98,20 @@ export const Friends: React.FC<{
             justifyContent={"center"}
             key={index}
           >
+            {/* FOLLOWER's CARD */}
             <Card sx={{ display: "flex", height: "100%", borderRadius: 3 }}>
+              {/* FOLLOWER's DP -on left */}
               <CardMedia
                 component="img"
                 sx={{
                   width: "35%",
                   objectFit: "cover",
                 }}
-                image={_.image}
+                image={follower.image}
                 alt="Live from space album cover"
               />
+
+              {/* FOLLOWER's Details -on right */}
               <CardContent
                 sx={{
                   height: "100%",
@@ -65,16 +120,19 @@ export const Friends: React.FC<{
                   justifyContent: "space-between",
                 }}
               >
+                {/* Name */}
                 <Typography component="div" variant="h6">
-                  {_.name}
+                  {follower.name}
                 </Typography>
+                {/* Friends number */}
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   component="div"
                 >
-                  95 Friends
+                  {follower.followers?.length} Friends
                 </Typography>
+                {/* Mutual friends */}
                 <Typography
                   variant="body1"
                   color="text.secondary"
@@ -82,39 +140,27 @@ export const Friends: React.FC<{
                 >
                   12 Mutual Friends
                 </Typography>
-                {isProfileOwner && (
-                  <>
-                    <LinkButton
-                      variant="outlined"
-                      id={`follow-button-${index}`}
-                      startIcon={<CheckOutlined color="success" />}
-                      onClick={handleMenuClick}
-                    >
-                      Following
-                    </LinkButton>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={openMenu}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        "aria-labelledby": `follow-button-${index}`,
-                      }}
-                    >
-                      <MenuItem onClick={handleClose}>
-                        <ListItemIcon>
-                          <ClearOutlined color="error" fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>Unfollow</ListItemText>
-                      </MenuItem>
-                    </Menu>
-                  </>
-                )}
-                {!isProfileOwner && (
+
+                {/* Follow & Unfollow Button */}
+                {isAuth && checkIfFriends(currentUser, follower) === true && (
                   <LinkButton
                     variant="outlined"
-                    endIcon={<CheckOutlined color="success" />}
-                    //  onClick={handleMenuClick}
+                    id={`follow-button-${index}`}
+                    startIcon={<ClearOutlined color="error" />}
+                    onClick={() => {
+                      handleUnfollowClick(follower._id);
+                    }}
+                  >
+                    Unfollow
+                  </LinkButton>
+                )}
+                {isAuth && checkIfFriends(currentUser, follower) === false && (
+                  <LinkButton
+                    variant="outlined"
+                    startIcon={<CheckOutlined color="success" />}
+                    onClick={() => {
+                      handleFollowClick(follower);
+                    }}
                   >
                     Follow
                   </LinkButton>

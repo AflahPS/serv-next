@@ -109,6 +109,7 @@ export const SideNav = () => {
             }}
           >
             {SIDE_NAV_LINKS.map((link) => {
+              if (!link.allowedRoles.includes(role)) return;
               const Icon = link.icon;
               return (
                 // <ListItem key={link.title}>

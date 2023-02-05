@@ -201,7 +201,8 @@ export const ProfessionalDetails: React.FC<{
             data.map((serv: Service) => (
               <MenuItem
                 selected={
-                  serv._id.toString() === user.vendor?.service?._id?.toString()
+                  serv?._id?.toString() ===
+                  user.vendor?.service?._id?.toString()
                 }
                 key={serv._id}
                 value={serv._id}
