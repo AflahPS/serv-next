@@ -4,8 +4,12 @@ import { Comment } from "../../types";
 import { CommentCard } from "../../ui";
 import { nest } from "../../utils";
 
-export const Comments: React.FC<{ post: any }> = ({ post }) => {
-  const [comments, setComments] = useState([]);
+export const Comments: React.FC<{
+  post: any;
+  comments: any[];
+  setComments: React.Dispatch<React.SetStateAction<any[]>>;
+}> = ({ post, comments, setComments }) => {
+  // const [comments, setComments] = useState([]);
 
   useEffect(() => {
     async function fetcher() {
@@ -15,8 +19,6 @@ export const Comments: React.FC<{ post: any }> = ({ post }) => {
           method: "GET",
         });
         if (data.status === "success") {
-          console.log(data);
-
           setComments(data?.comments);
         }
       } catch (err) {
@@ -24,7 +26,12 @@ export const Comments: React.FC<{ post: any }> = ({ post }) => {
       }
     }
     fetcher();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);
+
+  function removeComment(id: string) {
+    setComments((prev) => prev.filter((c) => c._id !== id));
+  }
 
   return (
     <List
@@ -39,7 +46,11 @@ export const Comments: React.FC<{ post: any }> = ({ post }) => {
       {Array.isArray(comments) &&
         comments.length &&
         comments.map((comment: Comment) => (
-          <CommentCard comment={comment} key={comment._id} />
+          <CommentCard
+            comment={comment}
+            key={comment._id}
+            removeComment={removeComment}
+          />
         ))}
     </List>
   );

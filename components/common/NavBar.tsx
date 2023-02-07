@@ -75,7 +75,6 @@ const SearchList: React.FC<{ results: any[] }> = ({ results }) => {
     <List
       sx={{
         width: "100%",
-        // maxWidth: 360,
         bgcolor: COLOR["H1d-ui-bg"],
         height: "40vh",
         maxHeight: "60vh",
@@ -176,6 +175,8 @@ export const NavBar = () => {
     }
   };
 
+  const router = useRouter();
+
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -232,10 +233,16 @@ export const NavBar = () => {
                 </IconButton>
               </Tooltip>
 
-              <Avatar
-                sx={{ width: "32px", height: "32px" }}
-                src={currentUser?.image}
-              />
+              <IconButton
+                onClick={() => {
+                  router.push("/profile");
+                }}
+              >
+                <Avatar
+                  sx={{ width: "32px", height: "32px" }}
+                  src={currentUser?.image}
+                />
+              </IconButton>
             </>
           )}
           {!isAuth && (

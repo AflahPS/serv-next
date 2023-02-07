@@ -64,7 +64,8 @@ export const ProfileHeader: React.FC<{
     if (checkIfFriends(currentUser, user)) {
       setIsFriend(true);
     }
-  }, [currentUser, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // FOLLOW & UNFOLLOW
   const handleAddFriend = async () => {

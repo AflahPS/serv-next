@@ -53,7 +53,7 @@ export const Dashboard = () => {
               <DetailPair title="Name" value="Anzar" />
               <DetailPair title="Service" value="Masonry" />
               <DetailPair title="Place" value="Kottakkal" />
-              <DetailPair title="Experience" value="3 Year" />
+              <DetailPair title="Experience" value="3 Years" />
             </Stack>
 
             {/* Details right STACK */}

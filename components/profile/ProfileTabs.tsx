@@ -53,8 +53,8 @@ export const ProfileTabs = () => {
       bgcolor="black"
       sx={{ borderRadius: 3 }}
     >
-      {PROFILE_TABS.map((tab) => (
-        <>
+      {PROFILE_TABS.map((tab, ind) => (
+        <React.Fragment key={ind}>
           <StyledBox
             onClick={(e) => {
               handleTabClick(e, tab.value);
@@ -68,7 +68,7 @@ export const ProfileTabs = () => {
           </StyledBox>
 
           <Divider variant="middle" orientation="vertical" />
-        </>
+        </React.Fragment>
       ))}
     </Box>
   );

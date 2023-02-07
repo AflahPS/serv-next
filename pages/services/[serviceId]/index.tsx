@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Layout } from "../../../components/common";
 import { COLOR, VENDORS } from "../../../constants";
-import { TabHeader } from "../../../ui";
+import { TabHeader, VendorCard } from "../../../ui";
 import { Service, Vendor } from "../../../types";
 import { useRouter } from "next/router";
 
@@ -35,7 +35,7 @@ const ServiceId: React.FC<{ vendors: Vendor[] }> = ({ vendors }) => {
         <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
           {Array.isArray(vendors) &&
             vendors.length > 0 &&
-            vendors.map((v, index) => (
+            vendors.map((vendor, index) => (
               <Grid
                 item
                 xs={12}
@@ -47,33 +47,7 @@ const ServiceId: React.FC<{ vendors: Vendor[] }> = ({ vendors }) => {
                 justifyContent={"center"}
                 key={index}
               >
-                <Card
-                  onClick={() => {
-                    router.push(`/profile/${v.user._id}`);
-                  }}
-                  sx={{ display: "flex", height: "100%", borderRadius: 3 }}
-                >
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      image={v.user.image}
-                      alt={v.user.name}
-                      sx={{
-                        height: "150px",
-                        width: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {v.user.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {v.about}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
+                <VendorCard vendor={vendor} />
               </Grid>
             ))}
         </Grid>

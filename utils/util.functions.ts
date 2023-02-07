@@ -39,14 +39,15 @@ export const axiosThrowerByMessage = (
 };
 
 export const checkIfFriends = (currentUser: User, candidateUser: User) => {
+  if (!currentUser) return false;
+  if (!currentUser.followers?.length) return false;
+  const otherUserId = candidateUser?._id?.toString();
+  if (!otherUserId) return false;
   if (
-    currentUser &&
-    currentUser.followers?.some((el: string | User) => {
-      if (typeof el === "string") {
-        return el.toString() === candidateUser?._id?.toString();
-      } else if (typeof el === "object") {
-        return el?._id?.toString() === candidateUser?._id?.toString();
-      }
+    currentUser.followers.some((el: string | User) => {
+      if (typeof el === "string") return el.toString() === otherUserId;
+      if (typeof el === "object") return el?._id?.toString() === otherUserId;
+      return false;
     })
   ) {
     return true;

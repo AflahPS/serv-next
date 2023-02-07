@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import { nest, uploadImages } from "../../utils";
 import { LinkButton, TextFieldCustom2 } from "..";
 import { COLOR, USERS, PROJECTS } from "../../constants";
+import { StoreState } from "../../store";
 
 export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [tags, setTags] = useState([]);
@@ -37,7 +38,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [caption, setCaption] = useState("");
   const [project, setProject] = useState("");
 
-  const token = useSelector((state: any) => state.jwt?.token);
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
   const [open, setOpen] = useState(false);
   const handleClose = (

@@ -28,6 +28,21 @@ export const Friends: React.FC<{
 
   const [followers, setFollowers] = useState<User[]>([]);
 
+  // Populates the followers details when mounting
+  const getFollwers = async () => {
+    try {
+      const { data } = await nest({
+        method: "GET",
+        url: `/user/followers/${user._id}`,
+      });
+      if (data.status === "success") {
+        setFollowers(data?.followers);
+      }
+    } catch (err: any) {
+      console.log(err?.message);
+    }
+  };
+
   // Follow and Unfollow handlers
   const handleFollowClick = async (user: User) => {
     try {
@@ -36,7 +51,13 @@ export const Friends: React.FC<{
       const clonedUser = deepCloneObject(currentUser);
       clonedUser.followers?.push(user._id);
       dispatch(userDataActions.addUserData(clonedUser));
-      if (isProfileOwner) setFollowers([...followers, user]);
+      user?.followers;
+      await getFollwers();
+      // if (isProfileOwner) setFollowers([...followers, user]);
+
+      // currentUser.followers?.push(user._id);
+      // dispatch(userDataActions.addUserData(currentUser));
+      // await getFollwers();
     } catch (err: any) {
       console.log(err);
     }
@@ -49,30 +70,26 @@ export const Friends: React.FC<{
       const removeIndex = clonedUser.followers?.indexOf(userId);
       if (removeIndex !== undefined && removeIndex > -1) {
         clonedUser.followers?.splice(removeIndex, 1);
+        console.log(
+          "🚀 ~ file: Friends.tsx:71 ~ handleUnfollowClick ~ clonedUser",
+          clonedUser
+        );
         dispatch(userDataActions.addUserData(clonedUser));
         isProfileOwner &&
           setFollowers(followers.filter((el) => el._id !== userId));
         return;
       }
+      // const removeIndex = currentUser.followers?.indexOf(userId);
+      // if (removeIndex !== undefined && removeIndex > -1) {
+      //   currentUser.followers?.splice(removeIndex, 1);
+      //   dispatch(userDataActions.addUserData(currentUser));
+      //   isProfileOwner && (await getFollwers());
+      // }
     } catch (err: any) {
       console.log(err);
     }
   };
 
-  // Populates the followers details when mounting
-  const getFollwers = async () => {
-    try {
-      const { data } = await nest({
-        method: "GET",
-        url: `user/followers/${user._id}`,
-      });
-      if (data.status === "success") {
-        setFollowers(data?.followers);
-      }
-    } catch (err: any) {
-      console.log(err?.message);
-    }
-  };
   useEffect(() => {
     getFollwers();
     // eslint-disable-next-line react-hooks/exhaustive-deps

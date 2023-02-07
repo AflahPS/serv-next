@@ -1,5 +1,5 @@
 import { Alert, Autocomplete, Box, MenuItem, Snackbar } from "@mui/material";
-import React, { MouseEvent, useState } from "react";
+import React, { MouseEvent, useEffect, useState } from "react";
 import useSWR from "swr";
 import { COLOR, USERS } from "../../constants";
 import { LinkButton } from "../common.ui";
@@ -12,6 +12,12 @@ import { userDataActions } from "../../store/user-data.slice";
 import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
 import { Service, User } from "../../types";
 
+const LoadingServiceDummy = {
+  title: "Loading..",
+  _id: "",
+  caption: "",
+  image: "",
+};
 interface ReturnData {
   service: string;
   workingDays: string;
@@ -34,9 +40,7 @@ export const ProfessionalDetails: React.FC<{
   const [experienceVerified, setExperienceVerified] = useState(true);
   const [descriptionVerified, setDescriptionVerified] = useState(true);
 
-  const [service, setService] = useState(
-    (user?.vendor?.service?._id && String(user?.vendor?.service?._id)) || ""
-  );
+  const [service, setService] = useState<Service>(LoadingServiceDummy);
   const [workingDays, setWorkingDays] = useState(
     (user?.vendor?.workingDays && String(user?.vendor?.workingDays)) || ""
   );
@@ -50,14 +54,15 @@ export const ProfessionalDetails: React.FC<{
     (user?.vendor?.about && String(user?.vendor?.about)) || ""
   );
 
+  const [allServices, setAllServices] = useState<any[]>([]);
+
   const [isEditable, setIsEditable] = useState(false);
 
   //----- ERROR, Success message Snackbar related properties
   const [errMessage, setErrMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = React.useState(false);
-  const [openSuccess, setOpenSuccess] = React.useState(false);
-
+  const [openError, setOpenError] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
   const handleCloseError = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -67,7 +72,6 @@ export const ProfessionalDetails: React.FC<{
     }
     setOpenError(false);
   };
-
   const handleCloseSuccess = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -77,7 +81,6 @@ export const ProfessionalDetails: React.FC<{
     }
     setOpenSuccess(false);
   };
-
   const errorSetter = (message: string) => {
     setErrMessage(message);
     setOpenError(true);
@@ -86,12 +89,12 @@ export const ProfessionalDetails: React.FC<{
   // Data Verification
 
   const verifyData = () => {
-    setServiceVerified(!!service && IsValidString(service));
+    setServiceVerified(!!service && IsValidString(service._id));
     setWorkingDaysVerified(!!workingDays && IsValidString(workingDays));
     setWorkRadiusVerified(!!workRadius && IsValidString(workRadius));
     setExperienceVerified(!!experience && IsValidString(experience));
     setDescriptionVerified(!!description && IsValidString(description));
-
+    setDescriptionVerified(description.length <= 400);
     if (
       !serviceVerified ||
       !workingDaysVerified ||
@@ -102,7 +105,7 @@ export const ProfessionalDetails: React.FC<{
       return false;
 
     const data: ReturnData = {
-      service,
+      service: service?._id as string,
       workingDays,
       workRadius,
       experience,
@@ -112,6 +115,7 @@ export const ProfessionalDetails: React.FC<{
   };
 
   // Save Button Click
+
   const handleSaveClick = async (event: MouseEvent) => {
     try {
       event.preventDefault();
@@ -157,19 +161,42 @@ export const ProfessionalDetails: React.FC<{
     }
   };
 
-  // For fetching posts from backend
-  const fetcher = async () => {
+  // Helper function
+  const getServiceById = (id: string, services: any[]) => {
+    const userService = services?.filter(
+      (service: Service) => service._id.toString() === id.toString()
+    )[0];
+    return userService;
+  };
+
+  // For fetching services from backend and setting it
+  // at the mounting time with thw help of useEffect
+  const servicesFetcher = async () => {
     try {
       const { data } = await nest({
         url: "/service",
         method: "GET",
       });
-      return data;
+      console.log(
+        "🚀 ~ file: ProfessionalDetails.tsx:171 ~ fetcher ~ data",
+        data
+      );
+      if (data?.status === "success") {
+        setAllServices(data?.services);
+        const userService = getServiceById(
+          user?.vendor?.service?._id as string,
+          data?.services
+        );
+        setService(userService);
+      }
     } catch (err: any) {
       console.log(err?.message);
     }
   };
-  const { data, error } = useSWR("", fetcher);
+  useEffect(() => {
+    servicesFetcher();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -191,26 +218,28 @@ export const ProfessionalDetails: React.FC<{
           disabled={!isEditable}
           error={!serviceVerified}
           helperText={!serviceVerified ? "Please select a service" : ""}
-          value={service}
+          value={service?._id}
           onChange={(e) => {
             setServiceVerified(true);
-            setService(e.target.value);
+            setService(getServiceById(e.target.value, allServices));
           }}
         >
-          {data &&
-            data.map((serv: Service) => (
+          {!allServices.length && (
+            <MenuItem value={""}>{"Loading..."}</MenuItem>
+          )}
+          {allServices.length > 0 &&
+            allServices.map((serv: any) => (
               <MenuItem
                 selected={
                   serv?._id?.toString() ===
                   user.vendor?.service?._id?.toString()
                 }
-                key={serv._id}
-                value={serv._id}
+                key={serv?._id}
+                value={serv?._id}
               >
-                {serv.title}
+                {serv?.title}
               </MenuItem>
             ))}
-          {error && <MenuItem value="">Something went wrong !</MenuItem>}
         </StyledTextField>
 
         {/* ----------- Working Days --------------- */}
@@ -255,32 +284,6 @@ export const ProfessionalDetails: React.FC<{
           }}
         />
 
-        {/* ----------- Add Employee --------------- */}
-
-        {/* <Autocomplete
-          multiple
-          onChange={(event: any, value: any) => {
-            setEmployees(value);
-          }}
-          value={employees}
-          fullWidth
-          disabled={!isEditable}
-          limitTags={2}
-          id="multiple-limit-tags"
-          options={USERS}
-          getOptionLabel={(option) => option.name}
-          renderInput={(params) => (
-            <StyledTextField
-              {...params}
-              variant="outlined"
-              label="Add your employees..."
-              fullWidth
-              size="small"
-              placeholder="Employees"
-            />
-          )}
-        /> */}
-
         {/* ----------- Experience --------------- */}
 
         <StyledTextField
@@ -312,7 +315,8 @@ export const ProfessionalDetails: React.FC<{
           error={!descriptionVerified}
           helperText={
             !descriptionVerified
-              ? "Please write something about your profession !"
+              ? "Please describe your profession, in 2-400 letters !, current length: " +
+                description.length
               : ""
           }
           value={description}

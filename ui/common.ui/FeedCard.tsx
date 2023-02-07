@@ -35,6 +35,9 @@ import { Comments } from "../../components/common";
 import { nest } from "../../utils";
 import { Like, Post } from "../../types";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
+import { useConfirm } from "material-ui-confirm";
+import { deletePost } from "../../APIs";
 // import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -57,6 +60,8 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   maxWidth,
 }) => {
   const router = useRouter();
+
+  const muiConfirm = useConfirm();
 
   const role = useSelector((state: StoreState) => state.role.currentUser);
   const user = useSelector((state: StoreState) => state.user.data);
@@ -88,7 +93,6 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [openError, setOpenError] = React.useState(false);
   const [openSuccess, setOpenSuccess] = React.useState(false);
-
   const handleCloseError = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -98,7 +102,6 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
     setOpenError(false);
   };
-
   const handleCloseSuccess = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -108,12 +111,10 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     }
     setOpenSuccess(false);
   };
-
   const errorSetter = (message: string) => {
     setErrMessage(message);
     setOpenError(true);
   };
-
   const successSetter = (message: string) => {
     setSuccessMessage(message);
     setOpenSuccess(true);
@@ -179,6 +180,9 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   const handleReportClick = async () => {
     try {
       setAnchorEl(null);
+      await muiConfirm({
+        description: "Are you sure you want to report this post?",
+      });
       const { data } = await nest({
         method: "PATCH",
         url: `post/report/${post._id}`,
@@ -201,19 +205,22 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
 
   // Removes a post
   const handleRemoveClick = async () => {
-    setAnchorEl(null);
-    const { data } = await nest({
-      method: "DELETE",
-      url: `post/${post._id}`,
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
-    if (data.status === "success") {
-      successSetter("Post removed successfully !!");
+    try {
+      setAnchorEl(null);
+      const isConfirm = await muiConfirm({
+        description: "Do you want to remove this post ?",
+      });
+      const isDeleted = await deletePost(post._id, token);
+      if (isDeleted) {
+        successSetter("Post removed successfully !!");
+      }
+    } catch (err) {
+      console.log(err);
+      if (typeof err === "undefined") return;
+      errorSetter("Something went wrong !");
     }
   };
-
+  const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
 
   const handleAddCommentClick = async () => {
@@ -232,6 +239,8 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
       },
     });
     if (data.status === "success") {
+      setNewComment("");
+      setComments((prev) => [data?.comment, ...prev]);
       successSetter("You have successfully added a new comment !");
     }
   };
@@ -318,7 +327,7 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
               ))
             }
             title={post.owner.name}
-            subheader="September 14, 2022"
+            subheader={dayjs(post.createdAt).format("LLL")}
           />
 
           {/*  Image carousel  */}
@@ -387,7 +396,11 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
             >
               {/* All Comments.... */}
 
-              <Comments post={post._id} />
+              <Comments
+                post={post._id}
+                comments={comments}
+                setComments={setComments}
+              />
 
               {/*  LEave a acomment */}
 
