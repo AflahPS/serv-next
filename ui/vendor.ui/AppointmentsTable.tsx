@@ -15,11 +15,20 @@ import {
   TablePagination,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import React from "react";
-import { APPOINTMENTS } from "../../constants";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { StoreState } from "../../store";
+import { Appointment } from "../../types";
+import { getAppointments, appoiStatusUpdator } from "../../APIs";
+import dayjs from "dayjs";
+import { firstLetterCapitalizer } from "../../utils";
+import { notifierActions } from "../../store/notifier.slice";
 
 export const AppointmentsTable = () => {
   const router = useRouter();
+
+  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
   // Pagination
   const [page, setPage] = React.useState(0);
@@ -33,35 +42,65 @@ export const AppointmentsTable = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  /////
 
+  // Setting appointments on mount
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const getAndSetAppointments = async () => {
+    try {
+      const appos = await getAppointments(token, "vendor");
+      setAppointments(appos);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getAndSetAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  ////
+
+  // Status update
+  const dispatch = useDispatch();
+  const handleApprove = async (reqId: string, status: string) => {
+    try {
+      const isSuccess = await appoiStatusUpdator(token, reqId, status);
+      if (isSuccess?.status) {
+        const curAppoiIndex = appointments.findIndex(
+          (appo) => appo._id.toString() === reqId.toString()
+        );
+        if (curAppoiIndex > -1) {
+          const updatedAppointments = [...appointments];
+          updatedAppointments[curAppoiIndex].status = isSuccess.status;
+          setAppointments(updatedAppointments);
+          dispatch(notifierActions.success("Successfully updated !"));
+        }
+      }
+    } catch (err) {
+      dispatch(notifierActions.error("Something went wrong"));
+      console.log(err);
+    }
+  };
+
+  // Formating data for the table
   type Header = { title: string; id: string };
   const HEADERS: Header[] = [
     { title: "Image", id: "image" },
     { title: "Name", id: "name" },
     { title: "Place", id: "place" },
-    { title: "Date", id: "date" },
+    { title: "Date and Time", id: "date" },
     { title: "Status", id: "status" },
     { title: "Action", id: "action" },
   ];
-
-  const handleApprove = (reqId: string) => {
-    // Approve the request
-  };
-
-  const handleDeny = (reqId: string) => {
-    // Deny the request
-  };
-
   interface Data {
     image: JSX.Element;
     name: string;
     place: string;
-    date: string;
+    date: string | Date;
     status: string;
     action: JSX.Element;
   }
-
-  const rows: Data[] = APPOINTMENTS.map((appo) => {
+  const rows: Data[] = appointments.map((appo) => {
     return {
       image: (
         <IconButton
@@ -72,15 +111,16 @@ export const AppointmentsTable = () => {
           <Avatar src={appo.user?.image}>{appo.user?.name}</Avatar>
         </IconButton>
       ),
+
       name: String(appo.user?.name),
       place: String(appo.user?.place),
-      date: appo.date.toLocaleDateString(),
-      status: appo.status,
+      date: dayjs(appo.date).format("LLL"),
+      status: firstLetterCapitalizer(appo.status),
       action:
-        appo.status === "requested" ? (
+        appo.status === "requested" || appo.status === "denied" ? (
           <IconButton
             onClick={() => {
-              handleApprove(appo._id);
+              handleApprove(appo._id, "approved");
             }}
           >
             <CheckCircleOutlineOutlined color="success" />
@@ -88,7 +128,7 @@ export const AppointmentsTable = () => {
         ) : (
           <IconButton
             onClick={() => {
-              handleDeny(appo._id);
+              handleApprove(appo._id, "denied");
             }}
           >
             <DoDisturbAltOutlined color="error" />
@@ -96,6 +136,7 @@ export const AppointmentsTable = () => {
         ),
     };
   });
+  ////
 
   return (
     <Paper
@@ -115,9 +156,14 @@ export const AppointmentsTable = () => {
           <TableBody>
             {rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any) => {
+              .map((row: any, ind) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    tabIndex={-1}
+                    key={row?.date || ind}
+                  >
                     {HEADERS.map((column: Header) => {
                       return (
                         <TableCell key={column.id} align="left">

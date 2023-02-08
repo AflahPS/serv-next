@@ -8,6 +8,7 @@ import { User, Vendor } from "../types";
 import sideNavTabSlice from "./sidenav-tab.slice";
 import layoutLoadingSlice from "./layout-loading.slice";
 import panelTabSlice from "./panel-tab.slice";
+import notifierSlice from "./notifier.slice";
 
 const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
     user: userDataSlice.reducer,
     sideNavTab: sideNavTabSlice.reducer,
     layoutLoading: layoutLoadingSlice.reducer,
+    notifier: notifierSlice.reducer,
   },
 });
 
@@ -33,4 +35,12 @@ export interface StoreState {
   panelTab: { currentTab: string };
   user: { data: User & Vendor };
   layoutLoading: { isLayoutLoading: boolean };
+  notifier: {
+    errorMessage: string;
+    OpenError: boolean;
+    successMessage: string;
+    OpenSuccess: boolean;
+    infoMessage: string;
+    OpenInfo: boolean;
+  };
 }

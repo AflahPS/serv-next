@@ -55,4 +55,7 @@ export const checkIfFriends = (currentUser: User, candidateUser: User) => {
   return false;
 };
 
+export const firstLetterCapitalizer = (str: string) =>
+  `${str[0].toUpperCase()}${str.slice(1)}`;
+
 export const deepCloneObject = (obj: {}) => JSON.parse(JSON.stringify(obj));

@@ -5,3 +5,4 @@ export * from "./AppointmentsTable";
 export * from "./ProjectsTable";
 export * from "./NotificationAlert";
 export * from "./VendorCard";
+export * from "./MakeAppoModal";

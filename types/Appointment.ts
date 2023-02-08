@@ -3,7 +3,7 @@ import { User } from "./User";
 
 export interface Appointment extends MongoDoc {
   user: User;
-  vendor?: User;
+  vendor: User;
   date: Date | string;
   status: string;
 }

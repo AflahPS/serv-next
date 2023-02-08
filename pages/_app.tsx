@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import store from "../store";
 import { ThemeProvider, createTheme } from "@mui/material";
+import { Notifier } from "../components";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { palette } = createTheme();
@@ -26,6 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Component {...pageProps} />
+          <Notifier />
         </Provider>
       </ThemeProvider>
     </ConfirmProvider>

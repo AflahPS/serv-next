@@ -1,6 +1,8 @@
 import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
 import React from "react";
 import { COLOR } from "../../constants";
+import { useSelector } from "react-redux";
+import { StoreState } from "../../store";
 
 const DetailPair: React.FC<{ title: string; value: string }> = ({
   title,
@@ -8,13 +10,13 @@ const DetailPair: React.FC<{ title: string; value: string }> = ({
 }) => {
   return (
     <Stack gap={1} padding={1} direction={"row"} flexWrap={"wrap"}>
-      <Box flex={2}>
-        <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
+      <Box flex={2} display={"flex"} alignItems={"center"}>
+        <Typography variant="subtitle1" color={COLOR["H1d-font-primary"]}>
           {title}
         </Typography>
       </Box>
-      <Box flex={3}>
-        <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
+      <Box flex={3} display={"flex"} alignItems={"center"}>
+        <Typography variant="subtitle2" color={COLOR["H1d-font-primary"]}>
           : {value}
         </Typography>
       </Box>
@@ -23,6 +25,7 @@ const DetailPair: React.FC<{ title: string; value: string }> = ({
 };
 
 export const Dashboard = () => {
+  const currentUser = useSelector((state: StoreState) => state.user.data);
   return (
     <>
       {/* @Parent Container BOX */}
@@ -37,9 +40,11 @@ export const Dashboard = () => {
             flex={1}
           >
             <Avatar
-              src="https://images.pexels.com/photos/34534/people-peoples-homeless-male.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src={currentUser?.image}
               sx={{ height: "175px", width: "175px" }}
-            ></Avatar>
+            >
+              {currentUser.name}
+            </Avatar>
           </Box>
           {/* Details BOX  */}
           <Box
@@ -50,41 +55,40 @@ export const Dashboard = () => {
           >
             {/* Details left STACK */}
             <Stack bgcolor={"transparent"} flex={1}>
-              <DetailPair title="Name" value="Anzar" />
-              <DetailPair title="Service" value="Masonry" />
-              <DetailPair title="Place" value="Kottakkal" />
-              <DetailPair title="Experience" value="3 Years" />
+              <DetailPair title="Name" value={currentUser.name} />
+              <DetailPair
+                title="Service"
+                value={currentUser?.vendor?.service?.title!}
+              />
+              <DetailPair title="Place" value={currentUser?.place} />
+              <DetailPair
+                title="Experience"
+                value={`${currentUser.vendor?.experience || "-"} Year(s)`}
+              />
             </Stack>
 
             {/* Details right STACK */}
 
             <Stack bgcolor={"transparent"} flex={1}>
-              <DetailPair title="Projects" value="24" />
-              <DetailPair title="Employees" value="1" />
-              <DetailPair title="Available" value="Everyday" />
+              <DetailPair
+                title="Projects"
+                value={currentUser.vendor?.projects?.length?.toString()!}
+              />
+              <DetailPair
+                title="Employees"
+                value={`${currentUser.vendor?.employees?.length || "0"}`}
+              />
+              <DetailPair
+                title="Available in"
+                value={currentUser.vendor?.workingDays!}
+              />
+              <DetailPair
+                title="Available to"
+                value={`${currentUser.vendor?.workRadius!} KMs`}
+              />
             </Stack>
           </Box>
         </Box>
-
-        {/* Buttons Stack  */}
-
-        <Stack
-          direction={"row"}
-          width={"100%"}
-          display={"flex"}
-          justifyContent={"space-around"}
-        >
-          <Button variant="outlined" color="uiPrimary">
-            <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
-              Make an Appointment
-            </Typography>
-          </Button>
-          <Button variant="outlined" color="uiPrimary">
-            <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
-              Follow
-            </Typography>
-          </Button>
-        </Stack>
       </Box>
     </>
   );
