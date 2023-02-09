@@ -5,7 +5,11 @@ import { COLOR } from "../../constants";
 export const AuthHeading = (props: { main: string; sub?: string }) => {
   return (
     <Stack height={"20%"} justifyContent={"space-around"}>
-      <Typography variant="h4" sx={{ color: COLOR["H1d-font-primary"] }}>
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{ color: COLOR["H1d-font-primary"] }}
+      >
         {props.main}
       </Typography>
       {props.sub && (

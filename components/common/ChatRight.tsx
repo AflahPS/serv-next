@@ -13,7 +13,12 @@ export const ChatRight = () => {
   );
 
   if (currentUserRole === "guest") return <></>;
-  if (currentTab === "Panel" || currentTab === "Dashboard") return <></>;
+  if (
+    currentTab === "Panel" ||
+    currentUserRole === "admin" ||
+    currentUserRole === "super-admin"
+  )
+    return <></>;
 
   return (
     <Box

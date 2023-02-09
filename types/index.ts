@@ -5,4 +5,4 @@ export * from "./Service";
 export * from "./Comment";
 export * from "./CommentLike";
 export * from "./Like";
-export * from "./Appointment";
+export * from "./SideNavLink";

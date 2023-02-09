@@ -12,6 +12,12 @@ const roleSlice = createSlice({
     vendor: (state) => {
       state.currentUser = "vendor";
     },
+    admin: (state) => {
+      state.currentUser = "admin";
+    },
+    superAdmin: (state) => {
+      state.currentUser = "super-admin";
+    },
     guest: (state) => {
       state.currentUser = "guest";
     },

@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { nest } from "../../utils";
+import { getAllServices } from "../../APIs";
 
 const Services: React.FC<{ services: {} }> = ({ services }) => {
   const router = useRouter();
@@ -88,15 +89,10 @@ const Services: React.FC<{ services: {} }> = ({ services }) => {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
-    const { data } = await nest({
-      url: "/service",
-      method: "GET",
-    });
-    if (data.status === "success") {
-      return { props: data };
-    }
+    const data = await getAllServices();
+    return { props: data };
   } catch (err: any) {
     console.log(err?.message);
     return { props: {} };

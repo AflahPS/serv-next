@@ -6,6 +6,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  SvgIconTypeMap,
   Tooltip,
 } from "@mui/material";
 import React from "react";
@@ -18,8 +19,11 @@ import { AnyAction, Dispatch } from "@reduxjs/toolkit";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { StoreState } from "../../store";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
+import { SideNavLink } from "../../types";
 
-export const SideNav = () => {
+export const SideNav: React.FC<{ SideNavLinks: SideNavLink[] }> = ({
+  SideNavLinks,
+}) => {
   const dispatch: Dispatch<AnyAction> = useDispatch();
   const router: NextRouter = useRouter();
   const currentTab = useSelector(
@@ -52,7 +56,7 @@ export const SideNav = () => {
           }}
         >
           <List>
-            {SIDE_NAV_LINKS.map((link) => {
+            {SideNavLinks.map((link) => {
               const Icon = link.icon;
               if (!link.allowedRoles.includes(role)) return;
               return (

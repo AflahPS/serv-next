@@ -28,7 +28,7 @@ import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { User } from "../../types";
 
-export const Signin = () => {
+export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -76,11 +76,10 @@ export const Signin = () => {
     return { email, password };
   };
 
-  const handleSignin = async (event: any): Promise<void> => {
+  const handleSigninUser = async (event: any): Promise<void> => {
     event.preventDefault();
     const data = verifyData();
     if (!data) return;
-
     try {
       const res = await nest({
         url: "auth/signin",
@@ -89,24 +88,25 @@ export const Signin = () => {
       });
       if (res.data?.status === "success") {
         const user: User = res.data?.user;
-        setOpen(true);
-        dispatch(authActions.login());
-        dispatch(jwtActions.setToken(res.data?.token));
+        setOpen(true); // open the Success message
+        dispatch(authActions.login()); // login the user
+        dispatch(jwtActions.setToken(res.data?.token)); // set the token
         dispatch(
           user.role === "user"
             ? roleActions.user()
             : user.role === "vendor"
             ? roleActions.vendor()
             : roleActions.guest()
-        );
-        dispatch(userDataActions.addUserData(res.data?.user));
-        dispatch(sideNavTabActions.push("Posts"));
+        ); // set the role
+        dispatch(userDataActions.addUserData(res.data?.user)); // set the user data
+        dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
         router.push("/");
       }
     } catch (err: any) {
       let errorResponeMessage = "";
       if (err?.response) {
         if (Array.isArray(err.response?.data?.message)) {
+          // If the response is from backend validation
           errorResponeMessage = err.response?.data?.message[0];
         } else {
           errorResponeMessage = err.response?.data?.message;
@@ -116,7 +116,50 @@ export const Signin = () => {
       }
       console.log(err?.message);
 
-      setErrMessage("Something went wrong !");
+      setErrMessage("Something went wrong !"); // If the error from unknown
+    }
+  };
+
+  const handleSigninAdmin = async (event: any): Promise<void> => {
+    event.preventDefault();
+    const data = verifyData();
+    if (!data) return;
+    try {
+      const res = await nest({
+        url: "auth/signin",
+        method: "POST",
+        data,
+      });
+      if (res.data?.status === "success") {
+        const user: User = res.data?.user;
+        setOpen(true); // open the Success message
+        dispatch(authActions.login()); // login the user
+        dispatch(jwtActions.setToken(res.data?.token)); // set the token
+        dispatch(
+          user.role === "admin"
+            ? roleActions.admin()
+            : user.role === "super-admin"
+            ? roleActions.superAdmin()
+            : roleActions.guest()
+        ); // set the role
+        dispatch(userDataActions.addUserData(res.data?.user)); // set the user data
+        dispatch(sideNavTabActions.push("Dashboard")); //If the user is admin
+        router.push("/admin");
+      }
+    } catch (err: any) {
+      let errorResponeMessage = "";
+      if (err?.response) {
+        if (Array.isArray(err.response?.data?.message)) {
+          // If the response is from backend validation
+          errorResponeMessage = err.response?.data?.message[0];
+        } else {
+          errorResponeMessage = err.response?.data?.message;
+        }
+        setErrMessage(errorResponeMessage);
+        return console.log({ errMessage: err?.response?.data?.message });
+      }
+      console.log(err?.message);
+      setErrMessage("Something went wrong !"); // If the error from unknown
     }
   };
 
@@ -130,7 +173,7 @@ export const Signin = () => {
     >
       <Stack height={"100%"} paddingY={3} paddingX={5}>
         <AuthHeading
-          main="Sign in As User"
+          main={!isAdmin ? "SIGN IN" : "SIGN IN ADMIN"}
           sub="Enter your email address and password to access more."
         />
         <Box
@@ -189,45 +232,50 @@ export const Signin = () => {
                   label="Remember me."
                 />
               </FormGroup>
-              <LinkButton onClick={handleSignin} variant="outlined">
+              <LinkButton
+                onClick={!isAdmin ? handleSigninUser : handleSigninAdmin}
+                variant="outlined"
+              >
                 Sign In
               </LinkButton>
             </Stack>
           </Box>
-          <Box
-            display={"flex"}
-            flexDirection={"column"}
-            justifyContent={"space-around"}
-            height={"18%"}
-          >
-            <Typography color={"red"} textAlign={"center"} variant="body2">
-              {errMessage}
-            </Typography>
-            <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
-              {"Sign in with   "}
-              <IconButton>
-                <GoogleIcon />
-              </IconButton>
-              <IconButton>
-                <FacebookOutlined />
-              </IconButton>
-            </Typography>
-          </Box>
-          <Divider color="grey" />
-          <Box
-            flex={1}
-            display="flex"
-            flexDirection={"column"}
-            justifyContent="space-around"
-            width={"100%"}
-          >
-            <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
-              Dont have an account ?
-              <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
-                <Link href={"/auth/signup"}>Sign Up</Link>
-              </Button>
-            </Typography>
-            {/* <LinkButton
+          {!isAdmin && (
+            <>
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                justifyContent={"space-around"}
+                height={"18%"}
+              >
+                <Typography color={"red"} textAlign={"center"} variant="body2">
+                  {errMessage}
+                </Typography>
+                <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
+                  {"Sign in with   "}
+                  <IconButton>
+                    <GoogleIcon />
+                  </IconButton>
+                  <IconButton>
+                    <FacebookOutlined />
+                  </IconButton>
+                </Typography>
+              </Box>
+              <Divider color="grey" />
+              <Box
+                flex={1}
+                display="flex"
+                flexDirection={"column"}
+                justifyContent="space-around"
+                width={"100%"}
+              >
+                <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
+                  Dont have an account ?
+                  <Button sx={{ color: COLOR["H1d-ui-primary"] }}>
+                    <Link href={"/auth/signup"}>Sign Up</Link>
+                  </Button>
+                </Typography>
+                {/* <LinkButton
               variant="outlined"
               onClick={() => {
                 router.push("/auth/signin/vendor");
@@ -236,7 +284,9 @@ export const Signin = () => {
             >
               Sign in as vendor
             </LinkButton> */}
-          </Box>
+              </Box>
+            </>
+          )}
         </Box>
       </Stack>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>

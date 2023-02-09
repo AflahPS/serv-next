@@ -5,11 +5,13 @@ import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
 import { Card, CardHeader, CardContent, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
+import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 
 const Chat = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
+    dispatch(sideNavTabActions.push("Messages"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

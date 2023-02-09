@@ -1,17 +1,29 @@
 import { Box, Card, Stack } from "@mui/material";
-import React, { PropsWithChildren } from "react";
+import React, { ReactNode } from "react";
 import { ChatRight } from "./ChatRight";
 import { NavBar } from "./NavBar";
 import { SideNav } from "./SideNav";
 import { LoadingCard } from "../../ui";
-import { COLOR } from "../../constants";
+import { COLOR, SIDE_NAV_LINKS } from "../../constants";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
+import { SideNavLink } from "../../types";
 
-export const Layout = (props: PropsWithChildren) => {
+export const Layout: React.FC<{
+  SideNavLinks?: SideNavLink[];
+  children?: ReactNode | undefined;
+}> = ({ children, SideNavLinks }) => {
   const isLoading = useSelector(
     (state: StoreState) => state.layoutLoading.isLayoutLoading
   );
+
+  let sideLinks;
+  if (!SideNavLinks) {
+    sideLinks = SIDE_NAV_LINKS;
+  } else {
+    sideLinks = SideNavLinks;
+  }
+
   return (
     <>
       <NavBar />
@@ -21,7 +33,7 @@ export const Layout = (props: PropsWithChildren) => {
         // justifyContent="space-between"
         marginY={1}
       >
-        <SideNav />
+        <SideNav SideNavLinks={sideLinks} />
         <Box flex={3.5} paddingY={2}>
           {isLoading && (
             <Card
@@ -37,11 +49,9 @@ export const Layout = (props: PropsWithChildren) => {
               <LoadingCard />
               <LoadingCard />
               <LoadingCard />
-              <LoadingCard />
-              <LoadingCard />
             </Card>
           )}
-          {!isLoading && props.children}
+          {!isLoading && children}
         </Box>
         <ChatRight />
       </Stack>

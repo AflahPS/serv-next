@@ -59,3 +59,7 @@ export const firstLetterCapitalizer = (str: string) =>
   `${str[0].toUpperCase()}${str.slice(1)}`;
 
 export const deepCloneObject = (obj: {}) => JSON.parse(JSON.stringify(obj));
+
+export const checkIfAdmin = (user: User): boolean => {
+  return user.role === "admin" || user.role === "super-admin";
+};

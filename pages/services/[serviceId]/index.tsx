@@ -70,35 +70,35 @@ async function getVendors(id: string) {
   }
 }
 
-async function getAllServices() {
-  try {
-    const { data } = await nest({
-      url: "/service",
-      method: "GET",
-    });
-    if (data.status === "success") {
-      return data?.services;
-    }
-  } catch (err: any) {
-    console.log(err?.message);
-  }
-}
+// async function getAllServices() {
+//   try {
+//     const { data } = await nest({
+//       url: "/service",
+//       method: "GET",
+//     });
+//     if (data.status === "success") {
+//       return data?.services;
+//     }
+//   } catch (err: any) {
+//     console.log(err?.message);
+//   }
+// }
 
-export async function getStaticPaths() {
-  const services = await getAllServices();
-  return {
-    paths: services.map((service: Service) => {
-      return {
-        params: {
-          serviceId: service._id,
-        },
-      };
-    }),
-    fallback: false,
-  };
-}
+// export async function getStaticPaths() {
+//   const services = await getAllServices();
+//   return {
+//     paths: services.map((service: Service) => {
+//       return {
+//         params: {
+//           serviceId: service._id,
+//         },
+//       };
+//     }),
+//     fallback: false,
+//   };
+// }
 
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   // Fetch data from the server or API
   try {
     const serviceId = context.params.serviceId;
@@ -106,7 +106,6 @@ export async function getStaticProps(context: any) {
 
     return {
       props: vendorData,
-      revalidate: 1800,
     };
   } catch (err: any) {
     console.log(err.message);

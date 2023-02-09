@@ -5,3 +5,4 @@ export * from "./SigninVendor";
 export * from "./Signup";
 export * from "./SignupVendor";
 export * from "./Checkpoint";
+export * from "./AdminRouteProtection";

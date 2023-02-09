@@ -13,4 +13,5 @@ export interface User extends MongoDoc {
   following?: string[];
   role: string;
   vendor?: Vendor;
+  isBanned?: boolean;
 }
