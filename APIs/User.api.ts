@@ -16,3 +16,17 @@ export const getUsersByRole = async (role: string, token: string) => {
     throw err;
   }
 };
+
+export const doSearch = async (searchText: string) => {
+  try {
+    if (!searchText) return false;
+    const { data } = await nest({
+      method: "GET",
+      url: "/user/search/" + searchText,
+    });
+    if (!data || data.status !== "success") return false;
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

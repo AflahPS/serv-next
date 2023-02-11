@@ -6,3 +6,6 @@ export * from "./Comment";
 export * from "./CommentLike";
 export * from "./Like";
 export * from "./SideNavLink";
+export * from "./Project";
+export * from "./Chat";
+export * from "./ChatMessage";

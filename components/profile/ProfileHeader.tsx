@@ -4,7 +4,7 @@ import {
   HowToRegOutlined,
   PersonAddAlt1Outlined,
 } from "@mui/icons-material";
-import { Alert, Avatar, IconButton, Snackbar, Typography } from "@mui/material";
+import { Avatar, IconButton, Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
@@ -14,43 +14,12 @@ import { StoreState } from "../../store";
 import { checkIfFriends, deepCloneObject, nest } from "../../utils";
 import { followFriend, unfollowFriend } from "../../APIs";
 import { userDataActions } from "../../store/user-data.slice";
+import { notifierActions } from "../../store/notifier.slice";
 
 export const ProfileHeader: React.FC<{
   user: User;
   isProfileOwner: boolean;
 }> = ({ user, isProfileOwner }) => {
-  //----- ERROR, Success message Snackbar related properties
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = React.useState(false);
-  const [openSuccess, setOpenSuccess] = React.useState(false);
-  const handleCloseError = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenError(false);
-  };
-  const handleCloseSuccess = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSuccess(false);
-  };
-  const errorSetter = (message: string) => {
-    setErrMessage(message);
-    setOpenError(true);
-  };
-  const successSetter = (message: string) => {
-    setSuccessMessage(message);
-    setOpenSuccess(true);
-  };
-  ///////
   const dispatch = useDispatch();
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const currentUserRole = useSelector(
@@ -76,11 +45,11 @@ export const ProfileHeader: React.FC<{
         clonedUser.followers?.push(user._id);
         dispatch(userDataActions.addUserData(clonedUser));
         setIsFriend(true);
-        successSetter("Successfully followed !");
+        dispatch(notifierActions.success("Successfully followed !"));
       }
     } catch (err: any) {
       console.log(err);
-      errorSetter("Something went wrong !");
+      dispatch(notifierActions.error("Something went wrong !"));
     }
   };
   const handleRemoveFriend = async () => {
@@ -94,12 +63,13 @@ export const ProfileHeader: React.FC<{
         clonedUser.followers?.splice(removeIndex, 1);
         dispatch(userDataActions.addUserData(clonedUser));
         setIsFriend(false);
-        successSetter("Successfully unfollowed !");
+        dispatch(notifierActions.success("Successfully unfollowed !"));
+
         return;
       }
     } catch (err: any) {
       console.log(err);
-      errorSetter("Something went wrong !");
+      dispatch(notifierActions.error("Something went wrong !"));
     }
   };
 
@@ -206,35 +176,6 @@ export const ProfileHeader: React.FC<{
           <StatStack name="Following" stat="0" />
         </Box>
       </Box>
-
-      {/* SNACKBARS  */}
-
-      <Snackbar
-        open={openError}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccess}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </Stack>
   );
 };

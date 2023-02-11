@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { ROWS, COLUMNS } from "../../constants";
 import { DataTable } from "../../ui";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { getUsersByRole } from "../../APIs";
 import { User } from "../../types";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
-import {
-  ArrowCircleDownOutlined,
-  ArrowCircleUpOutlined,
-  CheckCircleOutlineOutlined,
-  DeleteOutlineOutlined,
-  NorthOutlined,
-  NotInterestedOutlined,
-  SouthOutlined,
-  UpgradeOutlined,
-} from "@mui/icons-material";
+import { NorthOutlined, SouthOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
 
 export const AdminTable = () => {
@@ -55,7 +45,7 @@ export const AdminTable = () => {
 
       return (
         <Tooltip title="Ban on Unban a user">
-          <IconButton onClick={handlePromote}>
+          <IconButton color="success" onClick={handlePromote}>
             <NorthOutlined />
           </IconButton>
         </Tooltip>
@@ -70,7 +60,7 @@ export const AdminTable = () => {
 
       return (
         <Tooltip title="Remove a user">
-          <IconButton onClick={handleDemote}>
+          <IconButton color="error" onClick={handleDemote}>
             <SouthOutlined />
           </IconButton>
         </Tooltip>

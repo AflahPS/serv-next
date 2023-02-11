@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
-import { COLUMNS, ROWS } from "../../constants";
 import { Service } from "../../types";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import {
-  getAllServices,
-  getUsersByRole,
-  getVendorCountByService,
-} from "../../APIs";
+import { getAllServices, getVendorCountByService } from "../../APIs";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { DeleteOutlineOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
@@ -23,10 +18,6 @@ const countInitial = [
 export const ServiceTable = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [vendorCount, setVendorCount] = useState(countInitial);
-  console.log(
-    "🚀 ~ file: ServiceTable.tsx:26 ~ ServiceTable ~ vendorCount",
-    vendorCount
-  );
 
   const token = useSelector((state: StoreState) => state.jwt.token);
 
@@ -63,25 +54,6 @@ export const ServiceTable = () => {
       );
     }
 
-    // function renderBanButton(row: Service) {
-    //   const handleBan = () => {
-    //     // Handle ban
-    //     console.log("Ban " + row._id);
-    //   };
-
-    //   return (
-    //     <Tooltip title="Ban on Unban a user">
-    //       <IconButton onClick={handleBan}>
-    //         {row?.isBanned ? (
-    //           <CheckCircleOutlineOutlined />
-    //         ) : (
-    //           <NotInterestedOutlined />
-    //         )}
-    //       </IconButton>
-    //     </Tooltip>
-    //   );
-    // }
-
     function renderDeleteButton(row: Service) {
       const handleDelete = () => {
         // Handle Delete
@@ -90,7 +62,7 @@ export const ServiceTable = () => {
 
       return (
         <Tooltip title="Remove a Service">
-          <IconButton onClick={handleDelete}>
+          <IconButton color="error" onClick={handleDelete}>
             <DeleteOutlineOutlined />
           </IconButton>
         </Tooltip>
@@ -127,7 +99,6 @@ export const ServiceTable = () => {
         },
       },
     ];
-
     return [services, columns];
   }
 

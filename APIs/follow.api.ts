@@ -1,10 +1,11 @@
+import { User } from "../types";
 import { nest } from "../utils";
 
-export const followFriend = async (userId: string, token: string) => {
+export const followFriend = async (userId: string | User, token: string) => {
   try {
     const { data } = await nest({
       method: "PATCH",
-      url: `/user/follow/${userId}`,
+      url: `/user/follow/${typeof userId === "string" ? userId : userId._id}`,
       headers: {
         Authorization: "Bearer " + token,
       },
@@ -19,11 +20,11 @@ export const followFriend = async (userId: string, token: string) => {
   }
 };
 
-export const unfollowFriend = async (userId: string, token: string) => {
+export const unfollowFriend = async (userId: string | User, token: string) => {
   try {
     const { data } = await nest({
       method: "PATCH",
-      url: `/user/unfollow/${userId}`,
+      url: `/user/unfollow/${typeof userId === "string" ? userId : userId._id}`,
       headers: {
         Authorization: "Bearer " + token,
       },

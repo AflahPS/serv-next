@@ -33,7 +33,7 @@ export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
     >
       <DataGrid
         rows={rows}
-        rowHeight={75}
+        rowHeight={65}
         columns={columns}
         pageSize={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25, 100]}

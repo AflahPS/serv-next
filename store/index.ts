@@ -4,11 +4,13 @@ import jwtSlice from "./jwt.slice";
 import roleSlice from "./role.slice";
 import profileTabSlice from "./profile-tab.slice";
 import userDataSlice from "./user-data.slice";
-import { User, Vendor } from "../types";
+import { Chat, User, Vendor } from "../types";
 import sideNavTabSlice from "./sidenav-tab.slice";
 import layoutLoadingSlice from "./layout-loading.slice";
 import panelTabSlice from "./panel-tab.slice";
 import notifierSlice from "./notifier.slice";
+import chatSlice from "./chatId.slice";
+import chatListSlice from "./chatList.slice";
 
 const store = configureStore({
   reducer: {
@@ -21,6 +23,8 @@ const store = configureStore({
     sideNavTab: sideNavTabSlice.reducer,
     layoutLoading: layoutLoadingSlice.reducer,
     notifier: notifierSlice.reducer,
+    chat: chatSlice.reducer,
+    chatList: chatListSlice.reducer,
   },
 });
 
@@ -43,4 +47,6 @@ export interface StoreState {
     infoMessage: string;
     OpenInfo: boolean;
   };
+  chat: { chatId: string };
+  chatList: { chats: Chat[] };
 }

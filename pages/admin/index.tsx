@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { AdminRouteProtection, Layout } from "../../components";
+import { AdminRouteProtection, Layout, WorkingOn } from "../../components";
 import { ADMIN_SIDE_NAV } from "../../constants";
 import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
@@ -16,7 +16,9 @@ const Index = () => {
 
   return (
     <AdminRouteProtection>
-      <Layout SideNavLinks={ADMIN_SIDE_NAV}></Layout>
+      <Layout SideNavLinks={ADMIN_SIDE_NAV}>
+        <WorkingOn />
+      </Layout>
     </AdminRouteProtection>
   );
 };

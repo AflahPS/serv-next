@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { AdminRouteProtection, Layout, UserTable } from "../../../components";
-import { ADMIN_SIDE_NAV, COLUMNS, ROWS } from "../../../constants";
+import { ADMIN_SIDE_NAV } from "../../../constants";
 import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../../store/layout-loading.slice";
 import { sideNavTabActions } from "../../../store/sidenav-tab.slice";
-import { User } from "../../../types";
+import { AdminTabHeader } from "../../../ui";
 
 const Index = () => {
   const dispatch = useDispatch();
-
-  const [users, setUsers] = useState<User[]>([]);
-
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
     dispatch(sideNavTabActions.push("Users"));
@@ -21,6 +18,7 @@ const Index = () => {
   return (
     <AdminRouteProtection>
       <Layout SideNavLinks={ADMIN_SIDE_NAV}>
+        <AdminTabHeader header="Users" />
         <UserTable />
       </Layout>
     </AdminRouteProtection>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   AdminRouteProtection,
   Layout,
@@ -8,13 +8,10 @@ import { ADMIN_SIDE_NAV } from "../../../constants";
 import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../../store/layout-loading.slice";
 import { sideNavTabActions } from "../../../store/sidenav-tab.slice";
-import { Service } from "../../../types";
+import { AdminTabHeader } from "../../../ui";
 
 const Index = () => {
   const dispatch = useDispatch();
-
-  const [services, setServices] = useState<Service[]>([]);
-
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
     dispatch(sideNavTabActions.push("Services"));
@@ -25,6 +22,7 @@ const Index = () => {
   return (
     <AdminRouteProtection>
       <Layout SideNavLinks={ADMIN_SIDE_NAV}>
+        <AdminTabHeader header="Services" />
         <ServiceTable />
       </Layout>
     </AdminRouteProtection>

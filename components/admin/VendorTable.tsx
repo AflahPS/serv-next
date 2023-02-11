@@ -18,11 +18,6 @@ export const VendorTable = () => {
   const dispatch = useDispatch();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<Service[]>([]);
-  console.log(
-    "🚀 ~ file: VendorTable.tsx:21 ~ VendorTable ~ services",
-    services
-  );
-  console.log("🚀 ~ file: VendorTable.tsx:18 ~ VendorTable ~ vendors", users);
 
   const token = useSelector((state: StoreState) => state.jwt.token);
 
@@ -68,9 +63,9 @@ export const VendorTable = () => {
         <Tooltip title="Ban on Unban a vendor">
           <IconButton onClick={handleBan}>
             {row?.isBanned ? (
-              <CheckCircleOutlineOutlined />
+              <CheckCircleOutlineOutlined color="success" />
             ) : (
-              <NotInterestedOutlined />
+              <NotInterestedOutlined color="warning" />
             )}
           </IconButton>
         </Tooltip>
@@ -86,7 +81,7 @@ export const VendorTable = () => {
 
       return (
         <Tooltip title="Remove a vendor">
-          <IconButton onClick={handleDelete}>
+          <IconButton color="error" onClick={handleDelete}>
             <DeleteOutlineOutlined />
           </IconButton>
         </Tooltip>

@@ -4,14 +4,11 @@ import { ADMIN_SIDE_NAV, COLUMNS, ROWS } from "../../../constants";
 import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../../store/layout-loading.slice";
 import { sideNavTabActions } from "../../../store/sidenav-tab.slice";
-import { DataTable } from "../../../ui";
+import { AdminTabHeader, DataTable } from "../../../ui";
 import { Post } from "../../../types";
 
 const Index = () => {
   const dispatch = useDispatch();
-
-  const [posts, setPosts] = useState<Post[]>([]);
-
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
     dispatch(sideNavTabActions.push("Posts"));
@@ -22,6 +19,7 @@ const Index = () => {
   return (
     <AdminRouteProtection>
       <Layout SideNavLinks={ADMIN_SIDE_NAV}>
+        <AdminTabHeader header="Posts" />
         <PostTable />
       </Layout>
     </AdminRouteProtection>

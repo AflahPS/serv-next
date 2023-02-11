@@ -51,9 +51,9 @@ export const UserTable = () => {
         <Tooltip title="Ban on Unban a user">
           <IconButton onClick={handleBan}>
             {row?.isBanned ? (
-              <CheckCircleOutlineOutlined />
+              <CheckCircleOutlineOutlined color="success" />
             ) : (
-              <NotInterestedOutlined />
+              <NotInterestedOutlined color="warning" />
             )}
           </IconButton>
         </Tooltip>
@@ -68,7 +68,7 @@ export const UserTable = () => {
 
       return (
         <Tooltip title="Remove a user">
-          <IconButton onClick={handleDelete}>
+          <IconButton color="error" onClick={handleDelete}>
             <DeleteOutlineOutlined />
           </IconButton>
         </Tooltip>

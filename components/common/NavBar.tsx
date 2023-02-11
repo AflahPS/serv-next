@@ -33,12 +33,13 @@ import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
 import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
-import { SearchContainer } from "../../ui";
+import { SearchContainer, SearchList } from "../../ui";
 import { userDataActions } from "../../store/user-data.slice";
 import { StoreState } from "../../store";
 import { nest } from "../../utils";
 import { User } from "../../types";
 import { useRouter } from "next/router";
+import { doSearch } from "../../APIs";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -68,56 +69,6 @@ const UserBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-const SearchList: React.FC<{ results: any[] }> = ({ results }) => {
-  const router = useRouter();
-
-  return (
-    <List
-      sx={{
-        width: "100%",
-        bgcolor: COLOR["H1d-ui-bg"],
-        height: "40vh",
-        maxHeight: "60vh",
-        overflow: "auto",
-        position: "absolute",
-        top: "36px",
-        left: 0,
-      }}
-    >
-      {results.map((user) => (
-        <ListItem
-          sx={{ cursor: "pointer" }}
-          onClick={() => {
-            router.push(`/profile/${user._id}`);
-          }}
-          key={user._id}
-          alignItems="flex-start"
-        >
-          <ListItemAvatar>
-            <Avatar alt={user.name} src={user?.image} />
-          </ListItemAvatar>
-          <ListItemText
-            primary={user.name}
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  Email
-                </Typography>
-                {` : ${user.email}`}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
-      ))}
-    </List>
-  );
-};
-
 export const NavBar = () => {
   const [openAnchor, setOpenAnchor] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -142,26 +93,9 @@ export const NavBar = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showList, setShowList] = useState(false);
 
-  const doSearch = async () => {
-    try {
-      console.log(searchText);
-      if (!searchText) return false;
-      const { data } = await nest({
-        method: "GET",
-        url: "/user/search/" + searchText,
-      });
-      console.log(data);
-      if (!data || data.status !== "success") return false;
-      return data;
-    } catch (err: any) {
-      console.log(err.message);
-      return false;
-    }
-  };
-
   const handleSearch = async () => {
     try {
-      const results = await doSearch();
+      const results = await doSearch(searchText);
       if (!results) {
         setShowList(false);
         return;
@@ -200,9 +134,14 @@ export const NavBar = () => {
               handleSearch();
             }}
             sx={{ color: "inherit" }}
-            placeholder="search..."
+            placeholder="Search..."
           />
-          {showList && <SearchList results={searchResults} />}
+          {showList && (
+            <SearchList
+              Positions={{ top: "36px", left: "0" }}
+              results={searchResults}
+            />
+          )}
         </SearchContainer>
 
         <IconsContainer>
@@ -211,9 +150,9 @@ export const NavBar = () => {
               <Tooltip title="Home" placement="bottom">
                 <HomeOutlined />
               </Tooltip>
-              <Tooltip title="Requests" placement="bottom">
+              {/* <Tooltip title="Requests" placement="bottom">
                 <PersonAddAlt1Outlined />
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Notifications" placement="bottom">
                 <Badge badgeContent={4} color="error">
                   <Notifications />

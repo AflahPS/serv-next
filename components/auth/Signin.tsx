@@ -92,11 +92,7 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
         dispatch(authActions.login()); // login the user
         dispatch(jwtActions.setToken(res.data?.token)); // set the token
         dispatch(
-          user.role === "user"
-            ? roleActions.user()
-            : user.role === "vendor"
-            ? roleActions.vendor()
-            : roleActions.guest()
+          user.role === "vendor" ? roleActions.vendor() : roleActions.user()
         ); // set the role
         dispatch(userDataActions.addUserData(res.data?.user)); // set the user data
         dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
@@ -251,7 +247,7 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
                 <Typography color={"red"} textAlign={"center"} variant="body2">
                   {errMessage}
                 </Typography>
-                <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
+                {/* <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
                   {"Sign in with   "}
                   <IconButton>
                     <GoogleIcon />
@@ -259,7 +255,7 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
                   <IconButton>
                     <FacebookOutlined />
                   </IconButton>
-                </Typography>
+                </Typography> */}
               </Box>
               <Divider color="grey" />
               <Box
