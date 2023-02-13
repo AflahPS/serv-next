@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LocationOnOutlined, SendOutlined } from "@mui/icons-material";
 import {
   Alert,
@@ -15,14 +15,56 @@ import {
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { Box, Stack } from "@mui/system";
-import { useSelector } from "react-redux";
-import { geoCords, geoLocator, nest } from "../../utils";
+import { useDispatch, useSelector } from "react-redux";
+import { geoCords, geoLocator, lengthChecker, nest } from "../../utils";
 import { LinkButton, StyledTextField } from "..";
 import { COLOR, PROJ_STATUSES, USERS } from "../../constants";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { notifierActions } from "../../store/notifier.slice";
+import { Employee, Project, User } from "../../types";
+import { createProject, getEmployeesOfVendor, getFollowers } from "../../APIs";
+import { StoreState } from "../../store";
 
-export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
+interface Props {
+  extraSx?: {};
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}
+
+export const CreateProject: React.FC<Props> = (props) => {
+  const dispatch = useDispatch();
+  const token = useSelector((state: any) => state.jwt?.token);
+  const currentUser = useSelector((state: StoreState) => state.user.data);
+
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const getAndSetEmployees = async () => {
+    try {
+      const employees = await getEmployeesOfVendor(token);
+      if (employees) setAllEmployees(employees);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getAndSetEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [followers, setFollowers] = useState<User[]>([]);
+  const getAndSetFollowers = async () => {
+    try {
+      const followers = await getFollowers(currentUser._id);
+      if (!followers) return setFollowers([]);
+      setFollowers(followers);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getAndSetFollowers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [title, setTitle] = useState("");
   const [client, setClient] = useState("");
   const [status, setStatus] = useState("");
@@ -38,20 +80,22 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
   const [loading, setLoading] = useState(false);
   const [caption, setCaption] = useState("");
 
-  const [locationVerified, setLocationVerified] = useState(true);
-
-  const token = useSelector((state: any) => state.jwt?.token);
-
-  const [open, setOpen] = useState(false);
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
+  const clearFields = () => {
+    setTitle("");
+    setCaption("");
+    setClient("");
+    setStatus("");
+    setStartDate(null);
+    setEndDate;
+    setPlace("");
+    setLocation({
+      type: "Ponit",
+      coordinates: [0, 0],
+    });
+    setEmployees([]);
   };
+
+  const [locationVerified, setLocationVerified] = useState(true);
 
   // ---- Location finder using MAPBOX
 
@@ -88,25 +132,69 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
     setStartDate(newValue);
   };
   const handleEndDateChange = (newValue: Dayjs | null) => {
-    setStartDate(newValue);
+    setEndDate(newValue);
   };
 
-  const verifyData = async () => {
+  function showInvalidField(field: string) {
+    dispatch(notifierActions.error(`Invalid data for the field ${field}`));
+  }
+
+  const verifyData = () => {
     try {
       setLoading(true);
+      const tagged = employees?.map((tag: any) => tag._id);
 
-      const tagged = employees.map((tag: any) => tag._id);
+      let returnObj = {};
 
-      const captionInput = caption;
-      if (captionInput.length < 2) {
-        setErrMessage("Please write something about this post !");
+      if (!lengthChecker(title, 2, 50)) {
+        showInvalidField(`'Project Title'`);
         return false;
       }
+      returnObj = Object.assign(returnObj, { title });
 
-      return {
-        caption: captionInput,
-        tagged,
-      };
+      if (caption) returnObj = Object.assign(returnObj, { caption });
+
+      if (tagged.length > 0)
+        returnObj = Object.assign(returnObj, { employees: tagged });
+
+      if (client) returnObj = Object.assign(returnObj, { client });
+
+      if (
+        !status ||
+        !["pending", "running", "completed", "cancelled", "failed"].includes(
+          status
+        )
+      ) {
+        showInvalidField(`'Status'`);
+        return false;
+      }
+      returnObj = Object.assign(returnObj, { status });
+
+      if (!startDate || +startDate.valueOf() < +dayjs().valueOf()) {
+        showInvalidField(`'Start Date'`);
+        return false;
+      }
+      returnObj = Object.assign(returnObj, {
+        startDate: startDate.toISOString(),
+      });
+
+      if (
+        !endDate ||
+        +endDate.valueOf() < +dayjs().valueOf() ||
+        +endDate.valueOf() < +startDate.valueOf()
+      ) {
+        showInvalidField(`'End Date'`);
+        return false;
+      }
+      returnObj = Object.assign(returnObj, { endDate: endDate.toISOString() });
+      if (!locationVerified) {
+        showInvalidField(`'Location'`);
+        return false;
+      }
+      returnObj = Object.assign(returnObj, { place, location });
+      console.log(returnObj);
+
+      return returnObj;
     } catch (error) {
       console.log(error);
     }
@@ -114,30 +202,20 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
 
   const handlePost = async () => {
     try {
-      const data = await verifyData();
-      console.log("🚀 ~ file: CreatePost.tsx:131 ~ handlePost ~ data", data);
-      if (!data) {
+      if (loading) return;
+      const dataV = verifyData();
+      if (!dataV) {
         setLoading(false);
         return;
       }
-      const res = await nest({
-        method: "POST",
-        url: "project",
-        data,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (res.data?.status === "success") {
-        setLoading(false);
-        setOpen(true);
-        setCaption("");
-        setEmployees([]);
-        setErrMessage("");
-      }
+      const addedProject = await createProject(dataV, token);
+      if (!addedProject) return dispatch(notifierActions.somethingWentWrong());
+      setLoading(false);
+      clearFields();
+      dispatch(notifierActions.success("success"));
     } catch (err: any) {
       setLoading(false);
-      setErrMessage(err.message || "Something went wrong !");
+      dispatch(notifierActions.somethingWentWrong());
       console.log(err?.message);
     }
   };
@@ -167,6 +245,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
       <Stack height={"35%"} paddingX={4} paddingY={2}>
         <Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
+            {/* TITLE */}
             <StyledTextField
               label="Project Title *"
               value={title}
@@ -177,6 +256,8 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
               fullWidth
               size="small"
             ></StyledTextField>
+
+            {/* DESCRIPTION */}
 
             <StyledTextField
               label="Description"
@@ -189,6 +270,9 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
               placeholder="Short description about the project..."
               fullWidth
             ></StyledTextField>
+
+            {/* EMPLOYEES */}
+
             <Autocomplete
               multiple
               onChange={(event: any, value: any) => {
@@ -197,7 +281,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
               value={employees}
               limitTags={2}
               id="multiple-limit-employees"
-              options={USERS}
+              options={allEmployees.map((e) => e.emp)}
               getOptionLabel={(option) => option.name}
               defaultValue={[]}
               renderInput={(params) => (
@@ -232,7 +316,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
                 fullWidth
                 sx={{ minWidth: 98 }}
               >
-                {USERS.map((user) => (
+                {followers.map((user) => (
                   <MenuItem key={user._id} value={user._id}>
                     {user.name}
                   </MenuItem>
@@ -248,7 +332,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
                 }}
                 select
                 defaultValue={""}
-                label="Status"
+                label="Status *"
                 size="small"
                 fullWidth
                 sx={{ minWidth: 98 }}
@@ -269,7 +353,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
               {/* START DATE */}
 
               <DesktopDatePicker
-                label="Start Date"
+                label="Start Date *"
                 inputFormat="DD/MM/YYYY"
                 value={startDate}
                 onChange={handleStartDateChange}
@@ -281,7 +365,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
               {/* END DATE */}
 
               <DesktopDatePicker
-                label="End Date"
+                label="End Date *"
                 inputFormat="DD/MM/YYYY"
                 value={endDate}
                 onChange={handleEndDateChange}
@@ -296,7 +380,7 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
             <StyledTextField
               size="small"
               fullWidth
-              label="Location"
+              label="Location *"
               error={!locationVerified}
               // defaultValue={user.place}
               helperText={
@@ -371,19 +455,14 @@ export const CreateProject: React.FC<{ extraSx?: {} }> = (props) => {
           Post
         </LinkButton>
       </Box>
-      <Typography
+      {/* <Typography
         color={"red"}
         marginTop={2}
         textAlign={"center"}
         variant="body2"
       >
         {errMessage}
-      </Typography>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfully created new post !
-        </Alert>
-      </Snackbar>
+      </Typography> */}
     </Card>
   );
 };

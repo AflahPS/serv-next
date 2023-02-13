@@ -16,3 +16,57 @@ export async function getAllProjects(token: string) {
     throw err;
   }
 }
+
+export async function getProjectsOfVendor(token: string) {
+  try {
+    const { data } = await nest({
+      method: "GET",
+      url: "/project",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data?.projects;
+    }
+    return false;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function createProject(dataV: any, token: string) {
+  try {
+    const { data } = await nest({
+      method: "POST",
+      url: "/project",
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data;
+    }
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function deleteProject(projectId: string, token: string) {
+  try {
+    const { data } = await nest({
+      method: "DELETE",
+      url: `/project/${projectId}`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    throw err;
+  }
+}

@@ -14,7 +14,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { COLOR } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
@@ -31,14 +31,20 @@ import { chatActions } from "../../store/chatId.slice";
 import { useConfirm } from "material-ui-confirm";
 import { chatListActions } from "../../store/chatList.slice";
 import { AxiosError } from "axios";
+import { Socket, io } from "socket.io-client";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
   const confirmer = useConfirm();
+  const socket = useRef();
+  const scroll = useRef();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedChat, setSelectedChat] = useState<Chat>();
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+  const [sendMessageIo, setSendMessageIo] = useState<any>(null);
+  const [recieveMessageIo, setRecieveMessageIo] = useState<any>(null);
 
   const chat = useSelector((state: StoreState) => state.chat.chatId);
   const currentUser = useSelector((state: StoreState) => state.user.data);
@@ -82,7 +88,6 @@ export const ChatComp = () => {
 
   useEffect(() => {
     getAndSetChat();
-    console.log("usededede");
 
     // return () => {
     //   dispatch(chatActions.removeChat());
@@ -105,6 +110,9 @@ export const ChatComp = () => {
       const addedMessage = await sendMessage(chat, token, newMessage);
       setMessages((prev) => [...prev, addedMessage?.message]);
       setNewMessage("");
+
+      const recieverId = getFriendObjectFromChat()?._id;
+      setSendMessageIo({ ...addedMessage?.message, recieverId });
     } catch (err) {
       console.log(err);
     }
@@ -125,6 +133,41 @@ export const ChatComp = () => {
       console.log(err);
     }
   };
+
+  // Setup the socket server
+  useEffect(() => {
+    socket.current = io("http://localhost:5555");
+    socket.current.emit("new-user-add", currentUser._id);
+    socket.current.on("get-users", (users: any[]) => {
+      setOnlineUsers(users);
+    });
+  }, [currentUser]);
+
+  // send to socket
+  useEffect(() => {
+    if (sendMessageIo !== null) {
+      socket.current?.emit("send-message", sendMessageIo);
+    }
+  }, [sendMessageIo]);
+
+  // reciieve
+  useEffect(() => {
+    socket.current?.on("recieve-message", (data: ChatMessage) => {
+      setRecieveMessageIo(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (recieveMessageIo !== null && recieveMessageIo.chat === chat) {
+      setMessages((prev) => [...prev, recieveMessageIo]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recieveMessageIo]);
+
+  useEffect(() => {
+    scroll.current?.scrollIntoView({ behavior: "smooth" });
+  }),
+    [messages];
 
   return (
     <Stack height={"85vh"}>
@@ -185,6 +228,7 @@ export const ChatComp = () => {
           >
             {messages.map((msg) => (
               <ChatMessageComp
+                refer={scroll}
                 key={msg._id}
                 isAuthor={checkIfAuthor(msg.author)}
                 text={msg.text}

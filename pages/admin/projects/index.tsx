@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import {
+  AdminContainer,
   AdminRouteProtection,
   Layout,
   ProjectTable,
@@ -22,8 +23,10 @@ const Index = () => {
   return (
     <AdminRouteProtection>
       <Layout SideNavLinks={ADMIN_SIDE_NAV}>
-        <AdminTabHeader header="Projects" />
-        <ProjectTable />
+        <AdminContainer>
+          <AdminTabHeader header="Projects" />
+          <ProjectTable />
+        </AdminContainer>
       </Layout>
     </AdminRouteProtection>
   );

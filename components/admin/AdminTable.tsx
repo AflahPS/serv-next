@@ -7,6 +7,7 @@ import { User } from "../../types";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { NorthOutlined, SouthOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
+import { firstLetterCapitalizer } from "../../utils";
 
 export const AdminTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -40,7 +41,7 @@ export const AdminTable = () => {
     function renderPromotionButton(row: User) {
       const handlePromote = () => {
         // Handle ban
-        console.log("Ban " + row._id);
+        console.log("promote " + row._id);
       };
 
       return (
@@ -77,6 +78,14 @@ export const AdminTable = () => {
         },
       },
       { field: "name", headerName: "Name", width: 150 },
+      {
+        field: "role",
+        headerName: "Role",
+        width: 150,
+        valueGetter(params) {
+          return firstLetterCapitalizer(params.row?.role);
+        },
+      },
       { field: "place", headerName: "Place", width: 150 },
       { field: "email", headerName: "Email", width: 150 },
       { field: "phone", headerName: "Phone", width: 150 },

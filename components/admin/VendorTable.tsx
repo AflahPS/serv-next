@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
-import { COLUMNS, ROWS } from "../../constants";
 import { Service, User } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { getAllServices, getUsersByRole } from "../../APIs";
+import {
+  banUser,
+  deleteUser,
+  getAllServices,
+  getUsersByRole,
+} from "../../APIs";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import {
   CheckCircleOutlineOutlined,
@@ -13,8 +17,10 @@ import {
 } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
 import { notifierActions } from "../../store/notifier.slice";
+import { useConfirm } from "material-ui-confirm";
 
 export const VendorTable = () => {
+  const confirmer = useConfirm();
   const dispatch = useDispatch();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -53,10 +59,30 @@ export const VendorTable = () => {
     }
 
     function renderBanButton(row: User) {
-      const handleBan = () => {
-        // Handle ban
-        console.log("Ban " + row._id);
-        dispatch(notifierActions.success("Ban " + row._id));
+      // Handle ban
+      const handleBan = async () => {
+        try {
+          const userId = row._id;
+          const action = !row.isBanned ? "ban" : "unban";
+          await confirmer({
+            description: `Do you want to ${action} this user (${row.name}) ?`,
+          });
+          const reaction = action === "ban";
+          const isSuccess = await banUser(userId, token, action);
+          if (!isSuccess) {
+            return dispatch(notifierActions.somethingWentWrong());
+          }
+          const bannedUserIndex = users.findIndex(
+            (user) => user._id === row._id
+          );
+          const clonnedUsers = [...users];
+          clonnedUsers[bannedUserIndex].isBanned = reaction;
+          setUsers(clonnedUsers);
+          dispatch(notifierActions.info(`Successfully ${action}ned !`));
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
       };
 
       return (
@@ -73,10 +99,20 @@ export const VendorTable = () => {
     }
 
     function renderDeleteButton(row: User) {
-      const handleDelete = () => {
-        // Handle Delete
-        console.log("Delete " + row._id);
-        dispatch(notifierActions.success("Delete " + row._id));
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          const userId = row._id;
+          await confirmer({
+            description: `DELETE THIS VENDOR ONLY IF YOU ARE SO SURE ?`,
+          });
+          const isSuccess = await deleteUser(userId, token);
+          setUsers((prev) => prev.filter((user) => user._id !== userId));
+          dispatch(notifierActions.info("Successfully deleted the user !"));
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
       };
 
       return (

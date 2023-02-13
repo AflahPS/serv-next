@@ -12,7 +12,7 @@ export const AdminTabHeader: React.FC<{ header: string }> = (props) => {
       paddingX={4}
       marginX={"auto"}
       bgcolor={COLOR["H1d-ui-bg"]}
-      width={"85%"}
+      // width={"85%"}
     >
       <Typography
         variant="h5"

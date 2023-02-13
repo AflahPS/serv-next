@@ -4,3 +4,4 @@ export * from "./ProjectsTable";
 export * from "./ServiceTable";
 export * from "./UserTable";
 export * from "./VendorTable";
+export * from "./AdminContainer";

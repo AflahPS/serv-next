@@ -1,129 +1,152 @@
-import { DoDisturbAltOutlined } from "@mui/icons-material";
 import {
-  IconButton,
-  Avatar,
-  Paper,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TablePagination,
-} from "@mui/material";
-import { useRouter } from "next/router";
-import React from "react";
+  DeleteOutlineOutlined,
+  DoDisturbAltOutlined,
+} from "@mui/icons-material";
+import { IconButton, Avatar, Tooltip } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { EMPLOYEES } from "../../constants";
+import { useDispatch, useSelector } from "react-redux";
+import { useConfirm } from "material-ui-confirm";
+import { Employee, Project, User } from "../../types";
+import { StoreState } from "../../store";
+import { getEmployeesOfVendor, removeEmployee } from "../../APIs";
+import { notifierActions } from "../../store/notifier.slice";
+import { GridColDef } from "@mui/x-data-grid";
+import { DataTable } from "../admin.ui";
+import { Box } from "@mui/system";
 
-export const EmployeeTable = () => {
-  const router = useRouter();
+interface Props {
+  employees: Employee[];
+  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
+}
 
-  // Pagination
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+export const EmployeeTable: React.FC<Props> = ({ employees, setEmployees }) => {
+  const dispatch = useDispatch();
+  const confirmer = useConfirm();
+  // const [employees, setEmployees] = useState<Employee[]>([]);
 
-  type Header = { title: string; id: string };
-  const HEADERS: Header[] = [
-    { title: "Image", id: "image" },
-    { title: "Name", id: "name" },
-    { title: "Place", id: "place" },
-    { title: "Joined", id: "joined" },
-    { title: "Projects", id: "projects" },
-    { title: "Action", id: "action" },
-  ];
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
-  const handleDeny = (reqId: string) => {
-    // Deny the request
-  };
+  // const getAndSetEmployees = async () => {
+  //   try {
+  //     const employees = await getEmployeesOfVendor(token);
+  //     if (employees) setEmployees(employees);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
-  interface Data {
-    image: JSX.Element;
-    name: string;
-    place: string;
-    projects: number;
-    joined: string;
-    action: JSX.Element;
+  function userDataFormatter(employees: Employee[]) {
+    function renderAvatar(row: Employee) {
+      const handleProfileClick = () => {
+        // Handle ptofile click event
+        // const EmployeeId = row._id;
+      };
+
+      return (
+        <>
+          <IconButton onClick={handleProfileClick}>
+            <Avatar src={row?.emp?.image}>{row?.emp?.name}</Avatar>
+          </IconButton>
+        </>
+      );
+    }
+
+    function renderDeleteButton(row: Employee) {
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          const employeeId = row.emp?._id;
+          await confirmer({
+            description: `Do you want to remove this employee (${row.emp?.name}) ?`,
+          });
+          const isSuccess = await removeEmployee(employeeId, token);
+          if (!isSuccess) {
+            return dispatch(notifierActions.somethingWentWrong());
+          }
+          setEmployees((prev) =>
+            prev.filter((user) => user.emp?._id !== employeeId)
+          );
+          dispatch(
+            notifierActions.info(
+              `Successfully removed the employee (${row.emp?.name}) !`
+            )
+          );
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
+      };
+
+      return (
+        <Tooltip title="Remove employee">
+          <IconButton color="error" onClick={handleDelete}>
+            <DeleteOutlineOutlined />
+          </IconButton>
+        </Tooltip>
+      );
+    }
+
+    const columns: GridColDef[] = [
+      {
+        field: "emp.image",
+        headerName: "Avatar",
+        width: 100,
+        renderCell(params) {
+          return renderAvatar(params.row);
+        },
+      },
+      {
+        field: "emp.name",
+        headerName: "Name",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.emp?.name;
+        },
+      },
+      {
+        field: "emp.place",
+        headerName: "Place",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.emp?.place;
+        },
+      },
+      {
+        field: "emp.email",
+        headerName: "Email",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.emp?.email;
+        },
+      },
+      {
+        field: "emp.phone",
+        headerName: "Phone",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.emp?.phone;
+        },
+      },
+      {
+        field: "emp._id",
+        headerName: "Remove",
+        width: 150,
+        description: "Remove an employee",
+        renderCell(params) {
+          return renderDeleteButton(params.row);
+        },
+      },
+    ];
+
+    return [employees, columns];
   }
 
-  const rows: Data[] = EMPLOYEES.map((emp) => {
-    return {
-      image: (
-        <IconButton
-          onClick={() => {
-            router.push(`/profile/${emp.user?._id}`);
-          }}
-        >
-          <Avatar src={emp.user?.image}>{emp.user?.name}</Avatar>
-        </IconButton>
-      ),
-      name: String(emp.user?.name),
-      place: emp.user.place,
-      joined: emp.joined.toLocaleDateString(),
-      projects: emp.pojects.length,
-      action: (
-        <IconButton
-          onClick={() => {
-            handleDeny(emp._id);
-          }}
-        >
-          <DoDisturbAltOutlined color="error" />
-        </IconButton>
-      ),
-    };
-  });
+  const [rows, columns] = userDataFormatter(employees);
 
   return (
-    <Paper
-      sx={{ width: "100%", overflow: "hidden", marginY: 5, borderRadius: 3 }}
-    >
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {HEADERS.map((h) => (
-                <TableCell sx={{ backgroundColor: "black" }} key={h.id}>
-                  {h.title}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                    {HEADERS.map((column: Header) => {
-                      return (
-                        <TableCell key={column.id} align="left">
-                          {row[column.id]}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Paper>
+    <Box marginY={3}>
+      <DataTable rows={rows} columns={columns as GridColDef[]} />;
+    </Box>
   );
 };

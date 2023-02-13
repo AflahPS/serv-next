@@ -37,6 +37,7 @@
     "react-icons": "^4.7.1",
     "react-material-ui-carousel": "^3.4.2",
     "react-redux": "^8.0.5",
+    "socket.io-client": "^4.6.0",
     "swr": "^2.0.1",
     "typescript": "4.9.4"
   },

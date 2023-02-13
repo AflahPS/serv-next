@@ -5,7 +5,7 @@ export const PROJ_STATUSES = [
   },
   {
     value: "running",
-    title: "Running",
+    title: "Currently running",
   },
   {
     value: "completed",
@@ -14,5 +14,9 @@ export const PROJ_STATUSES = [
   {
     value: "cancelled",
     title: "Cancelled",
+  },
+  {
+    value: "failed",
+    title: "Failed to complete",
   },
 ];

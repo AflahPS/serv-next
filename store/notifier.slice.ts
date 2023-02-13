@@ -37,6 +37,14 @@ const notifierSlice = createSlice({
       state.infoMessage = "";
       state.OpenInfo = false;
     },
+    somethingWentWrong: (state) => {
+      state.errorMessage = "Something Went Wrong !";
+      state.OpenError = true;
+    },
+    successfullySignedIn: (state) => {
+      state.successMessage = "Successfully Signed In !";
+      state.OpenSuccess = true;
+    },
   },
 });
 

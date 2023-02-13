@@ -1,5 +1,6 @@
 import {
   CheckCircleOutlineOutlined,
+  DeleteOutlineOutlined,
   DoDisturbAltOutlined,
 } from "@mui/icons-material";
 import {
@@ -13,133 +14,164 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { APPOINTMENTS } from "../../constants";
+import { Project } from "../../types";
+import { useDispatch, useSelector } from "react-redux";
+import { useConfirm } from "material-ui-confirm";
+import { deleteProject, getProjectsOfVendor } from "../../APIs";
+import { StoreState } from "../../store";
+import { notifierActions } from "../../store/notifier.slice";
+import { GridColDef } from "@mui/x-data-grid";
+import dayjs from "dayjs";
+import { DataTable } from "../admin.ui";
 
-export const ProjectsTable = () => {
-  const router = useRouter();
+interface Props {
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+  projects: Project[];
+}
 
-  // Pagination
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+export const ProjectsTable: React.FC<Props> = ({ setProjects, projects }) => {
+  const dispatch = useDispatch();
+  const confirmer = useConfirm();
 
-  type Header = { title: string; id: string };
-  const HEADERS: Header[] = [
-    { title: "Image", id: "image" },
-    { title: "Name", id: "name" },
-    { title: "Place", id: "place" },
-    { title: "Date", id: "date" },
-    { title: "Status", id: "status" },
-    { title: "Action", id: "action" },
-  ];
+  const token = useSelector((state: StoreState) => state.jwt.token);
 
-  const handleApprove = (reqId: string) => {
-    // Approve the request
-  };
+  function dataFormatter(projects: Project[]) {
+    function renderClientAvatar(row: Project) {
+      const handleProfileClick = () => {
+        // Handle ptofile click event
+      };
 
-  const handleDeny = (reqId: string) => {
-    // Deny the request
-  };
+      return (
+        <>
+          <IconButton onClick={handleProfileClick}>
+            <Avatar src={row?.client?.image}>{row?.client?.name}</Avatar>
+          </IconButton>
+        </>
+      );
+    }
 
-  interface Data {
-    image: JSX.Element;
-    name: string;
-    place: string;
-    date: string;
-    status: string;
-    action: JSX.Element;
+    function renderVendorAvatar(row: Project) {
+      const handleProfileClick = () => {
+        // Handle ptofile click event
+      };
+
+      return (
+        <>
+          <IconButton onClick={handleProfileClick}>
+            <Avatar src={row?.vendor?.user?.image}>
+              {row?.vendor?.user?.name}
+            </Avatar>
+          </IconButton>
+        </>
+      );
+    }
+
+    function renderDeleteButton(row: Project) {
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          await confirmer({
+            description: `Are you sure you want to delete this project ?`,
+          });
+          const isSuccess = await deleteProject(row._id, token);
+          if (!isSuccess) return dispatch(notifierActions.somethingWentWrong());
+          setProjects((prev) => prev.filter((proj) => proj._id !== row._id));
+          dispatch(
+            notifierActions.info(`Successfully deleted project ${row.title} !`)
+          );
+        } catch (err) {
+          if (typeof err !== "undefined")
+            dispatch(notifierActions.somethingWentWrong());
+          console.log(err);
+        }
+      };
+
+      return (
+        <Tooltip title="Remove a Project">
+          <IconButton color="error" onClick={handleDelete}>
+            <DeleteOutlineOutlined />
+          </IconButton>
+        </Tooltip>
+      );
+    }
+
+    const columns: GridColDef[] = [
+      {
+        field: "title",
+        headerName: "Project Title",
+        width: 150,
+      },
+      {
+        field: "client.image",
+        headerName: "Client",
+        width: 100,
+        headerAlign: "center",
+        align: "center",
+        renderCell(params) {
+          return renderClientAvatar(params.row);
+        },
+      },
+      {
+        field: "client.name",
+        headerName: "Client Name",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.client?.name;
+        },
+      },
+
+      {
+        field: "place",
+        headerName: "Location",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.place;
+        },
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        width: 150,
+        valueGetter(params) {
+          return params.row?.status;
+        },
+      },
+      {
+        field: "startDate",
+        headerName: "Start Date",
+        width: 200,
+        valueGetter(params) {
+          return dayjs(params.row?.startDate).format("LLL");
+        },
+      },
+      {
+        field: "endDate",
+        headerName: "End Date",
+        width: 200,
+        valueGetter(params) {
+          return dayjs(params.row?.endDate).format("LLL") || "-";
+        },
+      },
+      {
+        field: "id",
+        headerName: "Remove",
+        width: 150,
+        description: "Remove a service",
+        renderCell(params) {
+          return renderDeleteButton(params.row);
+        },
+      },
+    ];
+
+    return [projects, columns];
   }
 
-  const rows: Data[] = APPOINTMENTS.map((appo) => {
-    return {
-      image: (
-        <IconButton
-          onClick={() => {
-            router.push(`/profile/${appo.user?._id}`);
-          }}
-        >
-          <Avatar src={appo.user?.image}>{appo.user?.name}</Avatar>
-        </IconButton>
-      ),
-      name: String(appo.user?.name),
-      place: String(appo.user?.place),
-      date: appo.date.toLocaleDateString(),
-      status: appo.status,
-      action:
-        appo.status === "requested" ? (
-          <IconButton
-            onClick={() => {
-              handleApprove(appo._id);
-            }}
-          >
-            <CheckCircleOutlineOutlined color="success" />
-          </IconButton>
-        ) : (
-          <IconButton
-            onClick={() => {
-              handleDeny(appo._id);
-            }}
-          >
-            <DoDisturbAltOutlined color="error" />
-          </IconButton>
-        ),
-    };
-  });
+  const [rows, columns] = dataFormatter(projects);
 
-  return (
-    <Paper
-      sx={{ width: "100%", overflow: "hidden", marginY: 5, borderRadius: 3 }}
-    >
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {HEADERS.map((h) => (
-                <TableCell sx={{ backgroundColor: "black" }} key={h.id}>
-                  {h.title}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                    {HEADERS.map((column: Header) => {
-                      return (
-                        <TableCell key={column.id} align="left">
-                          {row[column.id]}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Paper>
-  );
+  return <DataTable rows={rows} columns={columns as GridColDef[]} />;
 };

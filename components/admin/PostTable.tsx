@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
 import { Post } from "../../types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { getAllPosts, getAllServices } from "../../APIs";
+import { deletePost, getAllPosts, getAllServices } from "../../APIs";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { DeleteOutlineOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
+import { notifierActions } from "../../store/notifier.slice";
+import { useConfirm } from "material-ui-confirm";
 
 export const PostTable = () => {
+  const dispatch = useDispatch();
+  const confirmer = useConfirm();
   const [posts, setPosts] = useState<Post[]>([]);
 
   const token = useSelector((state: StoreState) => state.jwt.token);
@@ -38,9 +42,21 @@ export const PostTable = () => {
     }
 
     function renderDeleteButton(row: Post) {
-      const handleDelete = () => {
-        // Handle Delete
-        console.log("Delete " + row._id);
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          await confirmer({
+            description: `Are you sure you want to delete this post ?`,
+          });
+          const isSuccess = await deletePost(row._id, token);
+          if (!isSuccess) return dispatch(notifierActions.somethingWentWrong());
+          setPosts((prev) => prev.filter((post) => post._id !== row._id));
+          dispatch(notifierActions.info(`Successfully deleted the post !`));
+        } catch (err) {
+          if (typeof err !== "undefined")
+            dispatch(notifierActions.somethingWentWrong());
+          console.log(err);
+        }
       };
 
       return (

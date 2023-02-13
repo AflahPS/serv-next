@@ -10,9 +10,10 @@ export const validateEmail = (email: string) => {
 };
 
 export const lengthChecker = (word: string, min: number, max: number) => {
+  if (!word) return false;
+  if (max < min) return false;
   const len = String(word).length;
   if (!len) return false;
-  if (max < min) return false;
   if (len > max) return false;
   if (len < min) return false;
   return true;

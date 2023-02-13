@@ -1,45 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { DataTable } from "../../ui";
 import { Service } from "../../types";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
-import { getAllServices, getVendorCountByService } from "../../APIs";
-import { Avatar, IconButton, Tooltip } from "@mui/material";
-import { DeleteOutlineOutlined } from "@mui/icons-material";
+import { Avatar, Box, IconButton, Tooltip } from "@mui/material";
+import { DeleteOutline, NotInterestedOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
+import { deleteService } from "../../APIs";
+import { useConfirm } from "material-ui-confirm";
+import { useDispatch, useSelector } from "react-redux";
+import { StoreState } from "../../store";
+import { notifierActions } from "../../store/notifier.slice";
 
-const countInitial = [
-  {
-    _id: "serviceId",
-    count: 0,
-  },
-];
+interface Props {
+  services: Service[];
+  setServices: React.Dispatch<React.SetStateAction<Service[]>>;
+  vendorCount: {
+    _id: string;
+    count: number;
+  }[];
+}
 
-export const ServiceTable = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [vendorCount, setVendorCount] = useState(countInitial);
+export const ServiceTable = (props: Props) => {
+  const { services, setServices, vendorCount } = props;
 
+  const confirmer = useConfirm();
+  const dispatch = useDispatch();
   const token = useSelector((state: StoreState) => state.jwt.token);
 
-  const getAndSetServices = async () => {
-    try {
-      const serviceData = await getAllServices();
-      if (serviceData) setServices(serviceData?.services);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getAndSetVendorCount = async () => {
-    try {
-      const count = await getVendorCountByService(token);
-      if (count) setVendorCount(count);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  function userDataFormatter(services: Service[]) {
+  function serviceDataFormatter(services: Service[]) {
     function renderAvatar(row: Service) {
       const handleProfileClick = () => {
         // Handle ptofile click event
@@ -55,15 +42,27 @@ export const ServiceTable = () => {
     }
 
     function renderDeleteButton(row: Service) {
-      const handleDelete = () => {
-        // Handle Delete
-        console.log("Delete " + row._id);
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          const serviceId = row._id;
+          await confirmer({
+            description: `Do you want to delete this service (${row.title}) ?`,
+          });
+          const isSuccess = await deleteService(serviceId, token);
+          if (!isSuccess) return dispatch(notifierActions.somethingWentWrong());
+          setServices((prev) => prev.filter((serv) => serv._id !== serviceId));
+          dispatch(notifierActions.info("Successfully deleted the service !"));
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
       };
 
       return (
-        <Tooltip title="Remove a Service">
+        <Tooltip title="Disable a Service">
           <IconButton color="error" onClick={handleDelete}>
-            <DeleteOutlineOutlined />
+            <DeleteOutline />
           </IconButton>
         </Tooltip>
       );
@@ -79,6 +78,7 @@ export const ServiceTable = () => {
         },
       },
       { field: "title", headerName: "Title", width: 150 },
+      { field: "caption", headerName: "Caption", width: 150 },
       {
         field: "_id",
         headerName: "Vendors",
@@ -86,29 +86,27 @@ export const ServiceTable = () => {
         description: "Total available vendors",
         valueGetter(params) {
           const vendors = vendorCount.find((s) => s._id === params.row._id);
-          return vendors?.count;
+          return vendors?.count || 0;
         },
+        align: "center",
+        headerAlign: "center",
       },
       {
         field: "id",
-        headerName: "Remove",
+        headerName: "Delete",
         width: 150,
-        description: "Remove a service",
+        description: "Delete a service",
         renderCell(params) {
           return renderDeleteButton(params.row);
         },
+        align: "center",
+        headerAlign: "center",
       },
     ];
     return [services, columns];
   }
 
-  const [rows, columns] = userDataFormatter(services);
-
-  useEffect(() => {
-    getAndSetServices();
-    getAndSetVendorCount();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [rows, columns] = serviceDataFormatter(services);
 
   return <DataTable rows={rows} columns={columns as GridColDef[]} />;
 };

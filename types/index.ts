@@ -9,3 +9,4 @@ export * from "./SideNavLink";
 export * from "./Project";
 export * from "./Chat";
 export * from "./ChatMessage";
+export * from "./Employee";

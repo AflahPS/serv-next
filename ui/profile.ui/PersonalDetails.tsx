@@ -37,6 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
 import { User } from "../../types";
+import { notifierActions } from "../../store/notifier.slice";
 
 export const PersonalDetails: React.FC<{
   user: User;
@@ -115,15 +116,16 @@ export const PersonalDetails: React.FC<{
 
       if (!filesInput?.length) return;
       if (!filesInput[0].type.startsWith("image")) {
-        setErrMessage("Please select an image file !");
-        setOpenError(true);
+        dispatch(notifierActions.error("Please select an image file !"));
         return;
       }
       setIsDpUploading(true);
       const uploadedUrl = await uploadImages([filesInput[0]]);
       const newDp = String(uploadedUrl[0]);
       if (!newDp) {
-        errorSetter("Something went wrong while uploading image !");
+        dispatch(
+          notifierActions.error("Something went wrong while uploading image !")
+        );
         return;
       }
       const { data } = await nest({
@@ -135,18 +137,22 @@ export const PersonalDetails: React.FC<{
         },
       });
       if (!data || data?.status !== "success") {
-        errorSetter("Something went wrong while updating profile image !");
+        dispatch(
+          notifierActions.error(
+            "Something went wrong while updating profile image !"
+          )
+        );
         return;
       }
       dispatch(userDataActions.addUserData(data?.user));
       setIsDpUploading(false);
-      setSuccessMessage("Successfully uploaded profile image !");
-      setOpenSuccess(true);
+      dispatch(
+        notifierActions.success("Successfully uploaded profile image !")
+      );
       return;
     } catch (err: any) {
       setIsDpUploading(false);
-      setErrMessage("Something went wrong !");
-      setOpenError(true);
+      dispatch(notifierActions.somethingWentWrong());
       console.log(err?.message);
     }
   };

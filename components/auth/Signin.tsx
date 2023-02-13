@@ -1,23 +1,18 @@
 import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
-  Alert,
   Box,
   Button,
   Checkbox,
   Divider,
   FormControlLabel,
   FormGroup,
-  IconButton,
-  Snackbar,
   TextFieldProps,
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import GoogleIcon from "@mui/icons-material/Google";
 import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
 import { COLOR } from "../../constants";
-import { ChevronRightOutlined, FacebookOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { lengthChecker, nest, validateEmail } from "../../utils";
@@ -27,8 +22,14 @@ import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { User } from "../../types";
+import { AxiosError } from "axios";
+import { notifierActions } from "../../store/notifier.slice";
 
-export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
+interface Props {
+  isAdmin?: boolean;
+}
+
+export const Signin: React.FC<Props> = ({ isAdmin }) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -38,27 +39,11 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
   const emailRef = useRef<TextFieldProps>(null);
   const passwordRef = useRef<TextFieldProps>(null);
 
-  const [errMessage, setErrMessage] = useState("");
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
-
   const verifyData = () => {
     const emailInput = emailRef.current?.value;
     const passwordInput = passwordRef.current?.value;
-
     const email = String(emailInput).trim();
     const password = String(passwordInput).trim();
-
     const isEmail = validateEmail(email);
     const isPassword = lengthChecker(password, 6, 50);
 
@@ -67,7 +52,6 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
       return;
     }
     setEmailVeriied(true);
-
     if (!isPassword) {
       setPasswordVeriied(false);
       return;
@@ -88,7 +72,7 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
       });
       if (res.data?.status === "success") {
         const user: User = res.data?.user;
-        setOpen(true); // open the Success message
+        dispatch(notifierActions.successfullySignedIn());
         dispatch(authActions.login()); // login the user
         dispatch(jwtActions.setToken(res.data?.token)); // set the token
         dispatch(
@@ -100,19 +84,18 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
       }
     } catch (err: any) {
       let errorResponeMessage = "";
-      if (err?.response) {
+      if (err instanceof AxiosError) {
         if (Array.isArray(err.response?.data?.message)) {
           // If the response is from backend validation
           errorResponeMessage = err.response?.data?.message[0];
         } else {
           errorResponeMessage = err.response?.data?.message;
         }
-        setErrMessage(errorResponeMessage);
+        dispatch(notifierActions.error(errorResponeMessage));
         return console.log({ errMessage: err?.response?.data?.message });
       }
       console.log(err?.message);
-
-      setErrMessage("Something went wrong !"); // If the error from unknown
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
 
@@ -122,13 +105,13 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
     if (!data) return;
     try {
       const res = await nest({
-        url: "auth/signin",
+        url: "auth/signin/admin",
         method: "POST",
         data,
       });
       if (res.data?.status === "success") {
         const user: User = res.data?.user;
-        setOpen(true); // open the Success message
+        dispatch(notifierActions.successfullySignedIn());
         dispatch(authActions.login()); // login the user
         dispatch(jwtActions.setToken(res.data?.token)); // set the token
         dispatch(
@@ -144,18 +127,19 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
       }
     } catch (err: any) {
       let errorResponeMessage = "";
-      if (err?.response) {
+      if (err instanceof AxiosError) {
         if (Array.isArray(err.response?.data?.message)) {
           // If the response is from backend validation
           errorResponeMessage = err.response?.data?.message[0];
         } else {
           errorResponeMessage = err.response?.data?.message;
         }
-        setErrMessage(errorResponeMessage);
-        return console.log({ errMessage: err?.response?.data?.message });
+        console.log({ errMessage: err?.response?.data?.message });
+        dispatch(notifierActions.error(errorResponeMessage));
+        return;
       }
       console.log(err?.message);
-      setErrMessage("Something went wrong !"); // If the error from unknown
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
 
@@ -244,9 +228,9 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
                 justifyContent={"space-around"}
                 height={"18%"}
               >
-                <Typography color={"red"} textAlign={"center"} variant="body2">
+                {/* <Typography color={"red"} textAlign={"center"} variant="body2">
                   {errMessage}
-                </Typography>
+                </Typography> */}
                 {/* <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
                   {"Sign in with   "}
                   <IconButton>
@@ -271,25 +255,11 @@ export const Signin: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
                     <Link href={"/auth/signup"}>Sign Up</Link>
                   </Button>
                 </Typography>
-                {/* <LinkButton
-              variant="outlined"
-              onClick={() => {
-                router.push("/auth/signin/vendor");
-              }}
-              endIcon={<ChevronRightOutlined />}
-            >
-              Sign in as vendor
-            </LinkButton> */}
               </Box>
             </>
           )}
         </Box>
       </Stack>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfully signed in !
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

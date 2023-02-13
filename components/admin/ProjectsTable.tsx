@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
 import { Project } from "../../types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { getAllProjects } from "../../APIs";
+import { deleteProject, getAllProjects } from "../../APIs";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { DeleteOutlineOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
+import { notifierActions } from "../../store/notifier.slice";
+import { useConfirm } from "material-ui-confirm";
 
 export const ProjectTable = () => {
+  const dispatch = useDispatch();
+  const confirmer = useConfirm();
   const [projects, setProjects] = useState<Project[]>([]);
 
   const token = useSelector((state: StoreState) => state.jwt.token);
@@ -55,9 +59,23 @@ export const ProjectTable = () => {
     }
 
     function renderDeleteButton(row: Project) {
-      const handleDelete = () => {
-        // Handle Delete
-        console.log("Delete " + row._id);
+      // Handle Delete
+      const handleDelete = async () => {
+        try {
+          await confirmer({
+            description: `Are you sure you want to delete this project ?`,
+          });
+          const isSuccess = await deleteProject(row._id, token);
+          if (!isSuccess) return dispatch(notifierActions.somethingWentWrong());
+          setProjects((prev) => prev.filter((proj) => proj._id !== row._id));
+          dispatch(
+            notifierActions.info(`Successfully deleted project ${row.title} !`)
+          );
+        } catch (err) {
+          if (typeof err !== "undefined")
+            dispatch(notifierActions.somethingWentWrong());
+          console.log(err);
+        }
       };
 
       return (

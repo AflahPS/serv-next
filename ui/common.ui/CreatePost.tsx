@@ -39,6 +39,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [project, setProject] = useState("");
 
   const token = useSelector((state: StoreState) => state.jwt.token);
+  const currentUser = useSelector((state: StoreState) => state.user.data);
 
   const [open, setOpen] = useState(false);
   const handleClose = (
@@ -125,7 +126,6 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const handlePost = async () => {
     try {
       const data = await verifyData();
-      console.log("🚀 ~ file: CreatePost.tsx:131 ~ handlePost ~ data", data);
       if (!data) {
         setLoading(false);
         return;
@@ -189,7 +189,10 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
           paddingY={2}
         >
           <Box flex={1} sx={{ display: { xs: "none", md: "block" } }}>
-            <Avatar sx={{ width: 56, height: 56 }}></Avatar>
+            <Avatar
+              src={currentUser.image}
+              sx={{ width: 56, height: 56 }}
+            ></Avatar>
           </Box>
           <Box flex={6}>
             <TextFieldCustom2

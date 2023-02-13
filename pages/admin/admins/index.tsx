@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { AdminRouteProtection, AdminTable, Layout } from "../../../components";
+import {
+  AdminContainer,
+  AdminRouteProtection,
+  AdminTable,
+  Layout,
+} from "../../../components";
 import { useDispatch } from "react-redux";
 import { ADMIN_SIDE_NAV } from "../../../constants";
 import { layoutLoadingActions } from "../../../store/layout-loading.slice";
@@ -18,8 +23,10 @@ const Index = () => {
   return (
     <AdminRouteProtection>
       <Layout SideNavLinks={ADMIN_SIDE_NAV}>
-        <AdminTabHeader header="Admins" />
-        <AdminTable />
+        <AdminContainer>
+          <AdminTabHeader header="Admins" />
+          <AdminTable />
+        </AdminContainer>
       </Layout>
     </AdminRouteProtection>
   );

@@ -6,9 +6,11 @@ export const ChatMessageComp: React.FC<{
   isAuthor?: boolean;
   text: string;
   date: string;
-}> = ({ isAuthor, date, text }) => {
+  refer: any;
+}> = ({ isAuthor, date, text, refer }) => {
   return (
     <Box
+      ref={refer}
       alignSelf={isAuthor ? "end" : "start"}
       display={"flex"}
       alignItems={"center"}

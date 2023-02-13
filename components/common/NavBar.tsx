@@ -36,10 +36,9 @@ import { jwtActions } from "../../store/jwt.slice";
 import { SearchContainer, SearchList } from "../../ui";
 import { userDataActions } from "../../store/user-data.slice";
 import { StoreState } from "../../store";
-import { nest } from "../../utils";
-import { User } from "../../types";
 import { useRouter } from "next/router";
 import { doSearch } from "../../APIs";
+import { notifierActions } from "../../store/notifier.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -76,6 +75,7 @@ export const NavBar = () => {
     (state: StoreState) => state.auth?.isAuth
   );
   const currentUser = useSelector((state: StoreState) => state.user.data);
+  const role = useSelector((state: StoreState) => state.role.currentUser);
 
   const handleMenuClick = () => {
     setOpenAnchor(false);
@@ -87,6 +87,11 @@ export const NavBar = () => {
     dispatch(roleActions.guest());
     dispatch(jwtActions.setToken(null));
     dispatch(userDataActions.removeUserData());
+    dispatch(notifierActions.info("Logged out successfully !"));
+    if (["admin", "super-admin"].some((r) => r === role)) {
+      return router.push("/admin/auth/signin");
+    }
+    router.push("/auth/signin");
   };
 
   const [searchText, setSearchText] = useState("");

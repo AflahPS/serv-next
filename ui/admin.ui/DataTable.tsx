@@ -21,7 +21,8 @@ export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
   return (
     <Box
       sx={{
-        maxWidth: "85%",
+        // maxWidth: "85%",
+        width: "100%",
         marginX: "auto",
         marginBottom: "16px",
         borderRadius: 3,
