@@ -7,3 +7,4 @@ export * from "./Service.api";
 export * from "./Vendor.api";
 export * from "./Project.api";
 export * from "./Chat.api";
+export * from "./Auth.api";

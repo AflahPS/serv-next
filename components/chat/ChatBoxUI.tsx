@@ -32,17 +32,20 @@ import { useConfirm } from "material-ui-confirm";
 import { chatListActions } from "../../store/chatList.slice";
 import { AxiosError } from "axios";
 import { Socket, io } from "socket.io-client";
+import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
   const confirmer = useConfirm();
-  const socket = useRef();
-  const scroll = useRef();
+  const socketCurrent = useSelector(
+    (state: StoreState) => state.socket.current
+  );
+  const scroll = useRef<HTMLDivElement>();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedChat, setSelectedChat] = useState<Chat>();
-  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+
   const [sendMessageIo, setSendMessageIo] = useState<any>(null);
   const [recieveMessageIo, setRecieveMessageIo] = useState<any>(null);
 
@@ -86,6 +89,7 @@ export const ChatComp = () => {
       ? selectedChat?.user2
       : selectedChat?.user1;
 
+  // Get chat data from server when mounting
   useEffect(() => {
     getAndSetChat();
 
@@ -100,6 +104,7 @@ export const ChatComp = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Get chat data from server when new chat is selected
   useEffect(() => {
     getAndSetChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,27 +139,30 @@ export const ChatComp = () => {
     }
   };
 
-  // Setup the socket server
+  // Adds current user as new user at socket server
+  // Also gets current users's online friends
   useEffect(() => {
-    socket.current = io("http://localhost:5555");
-    socket.current.emit("new-user-add", currentUser._id);
-    socket.current.on("get-users", (users: any[]) => {
-      setOnlineUsers(users);
+    socketCurrent?.on("get-users", (users: any[]) => {
+      dispatch(onlineUsersActions.setUsers(users));
     });
+    console.log({ current: socketCurrent });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   // send to socket
   useEffect(() => {
     if (sendMessageIo !== null) {
-      socket.current?.emit("send-message", sendMessageIo);
+      socketCurrent?.emit("send-message", sendMessageIo);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendMessageIo]);
 
   // reciieve
   useEffect(() => {
-    socket.current?.on("recieve-message", (data: ChatMessage) => {
+    socketCurrent?.on("recieve-message", (data: ChatMessage) => {
       setRecieveMessageIo(data);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -166,8 +174,7 @@ export const ChatComp = () => {
 
   useEffect(() => {
     scroll.current?.scrollIntoView({ behavior: "smooth" });
-  }),
-    [messages];
+  }, [messages]);
 
   return (
     <Stack height={"85vh"}>

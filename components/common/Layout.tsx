@@ -5,17 +5,21 @@ import { NavBar } from "./NavBar";
 import { SideNav } from "./SideNav";
 import { LoadingCard } from "../../ui";
 import { COLOR, SIDE_NAV_LINKS } from "../../constants";
-import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { SideNavLink } from "../../types";
+import { useSelector } from "react-redux";
 
-export const Layout: React.FC<{
+interface Props {
   SideNavLinks?: SideNavLink[];
   children?: ReactNode | undefined;
-}> = ({ children, SideNavLinks }) => {
+}
+
+export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
   const isLoading = useSelector(
     (state: StoreState) => state.layoutLoading.isLayoutLoading
   );
+
+  const role = useSelector((state: StoreState) => state.role.currentUser);
 
   let sideLinks;
   if (!SideNavLinks) {
@@ -53,7 +57,7 @@ export const Layout: React.FC<{
           )}
           {!isLoading && children}
         </Box>
-        <ChatRight />
+        {role !== "guest" && <ChatRight />}
       </Stack>
     </>
   );

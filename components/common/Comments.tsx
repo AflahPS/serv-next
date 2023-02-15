@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Comment } from "../../types";
 import { CommentCard } from "../../ui";
 import { nest } from "../../utils";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 export const Comments: React.FC<{
   post: any;
@@ -10,6 +11,8 @@ export const Comments: React.FC<{
   setComments: React.Dispatch<React.SetStateAction<any[]>>;
 }> = ({ post, comments, setComments }) => {
   // const [comments, setComments] = useState([]);
+
+  const [listParent] = useAutoAnimate();
 
   useEffect(() => {
     async function fetcher() {
@@ -35,6 +38,7 @@ export const Comments: React.FC<{
 
   return (
     <List
+      ref={listParent}
       sx={{
         width: "100%",
         maxHeight: "360px",

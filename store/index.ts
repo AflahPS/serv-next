@@ -11,6 +11,9 @@ import panelTabSlice from "./panel-tab.slice";
 import notifierSlice from "./notifier.slice";
 import chatSlice from "./chatId.slice";
 import chatListSlice from "./chatList.slice";
+import socketSlice from "./socket.slice";
+import { Socket } from "socket.io-client";
+import onlineUsersSlice from "./onlineUsers.slice";
 
 const store = configureStore({
   reducer: {
@@ -25,6 +28,8 @@ const store = configureStore({
     notifier: notifierSlice.reducer,
     chat: chatSlice.reducer,
     chatList: chatListSlice.reducer,
+    socket: socketSlice.reducer,
+    onlineUsers: onlineUsersSlice.reducer,
   },
 });
 
@@ -49,4 +54,6 @@ export interface StoreState {
   };
   chat: { chatId: string };
   chatList: { chats: Chat[] };
+  socket: { current: Socket<any> };
+  onlineUsers: { users: User[] };
 }

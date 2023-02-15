@@ -1,20 +1,21 @@
 import { Box, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ChatLi } from "../../ui";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { CHAT_IDS } from "../../constants/DUMMY_CHAT";
-import { Chat } from "../../types";
 import { COLOR } from "../../constants";
 import { Stack } from "@mui/system";
 import { SearchComp } from "./SearchComp";
 import { getChatsForUser } from "../../APIs";
-import { useRouter } from "next/router";
 import { chatListActions } from "../../store/chatList.slice";
+import { Socket, io } from "socket.io-client";
+import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 export const ChatRight = () => {
   const dispatch = useDispatch();
+  const socket = useRef<Socket>();
 
+  const currentUser = useSelector((state: StoreState) => state.user.data);
   const currentTab = useSelector(
     (state: StoreState) => state.sideNavTab.currentTab
   );
@@ -34,15 +35,21 @@ export const ChatRight = () => {
     }
   };
 
+  // useEffect(() => {
+  //   socket.current = io("ws://localhost:5555");
+  //   socket?.current?.emit("new-user-add", currentUser?._id);
+  //   socket?.current?.on("get-users", (users: any[]) => {
+  //     dispatch(onlineUsersActions.setUsers(users));
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
   useEffect(() => {
     getAndSetChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   getAndSetChats();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [chats]);
+  // useEffect(() =>
 
   if (currentUserRole === "guest") return <></>;
   if (

@@ -24,6 +24,9 @@ import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { User } from "../../types";
 import { AxiosError } from "axios";
 import { notifierActions } from "../../store/notifier.slice";
+import { signinUser } from "../../APIs";
+import { Socket, io } from "socket.io-client";
+import { socketActions } from "../../store/socket.slice";
 
 interface Props {
   isAdmin?: boolean;
@@ -32,12 +35,61 @@ interface Props {
 export const Signin: React.FC<Props> = ({ isAdmin }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const socket = useRef<Socket>();
 
   const [emailVeriied, setEmailVeriied] = useState(true);
   const [passwordVeriied, setPasswordVeriied] = useState(true);
 
   const emailRef = useRef<TextFieldProps>(null);
   const passwordRef = useRef<TextFieldProps>(null);
+
+  const userSigninSuccessDeclare = (data: any) => {
+    dispatch(notifierActions.successfullySignedIn());
+    dispatch(authActions.login()); // login the user
+    dispatch(jwtActions.setToken(data?.token)); // set the token
+    dispatch(
+      data?.user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
+    ); // set the role
+    dispatch(userDataActions.addUserData(data?.user)); // set the user data
+    socket.current = io("ws://localhost:5555");
+    socket.current.emit("new-user-add", data?.user?._id);
+    dispatch(socketActions.setSocket(socket.current));
+    dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
+  };
+
+  const adminSigninSuccessDeclare = (data: any) => {
+    dispatch(notifierActions.successfullySignedIn());
+    dispatch(authActions.login()); // login the user
+    dispatch(jwtActions.setToken(data?.token)); // set the token
+    dispatch(
+      data?.user.role === "admin"
+        ? roleActions.admin()
+        : data?.user.role === "super-admin"
+        ? roleActions.superAdmin()
+        : roleActions.guest()
+    ); // set the role
+    dispatch(userDataActions.addUserData(data?.user)); // set the user data
+    socket.current = io("ws://localhost:5555");
+    socket.current.emit("new-user-add", data?.user?._id);
+    dispatch(socketActions.setSocket(socket.current));
+    dispatch(sideNavTabActions.push("Dashboard")); //If the user is admin
+  };
+
+  const errorSafetyNet = (err: any) => {
+    let errorResponeMessage = "";
+    if (err instanceof AxiosError) {
+      if (Array.isArray(err.response?.data?.message)) {
+        // If the response is from backend validation
+        errorResponeMessage = err.response?.data?.message[0];
+      } else {
+        errorResponeMessage = err.response?.data?.message;
+      }
+      dispatch(notifierActions.error(errorResponeMessage));
+      return console.log({ errMessage: err?.response?.data?.message });
+    }
+    console.log(err?.message);
+    dispatch(notifierActions.somethingWentWrong());
+  };
 
   const verifyData = () => {
     const emailInput = emailRef.current?.value;
@@ -62,84 +114,35 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
 
   const handleSigninUser = async (event: any): Promise<void> => {
     event.preventDefault();
-    const data = verifyData();
-    if (!data) return;
+    const dataV = verifyData();
+    if (!dataV) return;
     try {
-      const res = await nest({
-        url: "auth/signin",
-        method: "POST",
-        data,
-      });
-      if (res.data?.status === "success") {
-        const user: User = res.data?.user;
-        dispatch(notifierActions.successfullySignedIn());
-        dispatch(authActions.login()); // login the user
-        dispatch(jwtActions.setToken(res.data?.token)); // set the token
-        dispatch(
-          user.role === "vendor" ? roleActions.vendor() : roleActions.user()
-        ); // set the role
-        dispatch(userDataActions.addUserData(res.data?.user)); // set the user data
-        dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
-        router.push("/");
+      const data = await signinUser(dataV);
+      if (!data) {
+        dispatch(notifierActions.somethingWentWrong());
+        return;
       }
+      userSigninSuccessDeclare(data);
+      router.push("/");
     } catch (err: any) {
-      let errorResponeMessage = "";
-      if (err instanceof AxiosError) {
-        if (Array.isArray(err.response?.data?.message)) {
-          // If the response is from backend validation
-          errorResponeMessage = err.response?.data?.message[0];
-        } else {
-          errorResponeMessage = err.response?.data?.message;
-        }
-        dispatch(notifierActions.error(errorResponeMessage));
-        return console.log({ errMessage: err?.response?.data?.message });
-      }
-      console.log(err?.message);
-      dispatch(notifierActions.somethingWentWrong());
+      errorSafetyNet(err);
     }
   };
 
   const handleSigninAdmin = async (event: any): Promise<void> => {
     event.preventDefault();
-    const data = verifyData();
-    if (!data) return;
+    const dataV = verifyData();
+    if (!dataV) return;
     try {
-      const res = await nest({
-        url: "auth/signin/admin",
-        method: "POST",
-        data,
-      });
-      if (res.data?.status === "success") {
-        const user: User = res.data?.user;
-        dispatch(notifierActions.successfullySignedIn());
-        dispatch(authActions.login()); // login the user
-        dispatch(jwtActions.setToken(res.data?.token)); // set the token
-        dispatch(
-          user.role === "admin"
-            ? roleActions.admin()
-            : user.role === "super-admin"
-            ? roleActions.superAdmin()
-            : roleActions.guest()
-        ); // set the role
-        dispatch(userDataActions.addUserData(res.data?.user)); // set the user data
-        dispatch(sideNavTabActions.push("Dashboard")); //If the user is admin
-        router.push("/admin");
-      }
-    } catch (err: any) {
-      let errorResponeMessage = "";
-      if (err instanceof AxiosError) {
-        if (Array.isArray(err.response?.data?.message)) {
-          // If the response is from backend validation
-          errorResponeMessage = err.response?.data?.message[0];
-        } else {
-          errorResponeMessage = err.response?.data?.message;
-        }
-        console.log({ errMessage: err?.response?.data?.message });
-        dispatch(notifierActions.error(errorResponeMessage));
+      const data = await signinUser(dataV);
+      if (!data) {
+        dispatch(notifierActions.somethingWentWrong());
         return;
       }
-      console.log(err?.message);
-      dispatch(notifierActions.somethingWentWrong());
+      adminSigninSuccessDeclare(data);
+      router.push("/admin");
+    } catch (err: any) {
+      errorSafetyNet(err);
     }
   };
 

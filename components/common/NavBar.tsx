@@ -39,6 +39,7 @@ import { StoreState } from "../../store";
 import { useRouter } from "next/router";
 import { doSearch } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
+import { socketActions } from "../../store/socket.slice";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -88,6 +89,7 @@ export const NavBar = () => {
     dispatch(jwtActions.setToken(null));
     dispatch(userDataActions.removeUserData());
     dispatch(notifierActions.info("Logged out successfully !"));
+    dispatch(socketActions.removeSocket());
     if (["admin", "super-admin"].some((r) => r === role)) {
       return router.push("/admin/auth/signin");
     }

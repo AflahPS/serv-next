@@ -1,28 +1,10 @@
-import {
-  CheckCircleOutlineOutlined,
-  DeleteOutlineOutlined,
-  DoDisturbAltOutlined,
-} from "@mui/icons-material";
-import {
-  IconButton,
-  Avatar,
-  Paper,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TablePagination,
-  Tooltip,
-} from "@mui/material";
-import { useRouter } from "next/router";
+import { DeleteOutlineOutlined } from "@mui/icons-material";
+import { IconButton, Avatar, Tooltip } from "@mui/material";
 import React from "react";
-import { APPOINTMENTS } from "../../constants";
 import { Project } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { useConfirm } from "material-ui-confirm";
-import { deleteProject, getProjectsOfVendor } from "../../APIs";
+import { deleteProject } from "../../APIs";
 import { StoreState } from "../../store";
 import { notifierActions } from "../../store/notifier.slice";
 import { GridColDef } from "@mui/x-data-grid";
@@ -50,22 +32,6 @@ export const ProjectsTable: React.FC<Props> = ({ setProjects, projects }) => {
         <>
           <IconButton onClick={handleProfileClick}>
             <Avatar src={row?.client?.image}>{row?.client?.name}</Avatar>
-          </IconButton>
-        </>
-      );
-    }
-
-    function renderVendorAvatar(row: Project) {
-      const handleProfileClick = () => {
-        // Handle ptofile click event
-      };
-
-      return (
-        <>
-          <IconButton onClick={handleProfileClick}>
-            <Avatar src={row?.vendor?.user?.image}>
-              {row?.vendor?.user?.name}
-            </Avatar>
           </IconButton>
         </>
       );

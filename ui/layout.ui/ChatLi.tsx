@@ -21,6 +21,10 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const onlineUsers = useSelector(
+    (state: StoreState) => state.onlineUsers.users
+  );
+
   const getFriendObjectFromChat = () =>
     Chat.user1._id === currentUser._id ? Chat.user2 : Chat.user1;
 
@@ -29,6 +33,10 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
     router.push("/chat");
   };
 
+  const isOnline = onlineUsers?.some(
+    (el: any) => el?.userId === getFriendObjectFromChat()._id
+  );
+
   return (
     <Box width={"100%"}>
       <List sx={{ width: "100%", cursor: "pointer" }}>
@@ -36,7 +44,7 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
           <ListItemAvatar>
             <Badge
               variant="dot"
-              color="success"
+              sx={isOnline ? { color: "limegreen" } : { color: "gray" }}
               overlap="circular"
               badgeContent=" "
             >

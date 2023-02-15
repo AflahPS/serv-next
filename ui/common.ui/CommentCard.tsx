@@ -7,7 +7,6 @@ import {
   Divider,
   ListItemButton,
   IconButton,
-  Box,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Comment, CommentLike } from "../../types";
