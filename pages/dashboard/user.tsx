@@ -3,7 +3,7 @@ import { Layout, WorkingOn } from "../../components";
 import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
 
-const Admin = () => {
+const User = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
@@ -17,4 +17,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default User;

@@ -56,4 +56,10 @@ export const SIDE_NAV_LINKS = [
     href: "/dashboard/vendor",
     allowedRoles: ["vendor"],
   },
+  {
+    title: "Activities",
+    icon: DashboardCustomizeOutlined,
+    href: "/dashboard/user",
+    allowedRoles: ["user"],
+  },
 ];

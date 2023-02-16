@@ -32,7 +32,6 @@ export const Notifier = () => {
       notification !== undefined &&
       notification.receiver === currentUser._id
     ) {
-      console.log(notification);
       dispatch(notifierActions[notification?.type](notification?.content));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

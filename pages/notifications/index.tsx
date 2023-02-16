@@ -1,17 +1,20 @@
 import React, { useEffect } from "react";
-import { Layout } from "../../components/common";
-import { LoadingCard } from "../../ui";
-import { useDispatch } from "react-redux";
+import { Layout, Notifications } from "../../components/common";
+import { LoadingCard, TabHeader } from "../../ui";
+import { useDispatch, useSelector } from "react-redux";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
 import { Card, CardHeader, CardContent, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
+import { StoreState } from "../../store";
 
-const Notifications = () => {
+const Index = () => {
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(layoutLoadingActions.finishedLoading());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <Layout>
       <Card
@@ -24,15 +27,11 @@ const Notifications = () => {
           borderRadius: 3,
         }}
       >
-        <CardHeader title="We are really sorry !" />
-        <CardContent>
-          <Typography variant="body2" color="text.secondary">
-            Our team is currently working on this feature. Please stay tuned ...
-          </Typography>
-        </CardContent>
+        <TabHeader header="Notifications" />
+        <Notifications />
       </Card>
     </Layout>
   );
 };
 
-export default Notifications;
+export default Index;

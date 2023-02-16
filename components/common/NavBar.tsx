@@ -164,7 +164,7 @@ export const NavBar = () => {
               {/* <Tooltip title="Requests" placement="bottom">
                 <PersonAddAlt1Outlined />
               </Tooltip> */}
-              <Tooltip title="Notifications" placement="bottom">
+              {/* <Tooltip title="Notifications" placement="bottom">
                 <Badge badgeContent={4} color="error">
                   <Notifications />
                 </Badge>
@@ -173,7 +173,7 @@ export const NavBar = () => {
                 <Badge badgeContent={4} color="error">
                   <Mail />
                 </Badge>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Sign Out" placement="bottom">
                 <IconButton
                   onClick={handleSignout}

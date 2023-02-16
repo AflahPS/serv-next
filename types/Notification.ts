@@ -6,6 +6,7 @@ export interface Notification {
   author?: User | string;
   receiver: User | string;
   content: string;
+  href?: string;
   type: "error" | "warning" | "info" | "success";
   createdAt?: Date;
   updatedAt?: Date;

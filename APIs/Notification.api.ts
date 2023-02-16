@@ -43,7 +43,7 @@ export const removeNotification = async (
 ) => {
   try {
     const { data } = await nest({
-      method: "POST",
+      method: "DELETE",
       url: `/notification/${notificationId}`,
       headers: {
         Authorization: "Bearer " + token,

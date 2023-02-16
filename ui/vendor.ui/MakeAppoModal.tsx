@@ -18,21 +18,28 @@ import { makeAppointment } from "../../APIs";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { useState } from "react";
+import { useNotification } from "../../customHooks";
 
-export const MakeAppoModal: React.FC<{
+interface Props {
   openModal: boolean;
   vendor: Vendor;
   setOpenModal: (p: boolean) => void;
   successSetter: (p: string) => void;
   errorSetter: (p: string) => void;
-}> = ({ openModal, vendor, setOpenModal, successSetter, errorSetter }) => {
+}
+
+export const MakeAppoModal: React.FC<Props> = (props) => {
+  const { openModal, vendor, setOpenModal, successSetter, errorSetter } = props;
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const handleClose = () => {
     setOpenModal(false);
   };
 
+  const setNotification = useNotification();
+
   const token = useSelector((state: StoreState) => state.jwt.token);
+  const currentUser = useSelector((state: StoreState) => state.user.data);
 
   const [dateTime, setDateTime] = React.useState<string | null>(
     dayjs().toISOString()
@@ -57,6 +64,12 @@ export const MakeAppoModal: React.FC<{
         successSetter(
           `You have successfully made a new appointment with ${vendor.user?.name}.`
         );
+        setNotification({
+          content: `You have a new appointment request from ${currentUser.name} !`,
+          type: "success",
+          receiver: vendorId,
+          href: "/dashboard/vendor",
+        });
         setOpenModal(false);
       }
     } catch (err) {
