@@ -77,6 +77,9 @@ export const NavBar = () => {
   );
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const role = useSelector((state: StoreState) => state.role.currentUser);
+  const socketCurrent = useSelector(
+    (state: StoreState) => state.socket.current
+  );
 
   const handleMenuClick = () => {
     setOpenAnchor(false);
@@ -89,6 +92,7 @@ export const NavBar = () => {
     dispatch(jwtActions.setToken(null));
     dispatch(userDataActions.removeUserData());
     dispatch(notifierActions.info("Logged out successfully !"));
+    socketCurrent.disconnect();
     dispatch(socketActions.removeSocket());
     if (["admin", "super-admin"].some((r) => r === role)) {
       return router.push("/admin/auth/signin");

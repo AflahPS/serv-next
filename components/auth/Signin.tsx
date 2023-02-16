@@ -27,6 +27,7 @@ import { notifierActions } from "../../store/notifier.slice";
 import { signinUser } from "../../APIs";
 import { Socket, io } from "socket.io-client";
 import { socketActions } from "../../store/socket.slice";
+import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 interface Props {
   isAdmin?: boolean;
@@ -53,6 +54,9 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
     socket.current = io("ws://localhost:5555");
     socket.current.emit("new-user-add", data?.user?._id);
+    socket.current.on("get-users", (activeUsers) =>
+      dispatch(onlineUsersActions.setUsers(activeUsers))
+    );
     dispatch(socketActions.setSocket(socket.current));
     dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
   };
@@ -71,6 +75,9 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
     socket.current = io("ws://localhost:5555");
     socket.current.emit("new-user-add", data?.user?._id);
+    socket.current.on("get-users", (activeUsers) =>
+      dispatch(onlineUsersActions.setUsers(activeUsers))
+    );
     dispatch(socketActions.setSocket(socket.current));
     dispatch(sideNavTabActions.push("Dashboard")); //If the user is admin
   };

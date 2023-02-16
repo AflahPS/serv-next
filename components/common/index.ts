@@ -7,3 +7,4 @@ export * from "./Comments";
 export * from "./WorkingOn";
 export * from "./Notifier";
 export * from "./SearchComp";
+export * from "./Notifications";

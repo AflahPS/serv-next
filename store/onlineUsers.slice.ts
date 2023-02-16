@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { ActiveUser } from "../types";
 
-const initialState = { users: null };
+const users: ActiveUser[] = [];
+
+const initialState = { users };
 
 const onlineUsersSlice = createSlice({
   name: "onlineUsers",
@@ -10,7 +13,7 @@ const onlineUsersSlice = createSlice({
       state.users = action.payload;
     },
     removeUsers: (state) => {
-      state.users = null;
+      state.users = [];
     },
   },
 });

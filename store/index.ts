@@ -4,7 +4,7 @@ import jwtSlice from "./jwt.slice";
 import roleSlice from "./role.slice";
 import profileTabSlice from "./profile-tab.slice";
 import userDataSlice from "./user-data.slice";
-import { Chat, User, Vendor } from "../types";
+import { ActiveUser, Chat, User, Vendor } from "../types";
 import sideNavTabSlice from "./sidenav-tab.slice";
 import layoutLoadingSlice from "./layout-loading.slice";
 import panelTabSlice from "./panel-tab.slice";
@@ -57,5 +57,5 @@ export interface StoreState {
   chat: { chatId: string };
   chatList: { chats: Chat[] };
   socket: { current: Socket<any> };
-  onlineUsers: { users: User[] };
+  onlineUsers: { users: ActiveUser[] };
 }
