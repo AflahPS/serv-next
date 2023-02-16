@@ -8,22 +8,40 @@ import {
   ListItemAvatar,
   ListItemText,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { COLOR } from "../../constants";
-import { Chat } from "../../types";
+import { Chat, User } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { useRouter } from "next/router";
 import { chatActions } from "../../store/chatId.slice";
 
+interface ActiveUsers {
+  userId: string;
+  socketId: string;
+}
+
 export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const router = useRouter();
   const dispatch = useDispatch();
-
-  const onlineUsers = useSelector(
-    (state: StoreState) => state.onlineUsers.users
+  const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
+  const socketCurrent = useSelector(
+    (state: StoreState) => state.socket.current
   );
+
+  const [onlineUsers, setOnlineUsers] = useState<ActiveUsers[]>([]);
+  const [isOnline, setIsOnline] = useState(false);
+
+  useEffect(() => {
+    if (isAuth && socketCurrent) {
+      socketCurrent?.on("get-users", (activeUsers: ActiveUsers[]) => {
+        if (!activeUsers) return;
+        setOnlineUsers(activeUsers);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getFriendObjectFromChat = () =>
     Chat.user1._id === currentUser._id ? Chat.user2 : Chat.user1;
@@ -33,9 +51,18 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
     router.push("/chat");
   };
 
-  const isOnline = onlineUsers?.some(
-    (el: any) => el?.userId === getFriendObjectFromChat()._id
-  );
+  // const isOnline = onlineUsers?.some(
+  //   (el: any) => el?.userId === getFriendObjectFromChat()._id
+  // );
+
+  useEffect(() => {
+    setIsOnline(
+      onlineUsers?.some(
+        (el: any) => el?.userId === getFriendObjectFromChat()._id
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onlineUsers]);
 
   return (
     <Box width={"100%"}>
@@ -44,7 +71,7 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
           <ListItemAvatar>
             <Badge
               variant="dot"
-              sx={isOnline ? { color: "limegreen" } : { color: "gray" }}
+              color={isOnline ? "success" : "default"}
               overlap="circular"
               badgeContent=" "
             >

@@ -141,13 +141,13 @@ export const ChatComp = () => {
 
   // Adds current user as new user at socket server
   // Also gets current users's online friends
-  useEffect(() => {
-    socketCurrent?.on("get-users", (users: any[]) => {
-      dispatch(onlineUsersActions.setUsers(users));
-    });
-    console.log({ current: socketCurrent });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  // useEffect(() => {
+  //   socketCurrent?.on("get-users", (users: any[]) => {
+  //     dispatch(onlineUsersActions.setUsers(users));
+  //   });
+  //   console.log({ current: socketCurrent });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [currentUser]);
 
   // send to socket
   useEffect(() => {

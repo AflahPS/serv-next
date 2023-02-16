@@ -27,7 +27,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { COLOR } from "../../constants";
 import Carousel from "react-material-ui-carousel";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { TextFieldCustom2 } from "./TextFieldCustom2";
 import { LinkButton, EditPost } from ".";
@@ -38,6 +38,8 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { useConfirm } from "material-ui-confirm";
 import { deletePost } from "../../APIs";
+import { notifierActions } from "../../store/notifier.slice";
+import { useNotification } from "../../customHooks";
 // import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -55,13 +57,16 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }));
 
-export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
-  post,
-  maxWidth,
-}) => {
-  const router = useRouter();
+interface Props {
+  post: Post;
+  maxWidth?: string;
+}
 
+export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
+  const router = useRouter();
   const muiConfirm = useConfirm();
+  const dispatch = useDispatch();
+  const setNotification = useNotification();
 
   const role = useSelector((state: StoreState) => state.role.currentUser);
   const user = useSelector((state: StoreState) => state.user.data);
@@ -86,38 +91,6 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
   };
   const handleExpandClick = () => {
     setExpanded(!expanded);
-  };
-
-  //----- ERROR, Success message Snackbar related properties
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = React.useState(false);
-  const [openSuccess, setOpenSuccess] = React.useState(false);
-  const handleCloseError = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenError(false);
-  };
-  const handleCloseSuccess = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSuccess(false);
-  };
-  const errorSetter = (message: string) => {
-    setErrMessage(message);
-    setOpenError(true);
-  };
-  const successSetter = (message: string) => {
-    setSuccessMessage(message);
-    setOpenSuccess(true);
   };
 
   // Gathering the "Likes" from DB
@@ -166,10 +139,17 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     try {
       const done = await likerFunction(!isChecked);
       if (done) {
-        setIsChecked(!isChecked);
+        setIsChecked((prev) => !prev);
         setLikeCount((prev) => {
           return isChecked ? prev - 1 : prev + 1;
         });
+        if (!isChecked) {
+          setNotification({
+            content: `${user.name} has liked your post !`,
+            type: "success",
+            receiver: post.owner._id as string,
+          });
+        }
       }
     } catch (err: any) {
       console.log(err?.message);
@@ -190,10 +170,16 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
           Authorization: "Bearer " + token,
         },
       });
-      if (data.status === "success") successSetter("Reported successfully !");
+      if (data.status === "success")
+        dispatch(notifierActions.success("Reported successfully !"));
+      setNotification({
+        content: `${user.name} has reported your post !`,
+        type: "warning",
+        receiver: post.owner._id as string,
+      });
     } catch (err: any) {
       console.error(err?.message);
-      errorSetter("Something went wrong while reporting !");
+      dispatch(notifierActions.error("Something went wrong while reporting !"));
     }
   };
 
@@ -212,12 +198,12 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
       });
       const isDeleted = await deletePost(post._id, token);
       if (isDeleted) {
-        successSetter("Post removed successfully !!");
+        dispatch(notifierActions.success("Post removed successfully !!"));
       }
     } catch (err) {
       console.log(err);
       if (typeof err === "undefined") return;
-      errorSetter("Something went wrong !");
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
   const [comments, setComments] = useState<any[]>([]);
@@ -225,7 +211,9 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
 
   const handleAddCommentClick = async () => {
     if (!newComment.length)
-      return errorSetter("Please type something on the comment field...");
+      return dispatch(
+        notifierActions.error("Please type something on the comment field...")
+      );
     const dataV = {
       content: newComment,
       post: post._id,
@@ -241,7 +229,14 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
     if (data.status === "success") {
       setNewComment("");
       setComments((prev) => [data?.comment, ...prev]);
-      successSetter("You have successfully added a new comment !");
+      dispatch(
+        notifierActions.success("You have successfully added a new comment !")
+      );
+      setNotification({
+        content: `${user.name} has commented to your post !`,
+        type: "success",
+        receiver: post.owner._id as string,
+      });
     }
   };
 
@@ -431,34 +426,6 @@ export const FeedCard: React.FC<{ post: Post; maxWidth?: string }> = ({
           </Collapse>
         </Card>
       )}
-
-      <Snackbar
-        open={openError}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errMessage}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={openSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccess}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

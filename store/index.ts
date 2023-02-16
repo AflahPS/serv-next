@@ -51,6 +51,8 @@ export interface StoreState {
     OpenSuccess: boolean;
     infoMessage: string;
     OpenInfo: boolean;
+    warningMessage: string;
+    OpenWarning: boolean;
   };
   chat: { chatId: string };
   chatList: { chats: Chat[] };

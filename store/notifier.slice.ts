@@ -7,6 +7,8 @@ const initialState = {
   OpenSuccess: false,
   infoMessage: "",
   OpenInfo: false,
+  warningMessage: "",
+  OpenWarning: false,
 };
 
 const notifierSlice = createSlice({
@@ -25,6 +27,10 @@ const notifierSlice = createSlice({
       state.infoMessage = action.payload;
       state.OpenInfo = true;
     },
+    warning: (state, action) => {
+      state.warningMessage = action.payload;
+      state.OpenWarning = true;
+    },
     closeSuccess: (state) => {
       state.successMessage = "";
       state.OpenSuccess = false;
@@ -36,6 +42,10 @@ const notifierSlice = createSlice({
     closeInfo: (state) => {
       state.infoMessage = "";
       state.OpenInfo = false;
+    },
+    closeWarning: (state) => {
+      state.warningMessage = "";
+      state.OpenWarning = false;
     },
     somethingWentWrong: (state) => {
       state.errorMessage = "Something Went Wrong !";
