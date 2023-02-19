@@ -12,3 +12,4 @@ export * from "./ChatMessage";
 export * from "./Employee";
 export * from "./Notification";
 export * from "./ActiveUser";
+export * from "./Appointment";

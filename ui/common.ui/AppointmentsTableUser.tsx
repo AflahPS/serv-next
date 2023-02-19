@@ -1,7 +1,4 @@
-import {
-  CheckCircleOutlineOutlined,
-  DoDisturbAltOutlined,
-} from "@mui/icons-material";
+import { DeleteOutlineOutlined, EditOutlined } from "@mui/icons-material";
 import {
   IconButton,
   Avatar,
@@ -19,16 +16,17 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { Appointment } from "../../types";
-import { getAppointments, appoiStatusUpdator } from "../../APIs";
+import { getAppointments, deleteAppointments } from "../../APIs";
 import dayjs from "dayjs";
 import { firstLetterCapitalizer } from "../../utils";
 import { notifierActions } from "../../store/notifier.slice";
+import { useConfirm } from "material-ui-confirm";
+import { EditAppoModal } from "./EditAppoModal";
 
-export const AppointmentsTable: React.FC = () => {
+export const AppointmentsTableUser: React.FC = () => {
   const router = useRouter();
-
-  const currentUser = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
+  const confirmer = useConfirm();
 
   // Pagination
   const [page, setPage] = React.useState(0);
@@ -46,9 +44,12 @@ export const AppointmentsTable: React.FC = () => {
 
   // Setting appointments on mount
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedAppo, setSelectedAppo] = useState<Appointment>();
+  const [openModal, setOpenModal] = useState(false);
+
   const getAndSetAppointments = async () => {
     try {
-      const appos = await getAppointments(token, "vendor"); ///////////////////
+      const appos = await getAppointments(token, "user");
       setAppointments(appos);
     } catch (err) {
       console.log(err);
@@ -60,44 +61,51 @@ export const AppointmentsTable: React.FC = () => {
   }, []);
   ////
 
-  // Status update
+  // Delete
   const dispatch = useDispatch();
-  const handleApprove = async (reqId: string, status: string) => {
+
+  const handleDelete = async (appoId: string, token: string) => {
     try {
-      const isSuccess = await appoiStatusUpdator(token, reqId, status);
-      if (isSuccess?.status) {
-        const curAppoiIndex = appointments.findIndex(
-          (appo) => appo._id.toString() === reqId.toString()
-        );
-        if (curAppoiIndex > -1) {
-          const updatedAppointments = [...appointments];
-          updatedAppointments[curAppoiIndex].status = isSuccess.status;
-          setAppointments(updatedAppointments);
-          dispatch(notifierActions.success("Successfully updated !"));
-        }
+      await confirmer({
+        description: `Are you sure you want to delete this appointment ?`,
+      });
+      const isSuccess = await deleteAppointments(appoId, token);
+      if (isSuccess) {
+        dispatch(notifierActions.success("Successfully removed !"));
+        setAppointments((prev) => prev.filter((app) => app._id !== appoId));
       }
     } catch (err) {
-      dispatch(notifierActions.error("Something went wrong"));
       console.log(err);
+      if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
     }
+  };
+
+  // Edit
+  const handleEdit = (appo: Appointment) => {
+    setSelectedAppo(appo);
+    setOpenModal(true);
   };
 
   // Formating data for the table
   type Header = { title: string; id: string };
   const HEADERS: Header[] = [
     { title: "Image", id: "image" },
-    { title: "Name", id: "name" },
+    { title: "Vendor", id: "name" },
     { title: "Place", id: "place" },
+    { title: "Description", id: "description" },
     { title: "Date and Time", id: "date" },
     { title: "Status", id: "status" },
+    { title: "Edit", id: "edit" },
     { title: "Action", id: "action" },
   ];
   interface Data {
     image: JSX.Element;
     name: string;
     place: string;
+    description: string;
     date: string | Date;
     status: string;
+    edit: JSX.Element;
     action: JSX.Element;
   }
   const rows: Data[] = appointments.map((appo) => {
@@ -105,38 +113,38 @@ export const AppointmentsTable: React.FC = () => {
       image: (
         <IconButton
           onClick={() => {
-            router.push(`/profile/${appo.user?._id}`);
+            router.push(`/profile/${appo.vendor?._id}`);
           }}
         >
-          <Avatar src={appo.user?.image}>{appo.user?.name}</Avatar>
+          <Avatar src={appo.vendor?.image}>{appo.vendor?.name}</Avatar>
         </IconButton>
       ),
 
-      name: String(appo.user?.name),
-      place: String(appo.user?.place),
+      name: String(appo.vendor?.name),
+      place: String(appo.vendor?.place),
+      description: String(`${appo?.description?.slice(0, 35)}...`),
       date: dayjs(appo.date).format("LLL"),
       status: firstLetterCapitalizer(appo.status),
-      action:
-        appo.status === "requested" || appo.status === "denied" ? (
-          <IconButton
-            onClick={() => {
-              handleApprove(appo._id, "approved");
-            }}
-          >
-            <CheckCircleOutlineOutlined color="success" />
-          </IconButton>
-        ) : (
-          <IconButton
-            onClick={() => {
-              handleApprove(appo._id, "denied");
-            }}
-          >
-            <DoDisturbAltOutlined color="error" />
-          </IconButton>
-        ),
+      edit: (
+        <IconButton
+          onClick={() => {
+            handleEdit(appo);
+          }}
+        >
+          <EditOutlined color="info" />
+        </IconButton>
+      ),
+      action: (
+        <IconButton
+          onClick={() => {
+            handleDelete(appo._id, token);
+          }}
+        >
+          <DeleteOutlineOutlined color="error" />
+        </IconButton>
+      ),
     };
   });
-  ////
 
   return (
     <Paper
@@ -185,6 +193,12 @@ export const AppointmentsTable: React.FC = () => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <EditAppoModal
+        appointment={selectedAppo as Appointment}
+        setAppointments={setAppointments}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
       />
     </Paper>
   );

@@ -7,29 +7,31 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { User, Vendor } from "../../types";
+import { Appointment, Vendor } from "../../types";
 import { TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { COLOR } from "../../constants";
-import { makeAppointment } from "../../APIs";
+import { editAppointment, makeAppointment } from "../../APIs";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNotification } from "../../customHooks";
 import { notifierActions } from "../../store/notifier.slice";
 import { lengthChecker } from "../../utils";
 
 interface Props {
   openModal: boolean;
-  user: User;
   setOpenModal: (p: boolean) => void;
+  appointment: Appointment;
+  setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>;
 }
 
-export const MakeAppoModal: React.FC<Props> = (props) => {
-  const { openModal, user, setOpenModal } = props;
+export const EditAppoModal: React.FC<Props> = (props) => {
+  const { openModal, appointment, setOpenModal, setAppointments } = props;
+  console.log("🚀 ~ file: EditAppoModal.tsx:34 ~ appointment", appointment);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const handleClose = () => {
@@ -43,23 +45,26 @@ export const MakeAppoModal: React.FC<Props> = (props) => {
   const currentUser = useSelector((state: StoreState) => state.user.data);
 
   const [dateTime, setDateTime] = React.useState<string | null>(
-    dayjs().toISOString()
+    dayjs(appointment?.date).toISOString()
   );
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(appointment?.description);
 
   const handleChange = (newValue: Dayjs | null) => {
     setDateTime(dayjs(newValue).toISOString() || null);
   };
 
   interface DataV {
-    vendor: string;
     date: string;
     description: string;
-    status: string;
   }
 
+  useEffect(() => {
+    setDateTime(dayjs(appointment?.date).toISOString());
+    setDescription(appointment?.description);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const verifyData = (): DataV | boolean => {
-    const userId = user?._id;
     if (!dateTime || +dayjs(dateTime).valueOf() < +dayjs().valueOf()) {
       dispatch(notifierActions.error(`Please provide a valid date !`));
       return false;
@@ -73,34 +78,40 @@ export const MakeAppoModal: React.FC<Props> = (props) => {
       return false;
     }
     return {
-      vendor: userId as string,
       date: dateTime,
       description,
-      status: "requested",
     };
   };
 
-  const handleMakeAppointment = async () => {
+  const handleEditAppointment = async () => {
     try {
       const dataV = verifyData();
       if (!dataV) {
         return;
       }
-      const isSuccess = await makeAppointment(dataV, token);
-      if (isSuccess) {
+      const newAppointment = await editAppointment(
+        token,
+        appointment?._id,
+        dataV
+      );
+      if (newAppointment) {
         dispatch(
           notifierActions.success(
-            `You have successfully made a new appointment with ${user?.name}.`
+            `You have successfully edited the appointment.`
           )
         );
+        setAppointments((prev) => {
+          const idx = prev.findIndex((el) => el._id === appointment?._id);
+          const newArr = [...prev];
+          newArr[idx] = newAppointment;
+          return newArr;
+        });
         setNotification({
-          content: `You have a new appointment request from ${currentUser.name} !`,
+          content: `Appointment with ${currentUser.name} has been updated !`,
           type: "success",
-          receiver: (dataV as DataV).vendor,
+          receiver: appointment?.vendor,
           href: "/dashboard/vendor",
         });
-        setDescription("");
-        setDateTime(dayjs().toISOString());
         setOpenModal(false);
       }
     } catch (err) {
@@ -171,8 +182,8 @@ export const MakeAppoModal: React.FC<Props> = (props) => {
         <Button onClick={handleClose} variant="outlined" autoFocus>
           Cancel
         </Button>
-        <Button onClick={handleMakeAppointment} variant="outlined" autoFocus>
-          Make Appointment
+        <Button onClick={handleEditAppointment} variant="outlined" autoFocus>
+          Update Appointment
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,8 +1,9 @@
+import { MongoDoc } from "./MongoDoc";
 import { Project } from "./Project";
 import { Service } from "./Service";
 import { User } from "./User";
 
-export interface Vendor {
+export interface Vendor extends MongoDoc {
   service: Service;
   about: string;
   experience?: number;

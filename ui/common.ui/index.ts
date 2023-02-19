@@ -8,3 +8,5 @@ export * from "./CommentCard";
 export * from "./CreatePost";
 export * from "./EditPost";
 export * from "./SearchList";
+export * from "./ActivitiesTabs";
+export * from "./AppointmentsTableUser";

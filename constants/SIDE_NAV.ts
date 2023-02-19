@@ -1,5 +1,6 @@
 import {
   AccountBoxOutlined,
+  AddTaskOutlined,
   DashboardCustomizeOutlined,
   DynamicFeedOutlined,
   HomeRepairServiceOutlined,
@@ -45,21 +46,15 @@ export const SIDE_NAV_LINKS = [
   //   allowedRoles: ["vendor","admin"],
   // },
   {
-    title: "Dashboard",
-    icon: DashboardCustomizeOutlined,
-    href: "/dashboard/admin",
-    allowedRoles: ["admin"],
+    title: "My Activities",
+    icon: AddTaskOutlined,
+    href: "/dashboard/user",
+    allowedRoles: ["user", "vendor"],
   },
   {
-    title: "Panel",
+    title: "Vendor Panel",
     icon: DashboardCustomizeOutlined,
     href: "/dashboard/vendor",
     allowedRoles: ["vendor"],
-  },
-  {
-    title: "Activities",
-    icon: DashboardCustomizeOutlined,
-    href: "/dashboard/user",
-    allowedRoles: ["user"],
   },
 ];

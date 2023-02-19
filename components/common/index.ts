@@ -8,3 +8,6 @@ export * from "./WorkingOn";
 export * from "./Notifier";
 export * from "./SearchComp";
 export * from "./Notifications";
+export * from "../activities/UserActivities";
+export * from "../activities/AppointmentsUser";
+export * from "../activities/VendorTableUser";

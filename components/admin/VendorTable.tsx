@@ -176,7 +176,6 @@ export const VendorTable = () => {
         },
       },
     ];
-
     return [users, columns];
   }
 

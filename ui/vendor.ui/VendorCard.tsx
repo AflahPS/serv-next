@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { Vendor } from "../../types";
+import { User, Vendor } from "../../types";
 import { Stack } from "@mui/system";
 import {
   AccountBoxOutlined,
@@ -23,10 +23,12 @@ import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import Link from "next/link";
 
-const VendorCardStat: React.FC<{ header: string; value: string }> = ({
-  header,
-  value,
-}) => {
+interface Props {
+  header: string;
+  value: string;
+}
+
+const VendorCardStat: React.FC<Props> = ({ header, value }) => {
   return (
     <Stack>
       <Typography align="center" variant="h6" fontSize={"18px"}>
@@ -39,7 +41,7 @@ const VendorCardStat: React.FC<{ header: string; value: string }> = ({
   );
 };
 
-export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
+export const VendorCard: React.FC<{ user: User }> = ({ user }) => {
   const router = useRouter();
 
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
@@ -48,38 +50,6 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
 
   const handleBook = () => {
     setOpenModal(true);
-  };
-
-  //----- ERROR, Success message Snackbar related properties
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = useState(false);
-  const [openSuccess, setOpenSuccess] = useState(false);
-  const handleCloseError = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenError(false);
-  };
-  const handleCloseSuccess = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSuccess(false);
-  };
-  const errorSetter = (message: string) => {
-    setErrMessage(message);
-    setOpenError(true);
-  };
-  const successSetter = (message: string) => {
-    setSuccessMessage(message);
-    setOpenSuccess(true);
   };
 
   return (
@@ -100,26 +70,23 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
           <Stack alignItems={"center"} marginBottom={2}>
             <IconButton
               onClick={() => {
-                router.push(`/profile/${vendor.user._id}`);
+                router.push(`/profile/${user._id}`);
               }}
             >
-              <Avatar
-                sx={{ height: "92px", width: "92px" }}
-                src={vendor.user.image}
-              >
-                {vendor.user.name}
+              <Avatar sx={{ height: "92px", width: "92px" }} src={user.image}>
+                {user.name}
               </Avatar>
             </IconButton>
             <Typography
               onClick={() => {
-                router.push(`/profile/${vendor.user._id}`);
+                router.push(`/profile/${user._id}`);
               }}
               sx={{ margin: 0 }}
               gutterBottom
               variant="h6"
               component="h6"
             >
-              {vendor.user.name}
+              {user.name}
             </Typography>
             <Typography
               sx={{ margin: 0 }}
@@ -127,7 +94,7 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
               variant="subtitle2"
               component="p"
             >
-              {vendor.user.place}
+              {user.place}
             </Typography>
           </Stack>
           {/* <Box
@@ -151,15 +118,15 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
               justifyContent={"space-around"}
             >
               <VendorCardStat
-                header={`${vendor.user?.followers?.length} +`}
+                header={`${user?.followers?.length} +`}
                 value="Follows"
               />
               <VendorCardStat
-                header={`${vendor?.experience} Yr +`}
+                header={`${user?.vendor?.experience} Yr +`}
                 value="Experience"
               />
               <VendorCardStat
-                header={`${vendor?.projects?.length} +`}
+                header={`${user?.vendor?.projects?.length} +`}
                 value="Projects"
               />
             </Box>
@@ -169,7 +136,7 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
               justifyContent={"space-around"}
             >
               <VendorCardStat
-                header={`${vendor?.employees?.length} +`}
+                header={`${user?.vendor?.employees?.length} +`}
                 value="Employees"
               />
               <VendorCardStat header="1 +" value="Posts" />
@@ -225,7 +192,7 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
               variant="outlined"
               startIcon={<AccountBoxOutlined />}
               onClick={() => {
-                router.push(`/profile/${vendor.user?._id}`);
+                router.push(`/profile/${user?._id}`);
               }}
             >
               Profile
@@ -235,45 +202,12 @@ export const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
           {/* APPOINTMENT MODAL */}
 
           <MakeAppoModal
-            vendor={vendor}
+            user={user}
             openModal={openModal}
             setOpenModal={setOpenModal}
-            successSetter={successSetter}
-            errorSetter={errorSetter}
           />
         </CardContent>
       </CardActionArea>
-      {/* Error Message */}
-
-      <Snackbar
-        open={openError}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errMessage}
-        </Alert>
-      </Snackbar>
-
-      {/* Success message */}
-
-      <Snackbar
-        open={openSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccess}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </Card>
   );
 };

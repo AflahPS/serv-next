@@ -79,3 +79,18 @@ export const deleteUser = async (userId: string, token: string) => {
     throw err;
   }
 };
+
+export const getVendorFollowers = async (token: string) => {
+  try {
+    const { data } = await nest({
+      method: "GET",
+      url: `/user/followers/vendor`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") return data?.users;
+  } catch (err) {
+    throw err;
+  }
+};

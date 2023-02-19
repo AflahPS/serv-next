@@ -5,7 +5,7 @@ import { Vendor } from "./Vendor";
 
 export interface Project extends MongoDoc {
   title: string;
-  vendor: Vendor;
+  vendor: User & Vendor;
   service: Service;
   status: string;
   location?: { type: string; coordinates: [number] };

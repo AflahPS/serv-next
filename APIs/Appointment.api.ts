@@ -20,7 +20,10 @@ export const makeAppointment = async (dataV: {}, token: string) => {
   }
 };
 
-export const getAppointments = async (token: string, forWhom: string) => {
+export const getAppointments = async (
+  token: string,
+  forWhom: "user" | "vendor"
+) => {
   try {
     const { data } = await nest({
       method: "GET",
@@ -54,6 +57,46 @@ export const appoiStatusUpdator = async (
     if (data?.status === "success") {
       return data?.appointment;
     }
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const editAppointment = async (
+  token: string,
+  appoId: string,
+  dataV: any
+) => {
+  try {
+    const { data } = await nest({
+      method: "PATCH",
+      url: `/appointment/${appoId}`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data?.appointment;
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const deleteAppointments = async (appoId: string, token: string) => {
+  try {
+    const { data } = await nest({
+      method: "DELETE",
+      url: `/appointment/${appoId}`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return true;
+    }
+    return false;
   } catch (err) {
     throw err;
   }

@@ -6,4 +6,5 @@ export interface Appointment extends MongoDoc {
   vendor: User;
   date: Date | string;
   status: string;
+  description: string;
 }

@@ -14,6 +14,7 @@ import chatListSlice from "./chatList.slice";
 import socketSlice from "./socket.slice";
 import { Socket } from "socket.io-client";
 import onlineUsersSlice from "./onlineUsers.slice";
+import activitiesTabSlice from "./activities-tabs.slice";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     role: roleSlice.reducer,
     profileTab: profileTabSlice.reducer,
     panelTab: panelTabSlice.reducer,
+    activitiesTab: activitiesTabSlice.reducer,
     user: userDataSlice.reducer,
     sideNavTab: sideNavTabSlice.reducer,
     layoutLoading: layoutLoadingSlice.reducer,
@@ -40,6 +42,7 @@ export interface StoreState {
   jwt: { token: string };
   role: { currentUser: string };
   profileTab: { currentTab: string };
+  activitiesTab: { currentTab: string };
   sideNavTab: { currentTab: string };
   panelTab: { currentTab: string };
   user: { data: User & Vendor };

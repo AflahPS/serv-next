@@ -1,22 +1,13 @@
 import React from "react";
 import { nest } from "../../../utils";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  CardActionArea,
-  CardMedia,
-  Grid,
-} from "@mui/material";
+import { Card, Grid } from "@mui/material";
 import { Layout } from "../../../components/common";
-import { COLOR, VENDORS } from "../../../constants";
+import { COLOR } from "../../../constants";
 import { TabHeader, VendorCard } from "../../../ui";
-import { Service, Vendor } from "../../../types";
+import { User, Vendor } from "../../../types";
 import { useRouter } from "next/router";
 
-const ServiceId: React.FC<{ vendors: Vendor[] }> = ({ vendors }) => {
-  console.log({ vendors });
+const ServiceId: React.FC<{ users: User[] }> = ({ users }) => {
   const router = useRouter();
   return (
     <Layout>
@@ -33,9 +24,9 @@ const ServiceId: React.FC<{ vendors: Vendor[] }> = ({ vendors }) => {
         <TabHeader header="Vendors" />
 
         <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
-          {Array.isArray(vendors) &&
-            vendors.length > 0 &&
-            vendors.map((vendor, index) => (
+          {Array.isArray(users) &&
+            users.length > 0 &&
+            users.map((user, index) => (
               <Grid
                 item
                 xs={12}
@@ -47,7 +38,7 @@ const ServiceId: React.FC<{ vendors: Vendor[] }> = ({ vendors }) => {
                 justifyContent={"center"}
                 key={index}
               >
-                <VendorCard vendor={vendor} />
+                <VendorCard user={user} />
               </Grid>
             ))}
         </Grid>
@@ -69,34 +60,6 @@ async function getVendors(id: string) {
     console.log(err?.message);
   }
 }
-
-// async function getAllServices() {
-//   try {
-//     const { data } = await nest({
-//       url: "/service",
-//       method: "GET",
-//     });
-//     if (data.status === "success") {
-//       return data?.services;
-//     }
-//   } catch (err: any) {
-//     console.log(err?.message);
-//   }
-// }
-
-// export async function getStaticPaths() {
-//   const services = await getAllServices();
-//   return {
-//     paths: services.map((service: Service) => {
-//       return {
-//         params: {
-//           serviceId: service._id,
-//         },
-//       };
-//     }),
-//     fallback: false,
-//   };
-// }
 
 export async function getServerSideProps(context: any) {
   // Fetch data from the server or API
