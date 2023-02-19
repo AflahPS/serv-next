@@ -31,7 +31,6 @@ interface Props {
 
 export const EditAppoModal: React.FC<Props> = (props) => {
   const { openModal, appointment, setOpenModal, setAppointments } = props;
-  console.log("🚀 ~ file: EditAppoModal.tsx:34 ~ appointment", appointment);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const handleClose = () => {

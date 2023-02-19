@@ -2,7 +2,6 @@ import React from "react";
 import {
   AboutProfile,
   AccountDetails,
-  Activities,
   Friends,
   ProfileHeader,
   ProfileTabs,
@@ -12,6 +11,7 @@ import { Box } from "@mui/material";
 import { User } from "../../types";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
+import { SavedPosts } from "./SavedPosts";
 
 export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
   const currentTab = useSelector(
@@ -42,7 +42,7 @@ export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
       {currentTab === "friends" && (
         <Friends user={user} isProfileOwner={isProfileOwner} />
       )}
-      {currentTab === "activities" && <Activities />}
+      {currentTab === "savedPosts" && <SavedPosts />}
     </Box>
   );
 };

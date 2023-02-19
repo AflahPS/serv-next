@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import React from "react";
 import { TabHeader } from "../../ui";
 
-export const Activities = () => {
+export const SavedPosts = () => {
   return (
     <Box
       sx={{
@@ -11,7 +11,7 @@ export const Activities = () => {
         // marginY: 2,
       }}
     >
-      <TabHeader header="Activities" />
+      <TabHeader header="Saved Posts" />
     </Box>
   );
 };

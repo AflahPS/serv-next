@@ -5,3 +5,4 @@ export * from "./ServiceTable";
 export * from "./UserTable";
 export * from "./VendorTable";
 export * from "./AdminContainer";
+export * from "./Dashboard";
