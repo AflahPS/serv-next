@@ -9,3 +9,4 @@ export * from "./Project.api";
 export * from "./Chat.api";
 export * from "./Auth.api";
 export * from "./Notification.api";
+export * from "./Factory.api";

@@ -16,3 +16,4 @@ export * from "./DATA_GRID_SAMPLE";
 export * from "./ACTIVITIES_TABS";
 export * from "./LineChartData";
 export * from "./PIE_DATA";
+export * from "./MONTHS";

@@ -59,3 +59,17 @@ export const getAllServices = async () => {
     throw err;
   }
 };
+
+export const getAllServiceTitles = async () => {
+  try {
+    const { data } = await nest({
+      url: "/service/titles",
+      method: "GET",
+    });
+    if (data.status === "success") {
+      return data?.services;
+    }
+  } catch (err) {
+    throw err;
+  }
+};

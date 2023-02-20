@@ -13,24 +13,24 @@ export const LineChart: React.FC<{ data: Serie[] }> = ({ data }) => (
       stacked: true,
       reverse: false,
     }}
-    yFormat=" >-.2f"
+    yFormat=">-.2f"
     axisTop={null}
     axisRight={null}
-    axisBottom={{
-      orient: "bottom",
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: "transportation",
-      legendOffset: 36,
-      legendPosition: "middle",
-    }}
+    // axisBottom={{
+    //   orient: "bottom",
+    //   tickSize: 5,
+    //   tickPadding: 5,
+    //   tickRotation: 0,
+    //   legend: "transportation",
+    //   legendOffset: 36,
+    //   legendPosition: "middle",
+    // }}
     axisLeft={{
-      orient: "left",
+      // orient: "left",
       tickSize: 5,
       tickPadding: 5,
       tickRotation: 0,
-      legend: "count",
+      legend: "Count",
       legendOffset: -40,
       legendPosition: "middle",
     }}
@@ -59,7 +59,8 @@ export const LineChart: React.FC<{ data: Serie[] }> = ({ data }) => (
           {
             on: "hover",
             style: {
-              itemBackground: "rgba(0, 0, 0, .03)",
+              itemBackground: "rgba(0, 0, 0, 0.25)",
+              itemTextColor: "rgba(255, 255, 255, 0.5)",
               itemOpacity: 1,
             },
           },
