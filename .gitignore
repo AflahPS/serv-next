@@ -39,3 +39,5 @@ next.config.js
 
 #rest client
 /test.rest
+
+.dockerignore
