@@ -53,7 +53,8 @@ export const ChatRight = () => {
 
   if (currentUserRole === "guest") return <></>;
   if (
-    currentTab === "Panel" ||
+    currentTab === "My Activities" ||
+    currentTab === "Vendor Panel" ||
     currentUserRole === "admin" ||
     currentUserRole === "super-admin"
   )

@@ -1,4 +1,5 @@
 import { MongoDoc } from "./MongoDoc";
+import { Post } from "./Posts";
 import { Vendor } from "./Vendor";
 
 export interface User extends MongoDoc {
@@ -14,4 +15,5 @@ export interface User extends MongoDoc {
   role: string;
   vendor?: Vendor;
   isBanned?: boolean;
+  savedPosts?: string[];
 }

@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: docker-nextjs
+    image: aflahp/docker-nextjs
     build:
       dockerfile: Dockerfile.production
     ports:

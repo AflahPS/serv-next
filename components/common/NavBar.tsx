@@ -93,6 +93,7 @@ export const NavBar = () => {
     dispatch(userDataActions.removeUserData());
     dispatch(notifierActions.info("Logged out successfully !"));
     socketCurrent.disconnect();
+    localStorage.removeItem("token");
     dispatch(socketActions.removeSocket());
     if (["admin", "super-admin"].some((r) => r === role)) {
       return router.push("/admin/auth/signin");

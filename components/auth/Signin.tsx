@@ -48,11 +48,12 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
     dispatch(notifierActions.successfullySignedIn());
     dispatch(authActions.login()); // login the user
     dispatch(jwtActions.setToken(data?.token)); // set the token
+    localStorage.setItem("token", data?.token);
     dispatch(
       data?.user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = io("ws://localhost:5555");
+    socket.current = io(process.env.SOCKET_URL as string);
     socket.current.emit("new-user-add", data?.user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))
@@ -65,6 +66,7 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
     dispatch(notifierActions.successfullySignedIn());
     dispatch(authActions.login()); // login the user
     dispatch(jwtActions.setToken(data?.token)); // set the token
+    localStorage.setItem("token", data?.token);
     dispatch(
       data?.user.role === "admin"
         ? roleActions.admin()
@@ -73,7 +75,7 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
         : roleActions.guest()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = io("ws://localhost:5555");
+    socket.current = io(process.env.SOCKET_URL as string);
     socket.current.emit("new-user-add", data?.user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))

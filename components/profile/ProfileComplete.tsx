@@ -42,7 +42,7 @@ export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
       {currentTab === "friends" && (
         <Friends user={user} isProfileOwner={isProfileOwner} />
       )}
-      {currentTab === "savedPosts" && <SavedPosts />}
+      {isProfileOwner && currentTab === "savedPosts" && <SavedPosts />}
     </Box>
   );
 };

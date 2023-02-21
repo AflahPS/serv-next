@@ -94,3 +94,55 @@ export const getVendorFollowers = async (token: string) => {
     throw err;
   }
 };
+
+export const getMeUser = async (token: string) => {
+  try {
+    const { data } = await nest({
+      method: "GET",
+      url: `/user/me`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") return data?.user;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getMeAdmin = async (token: string) => {
+  try {
+    const { data } = await nest({
+      method: "GET",
+      url: `/user/admin/me`,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") return data?.user;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export interface RoleDataV {
+  from: "user" | "admin" | "super-admin";
+  to: "user" | "admin" | "super-admin";
+  id: string;
+}
+
+export const changeRole = async (token: string, dataV: RoleDataV) => {
+  try {
+    const { data } = await nest({
+      method: "PATCH",
+      url: `/user/role`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") return data?.user;
+  } catch (err) {
+    throw err;
+  }
+};

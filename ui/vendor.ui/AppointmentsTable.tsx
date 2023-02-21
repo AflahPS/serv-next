@@ -88,8 +88,10 @@ export const AppointmentsTable: React.FC = () => {
     { title: "Image", id: "image" },
     { title: "Name", id: "name" },
     { title: "Place", id: "place" },
+    { title: "Description", id: "description" },
     { title: "Date and Time", id: "date" },
     { title: "Status", id: "status" },
+    { title: "Created at", id: "createdAt" },
     { title: "Action", id: "action" },
   ];
   interface Data {
@@ -114,8 +116,10 @@ export const AppointmentsTable: React.FC = () => {
 
       name: String(appo.user?.name),
       place: String(appo.user?.place),
+      description: String(appo?.description),
       date: dayjs(appo.date).format("LLL"),
       status: firstLetterCapitalizer(appo.status),
+      createdAt: dayjs(appo?.createdAt).format("LLL"),
       action:
         appo.status === "requested" || appo.status === "denied" ? (
           <IconButton
@@ -142,7 +146,7 @@ export const AppointmentsTable: React.FC = () => {
     <Paper
       sx={{ width: "100%", overflow: "hidden", marginY: 5, borderRadius: 3 }}
     >
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ maxHeight: "150vh" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>

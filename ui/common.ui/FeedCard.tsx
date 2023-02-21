@@ -37,9 +37,10 @@ import { Like, Post } from "../../types";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { useConfirm } from "material-ui-confirm";
-import { deletePost } from "../../APIs";
+import { addToSavedPost, deletePost, removeFromSavedPost } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
 import { useNotification } from "../../customHooks";
+import { userDataActions } from "../../store/user-data.slice";
 // import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -183,6 +184,50 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
     }
   };
 
+  const addSavedLocally = (postId: string) => {
+    const updatedUser = Object.assign(
+      {},
+      { ...user },
+      {
+        savedPosts: [...(user?.savedPosts as string[]), postId],
+      }
+    );
+    dispatch(userDataActions.addUserData(updatedUser));
+  };
+
+  const removeSavedLocally = (postId: string) => {
+    const updatedUser = Object.assign(
+      {},
+      { ...user },
+      {
+        savedPosts: (user?.savedPosts as string[]).filter(
+          (post) => post !== postId
+        ),
+      }
+    );
+    dispatch(userDataActions.addUserData(updatedUser));
+  };
+
+  // Save a post
+  const handleSaveClick = async (action: "save" | "remove") => {
+    try {
+      setAnchorEl(null);
+      const isSuccess =
+        action === "save"
+          ? await addToSavedPost(token, post._id)
+          : await removeFromSavedPost(token, post._id);
+      if (isSuccess) {
+        action === "save"
+          ? addSavedLocally(post._id)
+          : removeSavedLocally(post._id);
+        dispatch(notifierActions.success(`Post ${action}d successfully !`));
+      }
+    } catch (err: any) {
+      console.error(err?.message);
+      dispatch(notifierActions.error("Something went wrong while reporting !"));
+    }
+  };
+
   // Enable post-editable UI
   const handleEditClick = async () => {
     setAnchorEl(null);
@@ -244,6 +289,13 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
     router.push(`/profile/${post.owner._id}`);
   };
 
+  const checkIfAlreadySaved = (id: string) => {
+    const saved = user?.savedPosts;
+    if (!Array.isArray(saved)) return false;
+    if (saved.includes(id)) return true;
+    return false;
+  };
+
   return (
     <>
       {isEditable && (
@@ -298,6 +350,24 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
                     }}
                   >
                     <MenuItem onClick={handleReportClick}>Report</MenuItem>
+                    {!checkIfAlreadySaved(post._id) && (
+                      <MenuItem
+                        onClick={() => {
+                          handleSaveClick("save");
+                        }}
+                      >
+                        Add to saved
+                      </MenuItem>
+                    )}
+                    {checkIfAlreadySaved(post._id) && (
+                      <MenuItem
+                        onClick={() => {
+                          handleSaveClick("remove");
+                        }}
+                      >
+                        Remove from saved
+                      </MenuItem>
+                    )}
                   </Menu>
                 </>
               )) ||

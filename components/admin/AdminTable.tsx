@@ -1,23 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { getUsersByRole } from "../../APIs";
+import { RoleDataV, changeRole, getUsersByRole } from "../../APIs";
 import { User } from "../../types";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { NorthOutlined, SouthOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
 import { firstLetterCapitalizer } from "../../utils";
+import { useConfirm } from "material-ui-confirm";
+import { notifierActions } from "../../store/notifier.slice";
 
 export const AdminTable = () => {
   const [users, setUsers] = useState<User[]>([]);
-
   const token = useSelector((state: StoreState) => state.jwt.token);
+
+  const confirmer = useConfirm();
+  const dispatch = useDispatch();
 
   const getAndSetUsers = async () => {
     try {
-      const users = await getUsersByRole("admin", token);
-      if (users) setUsers(users);
+      const admins = await getUsersByRole("admin", token);
+      const superAdmins = await getUsersByRole("super-admin", token);
+      setUsers((prev) => {
+        let ret = [];
+        if (admins?.length) ret.push(...admins);
+        if (superAdmins?.length) ret.push(...superAdmins);
+        return ret;
+      });
     } catch (err) {
       console.log(err);
     }
@@ -39,14 +49,40 @@ export const AdminTable = () => {
     }
 
     function renderPromotionButton(row: User) {
-      const handlePromote = () => {
-        // Handle ban
-        console.log("promote " + row._id);
+      const handlePromote = async () => {
+        try {
+          const userId = row._id;
+          await confirmer({
+            description: `Do you want to promote this user (${row.name}) ?`,
+          });
+          const dataV: RoleDataV = {
+            id: userId,
+            from: "admin",
+            to: "super-admin",
+          };
+          const promotedUser = await changeRole(token, dataV);
+          if (promotedUser?.role !== dataV.to)
+            dispatch(notifierActions.somethingWentWrong());
+          const promotedUserIdx = users.findIndex(
+            (user) => user._id === userId
+          );
+          const clonnedUsers = [...users];
+          clonnedUsers[promotedUserIdx].role = "super-admin";
+          setUsers(clonnedUsers);
+          dispatch(notifierActions.info(`Successfully promoted ${row.name} !`));
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
       };
 
       return (
         <Tooltip title="Ban on Unban a user">
-          <IconButton color="success" onClick={handlePromote}>
+          <IconButton
+            disabled={row?.role === "super-admin"}
+            color="success"
+            onClick={handlePromote}
+          >
             <NorthOutlined />
           </IconButton>
         </Tooltip>
@@ -54,9 +90,32 @@ export const AdminTable = () => {
     }
 
     function renderDemoteButton(row: User) {
-      const handleDemote = () => {
-        // Handle Delete
-        console.log("Demote " + row._id);
+      const handleDemote = async () => {
+        try {
+          const userId = row._id;
+          await confirmer({
+            description: `Do you want to demote this user (${row.name}) ?`,
+          });
+          const userRole = row.role as "admin" | "super-admin";
+          const newRole = userRole === "super-admin" ? "admin" : "user";
+          const dataV: RoleDataV = {
+            id: userId,
+            from: userRole,
+            to: newRole,
+          };
+          const demotedUser = await changeRole(token, dataV);
+          if (demotedUser?.role !== dataV.to)
+            dispatch(notifierActions.somethingWentWrong());
+          const demotedUserIdx = users.findIndex((user) => user._id === userId);
+          const clonnedUsers = [...users];
+          if (dataV.to === "admin") clonnedUsers[demotedUserIdx].role = "admin";
+          else clonnedUsers.splice(demotedUserIdx, 1);
+          setUsers(clonnedUsers);
+          dispatch(notifierActions.info(`Successfully demoted ${row.name} !`));
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
       };
 
       return (

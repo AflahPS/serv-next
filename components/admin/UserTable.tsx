@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
-import { banUser, deleteUser, getUsersByRole } from "../../APIs/User.api";
+import {
+  RoleDataV,
+  banUser,
+  changeRole,
+  deleteUser,
+  getUsersByRole,
+} from "../../APIs/User.api";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { User } from "../../types";
@@ -9,6 +15,7 @@ import { Avatar, IconButton, Tooltip } from "@mui/material";
 import {
   CheckCircleOutlineOutlined,
   DeleteOutlineOutlined,
+  NorthOutlined,
   NotInterestedOutlined,
 } from "@mui/icons-material";
 import { notifierActions } from "../../store/notifier.slice";
@@ -88,6 +95,43 @@ export const UserTable = () => {
       );
     }
 
+    function renderPromoteButton(row: User) {
+      // Handle ban
+      const handlePromote = async () => {
+        try {
+          const userId = row._id;
+          await confirmer({
+            description: `Do you want to promote this user (${row.name}) ?`,
+          });
+          const dataV: RoleDataV = {
+            id: userId,
+            from: "user",
+            to: "admin",
+          };
+          const promotedUser = await changeRole(token, dataV);
+          if (promotedUser?.role !== "admin")
+            dispatch(notifierActions.somethingWentWrong());
+          setUsers((prev) => prev.filter((user) => user._id !== userId));
+          dispatch(
+            notifierActions.info(
+              `Successfully promoted and added to 'Admin-table' !`
+            )
+          );
+        } catch (err) {
+          console.log(err);
+          if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
+        }
+      };
+
+      return (
+        <IconButton onClick={handlePromote}>
+          <Tooltip title="Click to BAN this user">
+            <NorthOutlined color="success" />
+          </Tooltip>
+        </IconButton>
+      );
+    }
+
     function renderDeleteButton(row: User) {
       // Handle Delete
       const handleDelete = async () => {
@@ -134,6 +178,15 @@ export const UserTable = () => {
         description: "Ban on Unban a user",
         renderCell(params) {
           return renderBanButton(params.row);
+        },
+      },
+      {
+        field: "role",
+        headerName: "Promote",
+        width: 150,
+        description: "Promote User to Admin",
+        renderCell(params) {
+          return renderPromoteButton(params.row);
         },
       },
       {

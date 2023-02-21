@@ -18,6 +18,9 @@ const profileTabSlice = createSlice({
     activities: (state) => {
       state.currentTab = "activities";
     },
+    savedPosts: (state) => {
+      state.currentTab = "savedPosts";
+    },
   },
 });
 

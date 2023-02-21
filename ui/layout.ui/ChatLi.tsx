@@ -111,7 +111,10 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
             secondaryTypographyProps={{ color: "white" }}
             sx={{ color: COLOR["H1d-font-primary"] }}
             primary={getFriendObjectFromChat()?.name}
-            secondary="Online"
+            secondary={isOnline ? "Online" : "Offline"}
+            primaryTypographyProps={{
+              color: `${isOnline ? "limegreen" : "inherit"}`,
+            }}
           />
         </ListItem>
         <Divider variant="inset" component="li" />

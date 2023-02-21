@@ -1,11 +1,10 @@
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { ConfirmProvider } from "material-ui-confirm";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import store from "../store";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { Notifier } from "../components";
-import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { palette } = createTheme();
@@ -22,14 +21,6 @@ export default function App({ Component, pageProps }: AppProps) {
       violet: createColor("#BC00A3"),
     },
   });
-
-  // useEffect(() => {
-  //   console.log("Inside app useffect --------------------");
-
-  //   return () => {
-  //     console.log("app useffect -------------------- unmountinggg");
-  //   };
-  // }, []);
 
   return (
     <ConfirmProvider>

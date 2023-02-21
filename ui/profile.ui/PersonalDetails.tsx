@@ -347,32 +347,39 @@ export const PersonalDetails: React.FC<{
       >
         {/* ---Avatar------ */}
         <Stack alignItems={"center"} marginY={2} gap={2}>
-          <Badge
-            overlap="circular"
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            badgeContent={
-              <IconButton
-                color="primary"
-                aria-label="upload picture"
-                component="label"
-                sx={{
-                  backgroundColor: COLOR["H1d-ui-secondary"],
-                }}
-              >
-                <input
-                  hidden
-                  accept="image/*"
-                  onChange={handleMediaSelected}
-                  type="file"
-                />
-                {isDpUploading ? <CircularProgress /> : <CreateOutlined />}
-              </IconButton>
-            }
-          >
+          {isProfileOwner && (
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              badgeContent={
+                <IconButton
+                  color="primary"
+                  aria-label="upload picture"
+                  component="label"
+                  sx={{
+                    backgroundColor: COLOR["H1d-ui-secondary"],
+                  }}
+                >
+                  <input
+                    hidden
+                    accept="image/*"
+                    onChange={handleMediaSelected}
+                    type="file"
+                  />
+                  {isDpUploading ? <CircularProgress /> : <CreateOutlined />}
+                </IconButton>
+              }
+            >
+              <Avatar sx={{ height: 124, width: 124 }} src={user?.image || ""}>
+                {user.name || "Username"}
+              </Avatar>
+            </Badge>
+          )}
+          {!isProfileOwner && (
             <Avatar sx={{ height: 124, width: 124 }} src={user?.image || ""}>
               {user.name || "Username"}
             </Avatar>
-          </Badge>
+          )}
           <Typography
             variant="h6"
             fontWeight={400}
@@ -449,7 +456,10 @@ export const PersonalDetails: React.FC<{
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <Button disabled={!sendOtpButton} onClick={handleOtpButton}>
+                  <Button
+                    disabled={!sendOtpButton || !isProfileOwner}
+                    onClick={handleOtpButton}
+                  >
                     Send OTP
                   </Button>
                 </InputAdornment>
@@ -458,7 +468,7 @@ export const PersonalDetails: React.FC<{
           />
 
           {/* OTP-FIELD */}
-          {showOtpField && (
+          {showOtpField && isProfileOwner && (
             <>
               <StyledTextField
                 label="OTP"
@@ -528,32 +538,6 @@ export const PersonalDetails: React.FC<{
           )}
         </Box>
       </Box>
-      <Snackbar
-        open={openError}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccess}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
       {/* -------Recaptcha Div-------- */}
       <div id="verify-otp"></div>
     </>

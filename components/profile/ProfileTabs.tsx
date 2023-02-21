@@ -36,8 +36,8 @@ export const ProfileTabs = () => {
       case "friends":
         dispatch(profileTabActions.friends());
         break;
-      case "activities":
-        dispatch(profileTabActions.activities());
+      case "savedPosts":
+        dispatch(profileTabActions.savedPosts());
         break;
       default:
         dispatch(profileTabActions.timeline());
