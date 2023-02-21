@@ -24,7 +24,7 @@ const DetailPair: React.FC<{ title: string; value: string }> = ({
   );
 };
 
-export const Dashboard = () => {
+export const VendorPanel = () => {
   const currentUser = useSelector((state: StoreState) => state.user.data);
   return (
     <>

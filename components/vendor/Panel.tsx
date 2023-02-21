@@ -3,7 +3,7 @@ import React from "react";
 import { PanelTabs } from "../../ui";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { Appointments, Dashboard, Employees, Jobs, Projects } from ".";
+import { Appointments, Employees, Projects, VendorPanel } from ".";
 
 export const Panel = () => {
   const currentTab = useSelector(
@@ -20,7 +20,7 @@ export const Panel = () => {
       }}
     >
       <PanelTabs />
-      {currentTab === "dashboard" && <Dashboard />}
+      {currentTab === "dashboard" && <VendorPanel />}
       {currentTab === "appointments" && <Appointments />}
       {currentTab === "employees" && <Employees />}
       {currentTab === "projects" && <Projects />}

@@ -1,7 +1,7 @@
 import { Box, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { DashStat, LineChart, PieChart } from "../../ui";
-import { LINE_DATA, MONTHS, PIE_DATA } from "../../constants";
+import { MONTHS } from "../../constants";
 import {
   getAllServiceTitles,
   getVendorCountByService,
