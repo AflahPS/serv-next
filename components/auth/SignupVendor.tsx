@@ -1,5 +1,6 @@
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Divider,
@@ -17,10 +18,17 @@ import {
   LinkButton,
   TextFieldCustom2,
   LabelCustom,
+  StyledTextField,
 } from "../../ui";
 import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
 import Link from "next/link";
-import { fbPhoneAuth, geoCords, geoLocator, nest } from "../../utils";
+import {
+  fbPhoneAuth,
+  geoCords,
+  geoCordsAutoComplete,
+  geoLocator,
+  nest,
+} from "../../utils";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -30,6 +38,17 @@ import { jwtActions } from "../../store/jwt.slice";
 import { Service } from "../../types";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { notifierActions } from "../../store/notifier.slice";
+import { User } from "aws-sdk/clients/budgets";
+import { signupUser } from "../../APIs";
+
+interface OptionObject {
+  place: string;
+  location: {
+    type: "Point";
+    coordinates: number[];
+  };
+}
 
 export const SignupVendor = () => {
   const dispatch = useDispatch();
@@ -56,21 +75,29 @@ export const SignupVendor = () => {
     coordinates: [0, 0],
   });
 
+  const [options, setOptions] = useState<OptionObject[]>([]);
+  const [selectedOption, setSelectedOption] = useState<OptionObject>({
+    place: "",
+    location: { type: "Point", coordinates: [0, 0] },
+  });
+  const getOptionLabel = (option: string | OptionObject) =>
+    (option as OptionObject).place;
+  const onSelectValue = (val: OptionObject) => setSelectedOption(val);
   const token = useSelector((state: any) => state.jwt.token);
   const router = useRouter();
 
   const [errMessage, setErrMessage] = useState("");
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
 
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+  // const handleClose = (
+  //   event?: React.SyntheticEvent | Event,
+  //   reason?: string
+  // ) => {
+  //   if (reason === "clickaway") {
+  //     return;
+  //   }
+  //   setOpen(false);
+  // };
 
   // Check if the entered number is valid
   const validatePhone = (num: string) => {
@@ -132,31 +159,6 @@ export const SignupVendor = () => {
     return data;
   };
   const { data, error } = useSWR("services", fetcher);
-  // if (error) {
-  //   setErrMessage("Something went wrong");
-  //   console.log(error?.message);
-  //   setOpen(true);
-  // }
-
-  // Get the coordinates of the location
-  const getLocation = async () => {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      if (!position) return console.log("COuld not locate -WEBAPI");
-
-      if (position)
-        setLocation({
-          type: "Point",
-          coordinates: [position.coords.longitude, position.coords.latitude],
-        });
-    });
-    const loc: any = await geoLocator(
-      location.coordinates[0],
-      location.coordinates[1]
-    );
-    if (!loc) return setLocationVerified(false);
-    setPlace(loc);
-    setLocationVerified(true);
-  };
 
   // Get location if user typed a location
   const gatherPLace = async (place: string) => {
@@ -165,6 +167,55 @@ export const SignupVendor = () => {
     if (cords)
       setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
   };
+
+  // Get the coordinates of the location
+  const getLocation = async () => {
+    navigator.geolocation.getCurrentPosition(async function (position) {
+      if (position)
+        var loc = await geoLocator(
+          position.coords.longitude,
+          position.coords.latitude
+        );
+      if (!loc) return setLocationVerified(false);
+      // setPlace(loc);
+      setSelectedOption({
+        place: loc,
+        location: {
+          type: "Point",
+          coordinates: [position.coords.longitude, position.coords.latitude],
+        },
+      });
+      setLocationVerified(true);
+    });
+  };
+
+  // To get the place suggestions
+  useEffect(() => {
+    const gatherSuggestions = async (place: string) => {
+      try {
+        const suggestions = await geoCordsAutoComplete(place);
+        const suggArr = suggestions?.features?.map((el: any) => {
+          const placeSplitArr = el?.place_name.split(",");
+
+          return {
+            place: `${placeSplitArr[0]}, ${
+              placeSplitArr[placeSplitArr.length - 1]
+            }`,
+            location: el?.geometry,
+          };
+        });
+        if (suggArr) {
+          setOptions(suggArr);
+          return;
+        }
+        setOptions([]);
+        setLocationVerified(false);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    gatherSuggestions(place);
+  }, [place]);
 
   // handle 'Send OTP' button click
   const handleOtpButton = (event: any) => {
@@ -193,9 +244,10 @@ export const SignupVendor = () => {
     const service = serviceRef.current?.value;
     const phone = phoneRef.current?.value;
     const about = aboutRef.current?.value;
+    const location = selectedOption?.location;
 
     const isService = Boolean(service);
-    const isLocation = Boolean(location.coordinates[0]);
+    const isLocation = location && Boolean(location?.coordinates[0] !== 0);
     const isPhone = otpVerified;
     const isAbout = Boolean(about);
 
@@ -221,11 +273,11 @@ export const SignupVendor = () => {
     setAboutVerified(true);
 
     return {
-      service,
+      service: service as string,
       location,
-      phone,
-      about,
-      place,
+      phone: phone as string,
+      about: about as string,
+      place: place as string,
     };
   };
 
@@ -235,23 +287,13 @@ export const SignupVendor = () => {
     const verified = verifyBeforeSignup();
     if (!verified) return;
     try {
-      console.log(token);
-
-      const res = await nest({
-        url: "/auth/signup/vendor",
-        method: "POST",
-        data: verified,
-        headers: {
-          authorization: "Bearer " + token,
-        },
-      });
-      if (res.data?.status === "success") {
-        setOpen(true);
-        dispatch(jwtActions.setToken(res.data?.token));
+      const newData = await signupUser(verified, token);
+      if (newData?.status === "success") {
+        dispatch(notifierActions.success("You have successfully signed up!"));
+        dispatch(jwtActions.setToken(newData?.token));
         dispatch(roleActions.vendor());
-        dispatch(userDataActions.addUserData(res.data?.user));
+        dispatch(userDataActions.addUserData(newData?.user));
         dispatch(sideNavTabActions.push("Posts"));
-
         router.push("/");
       }
     } catch (error: any) {
@@ -265,7 +307,7 @@ export const SignupVendor = () => {
         setErrMessage(errorResponeMessage);
         return console.log({ errMessage: error?.response?.data?.message });
       }
-      setErrMessage("Something went wrong ! Please try again.");
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
 
@@ -294,15 +336,16 @@ export const SignupVendor = () => {
               flexDirection={"column"}
               alignItems="center"
               justifyContent="center"
-              gap={1}
+              gap={3}
               width={"100%"}
               ref={animRef}
             >
               {/* -------Service--------- */}
-              <LabelCustom variant="h6">
-                Service Category/Profession
-              </LabelCustom>
+              {/* <LabelCustom variant="h6">
+               
+              </LabelCustom> */}
               <TextFieldCustom2
+                label=" Service Category/Profession"
                 select
                 inputRef={serviceRef}
                 size="small"
@@ -322,38 +365,70 @@ export const SignupVendor = () => {
 
               {/* --------Location----------- */}
 
-              <LabelCustom variant="h6">Location</LabelCustom>
-              <TextFieldCustom2
-                inputRef={locationRef}
-                size="small"
+              <Autocomplete
+                id="mapbox"
+                getOptionLabel={getOptionLabel}
+                disablePortal
                 fullWidth
-                error={!locationVerified}
-                helperText={!locationVerified ? "Try again" : ""}
-                onChange={(e: any) => {
-                  setPlace(e?.target?.value);
+                freeSolo
+                size="small"
+                options={options}
+                // loading={l}
+                popupIcon={null}
+                value={selectedOption}
+                onChange={(event: any, newValue: any) => {
+                  onSelectValue(newValue);
                 }}
-                onBlur={() => {
-                  gatherPLace(place);
+                onInputChange={(event, newInputValue) => {
+                  setPlace(newInputValue);
                 }}
-                value={place}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={getLocation}>
-                        <LocationOnOutlined />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                renderInput={({ InputProps, ...params }) => {
+                  return (
+                    <StyledTextField
+                      {...params}
+                      label={"Location"}
+                      fullWidth
+                      size="small"
+                      error={!locationVerified}
+                      helperText={
+                        !locationVerified && "Couldn't find location !"
+                      }
+                      InputProps={{
+                        ...InputProps,
+
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={getLocation}>
+                              <LocationOnOutlined />
+                            </IconButton>
+                            {InputProps.endAdornment}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  );
+                }}
+                renderOption={(props, option, state) => {
+                  console.log(state);
+                  const label = getOptionLabel(option);
+                  return (
+                    <li {...props}>
+                      <Typography variant="body2" color="text.secondary">
+                        {label}
+                      </Typography>
+                    </li>
+                  );
                 }}
               />
 
               {/* --------Phone----------- */}
 
-              <LabelCustom variant="h6">Phone</LabelCustom>
+              {/* <LabelCustom variant="h6">Phone</LabelCustom> */}
               <TextFieldCustom2
                 inputRef={phoneRef}
                 size="small"
                 fullWidth
+                label="Phone"
                 error={!phoneVerified}
                 helperText={!phoneVerified ? "Verify the number with OTP" : ""}
                 value={phone}
@@ -383,9 +458,10 @@ export const SignupVendor = () => {
 
               {showOtpField && (
                 <>
-                  <LabelCustom variant="h6">OTP</LabelCustom>
+                  {/* <LabelCustom variant="h6">OTP</LabelCustom> */}
                   <TextFieldCustom2
                     size="small"
+                    label="OTP"
                     value={otp}
                     onChange={(e) => {
                       setOtp(e.target.value);
@@ -409,10 +485,11 @@ export const SignupVendor = () => {
 
               {/* --------About----------- */}
 
-              <LabelCustom variant="h6">About Me</LabelCustom>
+              {/* <LabelCustom variant="h6">About Me</LabelCustom> */}
               <TextFieldCustom2
                 inputRef={aboutRef}
                 error={!aboutVerified}
+                label="About Me"
                 helperText={
                   !aboutVerified ? "Please provide something about you !" : ""
                 }
@@ -458,15 +535,6 @@ export const SignupVendor = () => {
             </Box>
           </Box>
         </Stack>
-        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-          <Alert
-            onClose={handleClose}
-            severity="success"
-            sx={{ width: "100%" }}
-          >
-            Successfully signed up !
-          </Alert>
-        </Snackbar>
       </Box>
       {/* -------Recaptcha Div-------- */}
       <div id="verify-otp"></div>

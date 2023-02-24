@@ -1,5 +1,6 @@
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import {
+  Autocomplete,
   Avatar,
   Badge,
   Box,
@@ -8,6 +9,7 @@ import {
   IconButton,
   InputAdornment,
   Stack,
+  TextField,
   TextFieldProps,
   Typography,
 } from "@mui/material";
@@ -39,14 +41,22 @@ import { User } from "../../types";
 import { notifierActions } from "../../store/notifier.slice";
 import { editPersonal } from "../../APIs";
 
-export const PersonalDetails: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
+}
+
+interface OptionObject {
+  place: string;
+  location: {
+    type: "Point";
+    coordinates: number[];
+  };
+}
+
+export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
   const dispatch = useDispatch();
-  // const user = useSelector((state: StoreState) => state.user.data);
   const token = useSelector((state: StoreState) => state.jwt.token);
-  const role = user.role;
 
   const [isDpUploading, setIsDpUploading] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
@@ -54,7 +64,6 @@ export const PersonalDetails: React.FC<{
   const nameRef = useRef<TextFieldProps>(null);
   const emailRef = useRef<TextFieldProps>(null);
   const phoneRef = useRef<TextFieldProps>(null);
-  const locationRef = useRef<TextFieldProps>(null);
 
   const [nameVerified, setNameVerified] = useState(true);
   const [emailVerified, setEmailVerified] = useState(true);
@@ -68,23 +77,15 @@ export const PersonalDetails: React.FC<{
   const [verifyOtpButton, setVerifyOtpButton] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
-  const [location, setLocation] = useState(
-    user.location || {
-      type: "Point",
-      coordinates: [0, 0],
-    }
-  );
 
-  // //----- ERROR, Success message Snackbar related properties
-  // const [errMessage, setErrMessage] = useState<string>("");
-  // const [successMessage, setSuccessMessage] = useState<string>("");
-  // const [openError, setOpenError] = React.useState(false);
-  // const [openSuccess, setOpenSuccess] = React.useState(false);
-
-  // const errorSetter = (message: string) => {
-  //   setErrMessage(message);
-  //   setOpenError(true);
-  // };
+  const [options, setOptions] = useState<OptionObject[]>([]);
+  const [selectedOption, setSelectedOption] = useState<OptionObject>({
+    place: user?.place,
+    location: user?.location || { type: "Point", coordinates: [0, 0] },
+  });
+  const getOptionLabel = (option: string | OptionObject) =>
+    (option as OptionObject).place;
+  const onSelectValue = (val: OptionObject) => setSelectedOption(val);
 
   //----- Profile Image updator function
   const handleMediaSelected = async (
@@ -210,55 +211,71 @@ export const PersonalDetails: React.FC<{
 
   // Get the coordinates of the location
   const getLocation = async () => {
-    navigator.geolocation.getCurrentPosition(function (position) {
+    navigator.geolocation.getCurrentPosition(async function (position) {
       if (position)
-        setLocation({
+        // setLocation({
+        //   type: "Point",
+        //   coordinates: [position.coords.longitude, position.coords.latitude],
+        // });
+        var loc = await geoLocator(
+          position.coords.longitude,
+          position.coords.latitude
+        );
+      if (!loc) return setLocationVerified(false);
+      // setPlace(loc);
+      setSelectedOption({
+        place: loc,
+        location: {
           type: "Point",
           coordinates: [position.coords.longitude, position.coords.latitude],
-        });
+        },
+      });
+      setLocationVerified(true);
     });
-    const loc: any = await geoLocator(
-      location.coordinates[0],
-      location.coordinates[1]
-    );
-    if (!loc) return setLocationVerified(false);
-    setPlace(loc);
-    setLocationVerified(true);
   };
 
-  // Get location if user typed a location
-  const gatherPLace = async (place: string) => {
-    const cords = await geoCords(place);
-    if (!cords) {
-      setLocationVerified(false);
-      return console.log("Coordinates not found");
-    }
-    if (cords)
-      setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
-  };
+  // To get the place suggestions
+  useEffect(() => {
+    const gatherSuggestions = async (place: string) => {
+      try {
+        const suggestions = await geoCordsAutoComplete(place);
+        const suggArr = suggestions?.features?.map((el: any) => {
+          const placeSplitArr = el?.place_name.split(",");
 
-  const gatherSuggestions = async (place: string) => {
-    try {
-      const suggestions = await geoCordsAutoComplete(place);
-      console.log({ suggestions });
-    } catch (err) {
-      console.log(err);
-    }
-  };
+          return {
+            place: `${placeSplitArr[0]}, ${
+              placeSplitArr[placeSplitArr.length - 1]
+            }`,
+            location: el?.geometry,
+          };
+        });
+        if (suggArr) {
+          setOptions(suggArr);
+          return;
+        }
+        setOptions([]);
+        setLocationVerified(false);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    gatherSuggestions(place);
+  }, [place]);
 
   // Verify all data before API call
-
   const verifiyData = () => {
     const nameInput = nameRef.current?.value;
     const emailInput = emailRef.current?.value;
     const phone = phoneRef.current?.value;
+    const place = selectedOption?.place;
+    const location = selectedOption?.location;
 
     const name = String(nameInput).trim();
     const email = String(emailInput).trim();
 
     const isName = lengthChecker(name, 2, 50);
     const isEmail = validateEmail(email);
-    const isLocation = Boolean(location.coordinates[0]);
+    const isLocation = location && Boolean(location?.coordinates[0] !== 0);
     const isPhone = otpVerified || phone === user.phone;
 
     if (!isName) {
@@ -373,6 +390,7 @@ export const PersonalDetails: React.FC<{
 
         {/* ------TextFields------- */}
         <Box
+          position={"relative"}
           borderRadius={3}
           bgcolor={COLOR["H1d-ui-bg"]}
           display={"flex"}
@@ -439,7 +457,7 @@ export const PersonalDetails: React.FC<{
               endAdornment: (
                 <InputAdornment position="end">
                   <Button
-                    disabled={!sendOtpButton || !isProfileOwner}
+                    disabled={!sendOtpButton || !isEditable || !isProfileOwner}
                     onClick={handleOtpButton}
                   >
                     Send OTP
@@ -477,37 +495,66 @@ export const PersonalDetails: React.FC<{
           )}
 
           {/* LOCATION */}
-          <StyledTextField
-            inputRef={locationRef}
-            size="small"
-            label="Location"
+
+          <Autocomplete
+            id="mapbox"
+            getOptionLabel={getOptionLabel}
+            disablePortal
+            freeSolo
             disabled={!isEditable}
-            error={!locationVerified}
-            // defaultValue={user.place}
-            helperText={
-              !locationVerified
-                ? "Sorry, Couldn't locate you. Try the pin icon after 10 seconds or type your location properly."
-                : ""
-            }
-            onChange={(e: any) => {
-              setLocationVerified(true);
-              setPlace(e?.target?.value);
+            size="small"
+            options={options}
+            // loading={l}
+            popupIcon={null}
+            value={selectedOption}
+            onChange={(event: any, newValue: any) => {
+              onSelectValue(newValue);
             }}
-            onBlur={() => {
-              gatherPLace(place);
-              gatherSuggestions(place);
+            onInputChange={(event, newInputValue) => {
+              setPlace(newInputValue);
             }}
-            value={place}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton disabled={!isEditable} onClick={getLocation}>
-                    <LocationOnOutlined />
-                  </IconButton>
-                </InputAdornment>
-              ),
+            renderInput={({ InputProps, ...params }) => {
+              return (
+                <StyledTextField
+                  {...params}
+                  label={"Location"}
+                  fullWidth
+                  size="small"
+                  disabled={!isEditable}
+                  error={!locationVerified}
+                  helperText={!locationVerified && "Couldn't find location !"}
+                  InputProps={{
+                    ...InputProps,
+
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          disabled={!isEditable}
+                          onClick={getLocation}
+                        >
+                          <LocationOnOutlined />
+                        </IconButton>
+                        {InputProps.endAdornment}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              );
+            }}
+            renderOption={(props, option, state) => {
+              console.log(state);
+              const label = getOptionLabel(option);
+              return (
+                <li {...props}>
+                  <Typography variant="body2" color="text.secondary">
+                    {label}
+                  </Typography>
+                </li>
+              );
             }}
           />
+
+          {/* Save button */}
 
           {isProfileOwner && (
             <LinkButton

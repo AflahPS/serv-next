@@ -31,7 +31,7 @@ export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
       }}
     >
       <ProfileHeader user={user} isProfileOwner={isProfileOwner} />
-      {userRole === "vendor" && <AboutProfile user={user} />}
+      <AboutProfile user={user} isProfileOwner={isProfileOwner} />
       <ProfileTabs />
       {currentTab === "timeline" && (
         <Timeline user={user} isProfileOwner={isProfileOwner} />

@@ -7,7 +7,7 @@ export interface User extends MongoDoc {
   email: string;
   password: string;
   image?: string;
-  location?: { type: string; coordinates: [number] };
+  location?: { type: "Point"; coordinates: number[] };
   place: string;
   phone?: string;
   followers?: string[];

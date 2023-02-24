@@ -177,10 +177,6 @@ export const ProfessionalDetails: React.FC<{
         url: "/service",
         method: "GET",
       });
-      console.log(
-        "🚀 ~ file: ProfessionalDetails.tsx:171 ~ fetcher ~ data",
-        data
-      );
       if (data?.status === "success") {
         setAllServices(data?.services);
         const userService = getServiceById(

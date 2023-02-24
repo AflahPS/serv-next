@@ -16,6 +16,36 @@ export const signinUser = async (dataV: any) => {
   }
 };
 
+interface SignupDataV {
+  service: string;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
+  phone: string;
+  about: string;
+  place: string;
+}
+
+export const signupUser = async (dataV: SignupDataV, token: string) => {
+  try {
+    const { data } = await nest({
+      url: "auth/signup/vendor",
+      method: "POST",
+      data: dataV,
+      headers: {
+        authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data;
+    }
+    return false;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const signinAdmin = async (dataV: any) => {
   try {
     const { data } = await nest({
