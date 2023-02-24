@@ -146,3 +146,30 @@ export const changeRole = async (token: string, dataV: RoleDataV) => {
     throw err;
   }
 };
+
+export interface EditPersonal {
+  name: string;
+  email: string;
+  phone: unknown;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
+  place: string;
+}
+
+export const editPersonal = async (token: string, dataV: EditPersonal) => {
+  try {
+    const { data } = await nest({
+      method: "PATCH",
+      url: `/user/personal`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") return data?.user;
+  } catch (err) {
+    throw err;
+  }
+};

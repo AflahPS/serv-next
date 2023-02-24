@@ -1,4 +1,6 @@
 import {
+  BottomNavigation,
+  BottomNavigationAction,
   Box,
   Fade,
   List,
@@ -6,6 +8,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Paper,
   SvgIconTypeMap,
   Tooltip,
 } from "@mui/material";
@@ -94,19 +97,19 @@ export const SideNav: React.FC<{ SideNavLinks: SideNavLink[] }> = ({
           </List>
         </Box>
       </Box>
+
       {/* less than Laptop */}
 
       <Box>
-        <Box position="fixed">
+        <Box position="fixed" zIndex={99}>
           <Stack
-            display={"flex"}
             bgcolor="black"
             paddingY={2}
             width={"100%"}
             gap={1}
             sx={{
               marginLeft: 0,
-              display: { xs: "flex", md: "none" },
+              display: { xs: "none", sm: "block", md: "none" },
               color: COLOR["H1d-font-primary"],
               boxShadow: 8,
               borderRadius: 3,
@@ -151,6 +154,59 @@ export const SideNav: React.FC<{ SideNavLinks: SideNavLink[] }> = ({
           </Stack>
         </Box>
       </Box>
+
+      <Paper
+        sx={{
+          width: "100%",
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 99,
+          display: { xs: "block", sm: "none" },
+          backgroundColor: COLOR["H1d-ui-bg"],
+        }}
+        elevation={3}
+      >
+        <BottomNavigation
+          sx={{
+            width: "100%",
+            overflowX: "auto",
+          }}
+          // showLabels
+          // value={value}
+          // onChange={(event, newValue) => {
+          //   setValue(newValue);
+          // }}
+        >
+          {SIDE_NAV_LINKS.map((link) => {
+            if (!link.allowedRoles.includes(role)) return;
+            const Icon = link.icon;
+            return (
+              <BottomNavigationAction
+                key={link.title}
+                onClick={() => {
+                  dispatch(layoutLoadingActions.loading());
+                  dispatch(sideNavTabActions.push(link.title));
+                  router.push(link.href);
+                }}
+                label={`${link.title.split(" ")[0]}`}
+                showLabel
+                icon={
+                  <Icon
+                    sx={{
+                      color:
+                        currentTab === link.title
+                          ? COLOR["H1d-ui-primary"]
+                          : "inherit",
+                    }}
+                  />
+                }
+              />
+            );
+          })}
+        </BottomNavigation>
+      </Paper>
     </>
   );
 };

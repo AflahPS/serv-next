@@ -29,6 +29,7 @@ import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { Service } from "../../types";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 export const SignupVendor = () => {
   const dispatch = useDispatch();
@@ -268,6 +269,8 @@ export const SignupVendor = () => {
     }
   };
 
+  const [animRef] = useAutoAnimate();
+
   return (
     <>
       <Box
@@ -293,6 +296,7 @@ export const SignupVendor = () => {
               justifyContent="center"
               gap={1}
               width={"100%"}
+              ref={animRef}
             >
               {/* -------Service--------- */}
               <LabelCustom variant="h6">
@@ -308,7 +312,7 @@ export const SignupVendor = () => {
                 fullWidth
               >
                 {data &&
-                  data.map((serv: Service) => (
+                  data?.services?.map((serv: Service) => (
                     <MenuItem key={serv._id} value={serv._id}>
                       {serv.title}
                     </MenuItem>

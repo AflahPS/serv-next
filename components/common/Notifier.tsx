@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { notifierActions } from "../../store/notifier.slice";
 import { Notification, User } from "../../types";
-import { Socket, io } from "socket.io-client";
-import { getMeAdmin, getMeUser } from "../../APIs";
+import { Socket } from "socket.io-client";
+import { getMeAdmin, getMeUser, initializeSocket } from "../../APIs";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
@@ -58,7 +58,7 @@ export const Notifier = () => {
         : roleActions.guest()
     ); // set the role
     dispatch(userDataActions.addUserData(user)); // set the user data
-    socket.current = io(process.env.SOCKET_URL as string);
+    socket.current = initializeSocket();
     socket.current.emit("new-user-add", user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))
@@ -73,7 +73,7 @@ export const Notifier = () => {
       user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
     ); // set the role
     dispatch(userDataActions.addUserData(user)); // set the user data
-    socket.current = io(process.env.SOCKET_URL as string);
+    socket.current = initializeSocket();
     socket.current.emit("new-user-add", user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))

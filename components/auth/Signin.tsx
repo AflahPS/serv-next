@@ -21,11 +21,10 @@ import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
-import { User } from "../../types";
 import { AxiosError } from "axios";
 import { notifierActions } from "../../store/notifier.slice";
-import { signinUser } from "../../APIs";
-import { Socket, io } from "socket.io-client";
+import { initializeSocket, signinUser } from "../../APIs";
+import { Socket } from "socket.io-client";
 import { socketActions } from "../../store/socket.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
@@ -53,7 +52,7 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
       data?.user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = io(process.env.SOCKET_URL as string);
+    socket.current = initializeSocket();
     socket.current.emit("new-user-add", data?.user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))
@@ -75,7 +74,7 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
         : roleActions.guest()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = io(process.env.SOCKET_URL as string);
+    socket.current = initializeSocket();
     socket.current.emit("new-user-add", data?.user?._id);
     socket.current.on("get-users", (activeUsers) =>
       dispatch(onlineUsersActions.setUsers(activeUsers))

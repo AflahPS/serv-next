@@ -5,6 +5,7 @@ import type { AppProps } from "next/app";
 import store from "../store";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { Notifier } from "../components";
+import Head from "next/head";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { palette } = createTheme();
@@ -23,13 +24,20 @@ export default function App({ Component, pageProps }: AppProps) {
   });
 
   return (
-    <ConfirmProvider>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <Component {...pageProps} />
-          <Notifier />
-        </Provider>
-      </ThemeProvider>
-    </ConfirmProvider>
+    <>
+      <Head>
+        <title>HireOne</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Find services available near you !" />
+      </Head>
+      <ConfirmProvider>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <Component {...pageProps} />
+            <Notifier />
+          </Provider>
+        </ThemeProvider>
+      </ConfirmProvider>
+    </>
   );
 }

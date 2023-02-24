@@ -1,6 +1,5 @@
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import {
-  Alert,
   Avatar,
   Badge,
   Box,
@@ -8,7 +7,6 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
-  Snackbar,
   Stack,
   TextFieldProps,
   Typography,
@@ -26,6 +24,7 @@ import {
 import {
   fbPhoneAuth,
   geoCords,
+  geoCordsAutoComplete,
   geoLocator,
   lengthChecker,
   nest,
@@ -38,6 +37,7 @@ import { StoreState } from "../../store";
 import { userDataActions } from "../../store/user-data.slice";
 import { User } from "../../types";
 import { notifierActions } from "../../store/notifier.slice";
+import { editPersonal } from "../../APIs";
 
 export const PersonalDetails: React.FC<{
   user: User;
@@ -75,36 +75,16 @@ export const PersonalDetails: React.FC<{
     }
   );
 
-  //----- ERROR, Success message Snackbar related properties
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = React.useState(false);
-  const [openSuccess, setOpenSuccess] = React.useState(false);
+  // //----- ERROR, Success message Snackbar related properties
+  // const [errMessage, setErrMessage] = useState<string>("");
+  // const [successMessage, setSuccessMessage] = useState<string>("");
+  // const [openError, setOpenError] = React.useState(false);
+  // const [openSuccess, setOpenSuccess] = React.useState(false);
 
-  const handleCloseError = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenError(false);
-  };
-
-  const handleCloseSuccess = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSuccess(false);
-  };
-
-  const errorSetter = (message: string) => {
-    setErrMessage(message);
-    setOpenError(true);
-  };
+  // const errorSetter = (message: string) => {
+  //   setErrMessage(message);
+  //   setOpenError(true);
+  // };
 
   //----- Profile Image updator function
   const handleMediaSelected = async (
@@ -257,6 +237,15 @@ export const PersonalDetails: React.FC<{
       setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
   };
 
+  const gatherSuggestions = async (place: string) => {
+    try {
+      const suggestions = await geoCordsAutoComplete(place);
+      console.log({ suggestions });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   // Verify all data before API call
 
   const verifiyData = () => {
@@ -309,27 +298,20 @@ export const PersonalDetails: React.FC<{
         return;
       }
       const dataV = verifiyData();
-
       if (!dataV) return;
-      const { data } = await nest({
-        method: "PATCH",
-        url: `/user/personal`,
-        data: dataV,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (!data || data?.status !== "success") {
-        errorSetter("Something went wrong while updating profile image !");
+      const updatedUser = await editPersonal(token, dataV);
+      if (!updatedUser) {
+        dispatch(
+          notifierActions.error("Something went wrong while updating profile !")
+        );
         return;
       }
-      dispatch(userDataActions.addUserData(data?.user));
-      setSuccessMessage("Successfully updated personal informations !");
-      setOpenSuccess(true);
+      dispatch(userDataActions.addUserData(updatedUser));
+      dispatch(notifierActions.success("Successfully updated profile !"));
       setIsEditable(false);
     } catch (err: any) {
-      errorSetter(
-        "Something went wrong while updating profile personal informations !"
+      dispatch(
+        notifierActions.error("Something went wrong while updating profile !")
       );
       console.log(err?.message);
     }
@@ -513,6 +495,7 @@ export const PersonalDetails: React.FC<{
             }}
             onBlur={() => {
               gatherPLace(place);
+              gatherSuggestions(place);
             }}
             value={place}
             InputProps={{
