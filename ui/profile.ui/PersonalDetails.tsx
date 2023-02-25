@@ -24,8 +24,7 @@ import {
   SaveAltOutlined,
 } from "@mui/icons-material";
 import {
-  fbPhoneAuth,
-  geoCords,
+  firebaseAuth,
   geoCordsAutoComplete,
   geoLocator,
   lengthChecker,
@@ -148,7 +147,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
         size: "invisible",
         callback: (response: any) => {},
       },
-      fbPhoneAuth
+      firebaseAuth
     );
   };
 
@@ -161,7 +160,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
 
       const appVerifier = window.recaptchaVerifier;
       console.log({ appVerifier });
-      signInWithPhoneNumber(fbPhoneAuth, phoneNum, appVerifier).then((res) => {
+      signInWithPhoneNumber(firebaseAuth, phoneNum, appVerifier).then((res) => {
         console.log({ res });
 
         window.confirmationResult = res;

@@ -23,7 +23,7 @@ import {
 import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
 import Link from "next/link";
 import {
-  fbPhoneAuth,
+  firebaseAuth,
   geoCords,
   geoCordsAutoComplete,
   geoLocator,
@@ -87,17 +87,6 @@ export const SignupVendor = () => {
   const router = useRouter();
 
   const [errMessage, setErrMessage] = useState("");
-  // const [open, setOpen] = React.useState(false);
-
-  // const handleClose = (
-  //   event?: React.SyntheticEvent | Event,
-  //   reason?: string
-  // ) => {
-  //   if (reason === "clickaway") {
-  //     return;
-  //   }
-  //   setOpen(false);
-  // };
 
   // Check if the entered number is valid
   const validatePhone = (num: string) => {
@@ -119,7 +108,7 @@ export const SignupVendor = () => {
         size: "invisible",
         callback: (response: any) => {},
       },
-      fbPhoneAuth
+      firebaseAuth
     );
   };
 
@@ -129,7 +118,7 @@ export const SignupVendor = () => {
       genRecaptcha();
       const phoneNum = `+91${num}`;
       const appVerifier = window.recaptchaVerifier;
-      signInWithPhoneNumber(fbPhoneAuth, phoneNum, appVerifier).then((res) => {
+      signInWithPhoneNumber(firebaseAuth, phoneNum, appVerifier).then((res) => {
         window.confirmationResult = res;
       });
     } catch (err) {

@@ -61,3 +61,28 @@ export const signinAdmin = async (dataV: any) => {
     throw err;
   }
 };
+
+interface SignProviderDataV {
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  phone: string | null;
+  provider: string;
+  idToken: string;
+}
+
+export const signinWithProvider = async (dataV: SignProviderDataV) => {
+  try {
+    const { data } = await nest({
+      url: "auth/signin/provider",
+      method: "POST",
+      data: dataV,
+    });
+    if (data?.status === "success") {
+      return data;
+    }
+    return false;
+  } catch (err) {
+    throw err;
+  }
+};

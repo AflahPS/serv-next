@@ -9,17 +9,12 @@ import {
 } from ".";
 import { Box } from "@mui/material";
 import { User } from "../../types";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { SavedPosts } from "./SavedPosts";
+import { useStore } from "../../customHooks";
 
 export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
-  const currentTab = useSelector(
-    (state: StoreState) => state.profileTab.currentTab
-  );
-  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const { currentUser, profileTab } = useStore();
   const isProfileOwner = user?._id?.toString() === currentUser?._id?.toString();
-  const userRole = user.role;
 
   return (
     <Box
@@ -33,16 +28,16 @@ export const ProfileComplete: React.FC<{ user: User }> = ({ user }) => {
       <ProfileHeader user={user} isProfileOwner={isProfileOwner} />
       <AboutProfile user={user} isProfileOwner={isProfileOwner} />
       <ProfileTabs />
-      {currentTab === "timeline" && (
+      {profileTab === "timeline" && (
         <Timeline user={user} isProfileOwner={isProfileOwner} />
       )}
-      {currentTab === "accountDetails" && (
+      {profileTab === "accountDetails" && (
         <AccountDetails user={user} isProfileOwner={isProfileOwner} />
       )}
-      {currentTab === "friends" && (
+      {profileTab === "friends" && (
         <Friends user={user} isProfileOwner={isProfileOwner} />
       )}
-      {isProfileOwner && currentTab === "savedPosts" && <SavedPosts />}
+      {isProfileOwner && profileTab === "savedPosts" && <SavedPosts />}
     </Box>
   );
 };

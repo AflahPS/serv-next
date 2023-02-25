@@ -7,6 +7,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
+  IconButton,
   TextFieldProps,
   Typography,
 } from "@mui/material";
@@ -15,7 +16,14 @@ import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
 import { COLOR } from "../../constants";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { lengthChecker, nest, validateEmail } from "../../utils";
+import {
+  facebookAuth,
+  firebaseAuth,
+  googleAuth,
+  lengthChecker,
+  nest,
+  validateEmail,
+} from "../../utils";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
@@ -23,10 +31,13 @@ import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { AxiosError } from "axios";
 import { notifierActions } from "../../store/notifier.slice";
-import { initializeSocket, signinUser } from "../../APIs";
+import { initializeSocket, signinUser, signinWithProvider } from "../../APIs";
 import { Socket } from "socket.io-client";
 import { socketActions } from "../../store/socket.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
+import { FacebookOutlined } from "@mui/icons-material";
+import GoogleIcon from "@mui/icons-material/Google";
+import { signInWithPopup } from "firebase/auth";
 
 interface Props {
   isAdmin?: boolean;
@@ -154,6 +165,57 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
     }
   };
 
+  const handleSigninWithProvider = async (provider: "google" | "facebook") => {
+    try {
+      const data =
+        provider === "google"
+          ? await signInWithPopup(firebaseAuth, googleAuth)
+          : await signInWithPopup(firebaseAuth, facebookAuth);
+      if (data?.user) {
+        const user = data.user;
+        const userData = {
+          name: user.displayName,
+          email: user.email,
+          image: user?.photoURL,
+          phone: user?.phoneNumber,
+          provider,
+          idToken: await user.getIdToken(),
+        };
+
+        const signedUser = await signinWithProvider(userData);
+        console.log(
+          "🚀 ~ file: Signin.tsx:187 ~ handleSigninWithProvider ~ signedUser:",
+          signedUser
+        );
+        if (signedUser.status === "success") {
+          userSigninSuccessDeclare(signedUser);
+          router.push("/");
+          return;
+        }
+        dispatch(
+          notifierActions.error("Authentication failed ! Please try again !")
+        );
+      }
+      dispatch(
+        notifierActions.error("Authentication failed, Please try again !")
+      );
+      // console.log({ googleData: data });
+    } catch (err: any) {
+      if (
+        (err?.message as string).includes(
+          "auth/account-exists-with-different-credential"
+        )
+      ) {
+        dispatch(
+          notifierActions.warning(
+            "Email associated with the account has already been registered !"
+          )
+        );
+      }
+      console.log(err.message);
+    }
+  };
+
   return (
     <Box
       // flex={2}
@@ -242,15 +304,25 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
                 {/* <Typography color={"red"} textAlign={"center"} variant="body2">
                   {errMessage}
                 </Typography> */}
-                {/* <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
+                <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
                   {"Sign in with   "}
-                  <IconButton>
+                  <IconButton
+                    color="info"
+                    onClick={() => {
+                      handleSigninWithProvider("google");
+                    }}
+                  >
                     <GoogleIcon />
                   </IconButton>
-                  <IconButton>
+                  <IconButton
+                    color="info"
+                    onClick={() => {
+                      handleSigninWithProvider("facebook");
+                    }}
+                  >
                     <FacebookOutlined />
                   </IconButton>
-                </Typography> */}
+                </Typography>
               </Box>
               <Divider color="grey" />
               <Box

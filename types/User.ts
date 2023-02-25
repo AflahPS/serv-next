@@ -14,6 +14,7 @@ export interface User extends MongoDoc {
   following?: string[];
   role: string;
   vendor?: Vendor;
+  authType: "google" | "facebook" | "email-password";
   isBanned?: boolean;
   savedPosts?: string[];
 }

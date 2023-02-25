@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/auth";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API,
@@ -12,4 +16,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const fbPhoneAuth = getAuth(app);
+export const firebaseAuth = getAuth(app);
+export const googleAuth = new GoogleAuthProvider();
+export const facebookAuth = new FacebookAuthProvider();
