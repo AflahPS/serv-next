@@ -10,3 +10,4 @@ export * from "./EditPost";
 export * from "./SearchList";
 export * from "./ActivitiesTabs";
 export * from "./AppointmentsTableUser";
+export * from "./LocationAutocomplete";

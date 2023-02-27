@@ -4,25 +4,25 @@ import { Comment } from "../../types";
 import { CommentCard } from "../../ui";
 import { nest } from "../../utils";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { getCommentsOfPost } from "../../APIs";
 
-export const Comments: React.FC<{
+interface Props {
   post: any;
   comments: any[];
   setComments: React.Dispatch<React.SetStateAction<any[]>>;
-}> = ({ post, comments, setComments }) => {
-  // const [comments, setComments] = useState([]);
+}
+
+export const Comments: React.FC<Props> = (props) => {
+  const { post, comments, setComments } = props;
 
   const [listParent] = useAutoAnimate();
 
   useEffect(() => {
     async function fetcher() {
       try {
-        const { data } = await nest({
-          url: `comment/post/${post}`,
-          method: "GET",
-        });
-        if (data.status === "success") {
-          setComments(data?.comments);
+        const commentsFetched = await getCommentsOfPost(post);
+        if (commentsFetched) {
+          setComments(commentsFetched);
         }
       } catch (err) {
         console.log(err);
@@ -48,7 +48,7 @@ export const Comments: React.FC<{
       }}
     >
       {Array.isArray(comments) &&
-        comments.length &&
+        comments.length > 0 &&
         comments.map((comment: Comment) => (
           <CommentCard
             comment={comment}

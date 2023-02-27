@@ -155,6 +155,7 @@ export const SideNav: React.FC<{ SideNavLinks: SideNavLink[] }> = ({
         </Box>
       </Box>
 
+      {/* Mobile Menu */}
       <Paper
         sx={{
           width: "100%",
@@ -173,15 +174,11 @@ export const SideNav: React.FC<{ SideNavLinks: SideNavLink[] }> = ({
             width: "100%",
             overflowX: "auto",
           }}
-          // showLabels
-          // value={value}
-          // onChange={(event, newValue) => {
-          //   setValue(newValue);
-          // }}
         >
           {SIDE_NAV_LINKS.map((link) => {
             if (!link.allowedRoles.includes(role)) return;
             const Icon = link.icon;
+            if (!link.mobile) return;
             return (
               <BottomNavigationAction
                 key={link.title}

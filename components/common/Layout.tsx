@@ -21,6 +21,7 @@ export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
 
   const role = useSelector((state: StoreState) => state.role.currentUser);
 
+  // Selecting sidenavLinks according to user/admin layout settings
   let sideLinks;
   if (!SideNavLinks) {
     sideLinks = SIDE_NAV_LINKS;
@@ -38,7 +39,7 @@ export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
         marginY={1}
       >
         <SideNav SideNavLinks={sideLinks} />
-        <Box flex={3.5} paddingY={2}>
+        <Box paddingX={0} flex={3.5} paddingY={2}>
           {isLoading && (
             <Card
               sx={{

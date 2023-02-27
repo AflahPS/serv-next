@@ -29,10 +29,7 @@ import { ChatMessageComp } from "./ChatMessage";
 import dayjs from "dayjs";
 import { chatActions } from "../../store/chatId.slice";
 import { useConfirm } from "material-ui-confirm";
-import { chatListActions } from "../../store/chatList.slice";
 import { AxiosError } from "axios";
-import { Socket, io } from "socket.io-client";
-import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
@@ -92,15 +89,6 @@ export const ChatComp = () => {
   // Get chat data from server when mounting
   useEffect(() => {
     getAndSetChat();
-
-    // return () => {
-    //   dispatch(chatActions.removeChat());
-    //   if (messages.length === 0) {
-    //     deleteChatIfNoMessages(chat);
-    //   }
-    //   setSelectedChat(undefined);
-    //   setMessages([]);
-    // };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -139,16 +127,6 @@ export const ChatComp = () => {
     }
   };
 
-  // Adds current user as new user at socket server
-  // Also gets current users's online friends
-  // useEffect(() => {
-  //   socketCurrent?.on("get-users", (users: any[]) => {
-  //     dispatch(onlineUsersActions.setUsers(users));
-  //   });
-  //   console.log({ current: socketCurrent });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [currentUser]);
-
   // send to socket
   useEffect(() => {
     if (sendMessageIo !== null) {
@@ -177,11 +155,12 @@ export const ChatComp = () => {
   }, [messages]);
 
   return (
-    <Stack height={"85vh"}>
+    <Stack height={"85vh"} width={"100%"}>
       {!chat && (
         <Box
           display={"flex"}
           height={"100%"}
+          width={"100%"}
           justifyContent={"center"}
           alignItems={"center"}
         >
@@ -190,9 +169,88 @@ export const ChatComp = () => {
       )}
       {chat && (
         <>
+          {/* Laptop */}
           <Box
             bgcolor={COLOR["H1d-ui-bg"]}
             display={"flex"}
+            flex={2.5}
+            paddingX={3}
+            justifyContent={"space-between"}
+          >
+            {/* HEAD-LEFT */}
+            <Box display={"flex"} gap={1} alignItems={"center"}>
+              <Avatar src={getFriendObjectFromChat()?.image}>
+                {getFriendObjectFromChat()?.name}
+              </Avatar>
+              <Typography variant="h6">
+                {getFriendObjectFromChat()?.name}
+              </Typography>
+            </Box>
+
+            {/* HEAD-RIGHT */}
+            <Box display={"flex"} gap={1}>
+              <IconButton disableRipple onClick={handleDeleteChat}>
+                <DeleteOutlined />
+              </IconButton>
+              <IconButton disableRipple>
+                <CallOutlined />
+              </IconButton>
+              <IconButton disableRipple>
+                <VideoCallOutlined />
+              </IconButton>
+              <IconButton disableRipple>
+                <MoreVertOutlined />
+              </IconButton>
+            </Box>
+          </Box>
+
+          <Box
+            bgcolor={COLOR["H1d-ui-secondary"]}
+            flex={15}
+            display={{ xs: "none", md: "flex" }}
+            padding={2}
+            flexDirection={"column"}
+            gap={1}
+            overflow={"auto"}
+          >
+            {messages.map((msg) => (
+              <ChatMessageComp
+                refer={scroll}
+                key={msg._id}
+                isAuthor={checkIfAuthor(msg.author)}
+                text={msg.text}
+                date={dayjs(msg.createdAt).format("LLL")}
+              />
+            ))}
+          </Box>
+
+          <Box
+            bgcolor={COLOR["H1d-ui-bg"]}
+            gap={1}
+            padding={1}
+            flex={2}
+            display={"flex"}
+          >
+            <TextField
+              placeholder="Write a message here.."
+              fullWidth
+              variant="outlined"
+              value={newMessage}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+              }}
+            />
+            <Button onClick={handleSend} variant="outlined">
+              <Typography variant="button">Send</Typography>
+              <SendOutlined />
+            </Button>
+          </Box>
+
+          {/* Mobile */}
+
+          <Box
+            bgcolor={COLOR["H1d-ui-bg"]}
+            display={{ xs: "flex", md: "none" }}
             flex={2.5}
             paddingX={3}
             justifyContent={"space-between"}

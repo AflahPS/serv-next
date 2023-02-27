@@ -22,16 +22,17 @@ import { MakeAppoModal } from "./MakeAppoModal";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import Link from "next/link";
+import { COLOR } from "../../constants";
 
-interface Props {
+interface PropsStat {
   header: string;
   value: string;
 }
 
-const VendorCardStat: React.FC<Props> = ({ header, value }) => {
+const VendorCardStat: React.FC<PropsStat> = ({ header, value }) => {
   return (
     <Stack>
-      <Typography align="center" variant="h6" fontSize={"18px"}>
+      <Typography align="center" variant="h6" fontSize={"16px"}>
         {header}
       </Typography>
       <Typography align="center" variant="caption">
@@ -41,7 +42,11 @@ const VendorCardStat: React.FC<Props> = ({ header, value }) => {
   );
 };
 
-export const VendorCard: React.FC<{ user: User }> = ({ user }) => {
+interface Props {
+  user: User & { distance?: number };
+}
+
+export const VendorCard: React.FC<Props> = ({ user }) => {
   const router = useRouter();
 
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
@@ -51,6 +56,15 @@ export const VendorCard: React.FC<{ user: User }> = ({ user }) => {
   const handleBook = () => {
     setOpenModal(true);
   };
+
+  const followers = `${user?.followers?.length || 0} +`;
+  const experience = `${user?.vendor?.experience || "-"} Yr +`;
+  const projects = `${user?.vendor?.projects?.length || 0} +`;
+  const employees = `${user?.vendor?.employees?.length || 1} +`;
+  const posts = `1 +`;
+  const distance = isNaN(user?.distance!)
+    ? `- km away`
+    : `${Math.floor(user?.distance! / 1000)} km away`;
 
   return (
     <Card
@@ -67,6 +81,8 @@ export const VendorCard: React.FC<{ user: User }> = ({ user }) => {
               "linear-gradient(180deg, rgba(10,113,115,.7) 0%, rgba(52,50,46,0) 28%)",
           }}
         >
+          {/* Avatar and titles */}
+
           <Stack alignItems={"center"} marginBottom={2}>
             <IconButton
               onClick={() => {
@@ -96,51 +112,38 @@ export const VendorCard: React.FC<{ user: User }> = ({ user }) => {
             >
               {user.place}
             </Typography>
+            {user?.distance && (
+              <Typography
+                sx={{ margin: 0 }}
+                gutterBottom
+                variant="subtitle1"
+                component="p"
+                color={COLOR["H1d-ui-primary"]}
+              >
+                {distance}
+              </Typography>
+            )}
           </Stack>
-          {/* <Box
-            // maxHeight={"120px"}
-            // sx={{
-            //   overflowWrap: "break-word",
-            //   wordWrap: "break-word",
-            //   whiteSpace: "pre-wrap",
-            //   textOverflow: "ellipsis",
-            // }}
-            paddingY={1}
-          >
-            <Typography variant="body2" color="text.secondary">
-              {`${vendor.about.slice(0, 130)}...`}
-            </Typography>
-          </Box> */}
+
+          {/* Stats */}
+
           <Stack gap={1}>
             <Box
               width={"100%"}
               display={"flex"}
               justifyContent={"space-around"}
             >
-              <VendorCardStat
-                header={`${user?.followers?.length} +`}
-                value="Follows"
-              />
-              <VendorCardStat
-                header={`${user?.vendor?.experience} Yr +`}
-                value="Experience"
-              />
-              <VendorCardStat
-                header={`${user?.vendor?.projects?.length} +`}
-                value="Projects"
-              />
+              <VendorCardStat header={followers} value="Follows" />
+              <VendorCardStat header={experience} value="Experience" />
+              <VendorCardStat header={projects} value="Projects" />
             </Box>
             <Box
               width={"100%"}
               display={"flex"}
               justifyContent={"space-around"}
             >
-              <VendorCardStat
-                header={`${user?.vendor?.employees?.length} +`}
-                value="Employees"
-              />
-              <VendorCardStat header="1 +" value="Posts" />
-              {/* <VendorCardStat header="80+" value="Posts" /> */}
+              <VendorCardStat header={employees} value="Employees" />
+              <VendorCardStat header={posts} value="Posts" />
             </Box>
             <Box width={"100%"}></Box>
           </Stack>

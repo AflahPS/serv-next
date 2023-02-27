@@ -183,10 +183,7 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
         };
 
         const signedUser = await signinWithProvider(userData);
-        console.log(
-          "🚀 ~ file: Signin.tsx:187 ~ handleSigninWithProvider ~ signedUser:",
-          signedUser
-        );
+
         if (signedUser.status === "success") {
           userSigninSuccessDeclare(signedUser);
           router.push("/");
@@ -218,7 +215,6 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
 
   return (
     <Box
-      // flex={2}
       sx={{ flex: { xs: 1, md: 2 } }}
       bgcolor="black"
       height={"100vh"}

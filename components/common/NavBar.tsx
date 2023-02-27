@@ -27,7 +27,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { COLOR, USERS } from "../../constants";
+import { ANCHOR_MENU, COLOR, USERS } from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import Link from "next/link";
@@ -81,8 +81,9 @@ export const NavBar = () => {
     (state: StoreState) => state.socket.current
   );
 
-  const handleMenuClick = () => {
+  const handleMenuClick = (route: string) => {
     setOpenAnchor(false);
+    router.push(route);
   };
 
   const handleSignout = () => {
@@ -219,7 +220,7 @@ export const NavBar = () => {
           <UserBox onClick={(e) => setOpenAnchor(true)}>
             <Avatar
               sx={{ width: "32px", height: "32px" }}
-              // src="https://images.pexels.com/photos/2709718/pexels-photo-2709718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src={currentUser?.image || currentUser.name}
             />
           </UserBox>
         )}
@@ -239,42 +240,21 @@ export const NavBar = () => {
           horizontal: "right",
         }}
       >
-        <MenuItem
-          onClick={handleMenuClick}
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <HomeOutlined />
-          <Typography variant="h6">Home</Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={handleMenuClick}
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <VerifiedUserOutlined />
-          <Typography variant="h6">Profile</Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={handleMenuClick}
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <PersonAddAlt1Outlined />
-          <Typography variant="h6">Requests</Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={handleMenuClick}
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <Notifications />
-          <Typography variant="h6">Notifications</Typography>
-        </MenuItem>
-
-        <MenuItem
-          onClick={handleSignout}
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <ExitToAppOutlined />
-          <Typography variant="h6">Sign Out</Typography>
-        </MenuItem>
+        {ANCHOR_MENU.map((item) => {
+          const Icon = item.icon;
+          return (
+            <MenuItem
+              key={item.title}
+              onClick={() => {
+                item.route ? handleMenuClick(item.route) : handleSignout();
+              }}
+              sx={{ display: "flex", gap: 2, justifyContent: "space-between" }}
+            >
+              <Typography variant="subtitle1">{item.title}</Typography>
+              <Icon />
+            </MenuItem>
+          );
+        })}
       </Menu>
     </AppBar>
   );

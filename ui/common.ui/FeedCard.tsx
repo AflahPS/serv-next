@@ -37,7 +37,14 @@ import { Like, Post } from "../../types";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { useConfirm } from "material-ui-confirm";
-import { addToSavedPost, deletePost, removeFromSavedPost } from "../../APIs";
+import {
+  addComment,
+  addToSavedPost,
+  deletePost,
+  likePost,
+  removeFromSavedPost,
+  reportPost,
+} from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
 import { useNotification } from "../../customHooks";
 import { userDataActions } from "../../store/user-data.slice";
@@ -60,10 +67,9 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 interface Props {
   post: Post;
-  maxWidth?: string;
 }
 
-export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
+export const FeedCard: React.FC<Props> = ({ post }) => {
   const router = useRouter();
   const muiConfirm = useConfirm();
   const dispatch = useDispatch();
@@ -118,27 +124,14 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
     }
   }, [post, user]);
 
-  // Create a like on the DB
-  const likerFunction = async (action: boolean) => {
-    try {
-      const { data } = await nest({
-        url: `/post/${action ? "like" : "dislike"}/${post._id}`,
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      return Boolean(data?.status === "success");
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  };
-
   // If like is created on the DB, Change UI according to it
   const handleLikeClick = async () => {
     try {
-      const done = await likerFunction(!isChecked);
+      const done = await likePost(
+        !isChecked ? "like" : "dislike",
+        post._id,
+        token
+      );
       if (done) {
         setIsChecked((prev) => !prev);
         setLikeCount((prev) => {
@@ -164,20 +157,15 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
       await muiConfirm({
         description: "Are you sure you want to report this post?",
       });
-      const { data } = await nest({
-        method: "PATCH",
-        url: `post/report/${post._id}`,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (data.status === "success")
+      const isSuccess = await reportPost(post._id, token);
+      if (isSuccess) {
         dispatch(notifierActions.success("Reported successfully !"));
-      setNotification({
-        content: `${user.name} has reported your post !`,
-        type: "warning",
-        receiver: post.owner._id as string,
-      });
+        setNotification({
+          content: `${user.name} has reported your post !`,
+          type: "warning",
+          receiver: post.owner._id as string,
+        });
+      }
     } catch (err: any) {
       console.error(err?.message);
       dispatch(notifierActions.error("Something went wrong while reporting !"));
@@ -263,17 +251,10 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
       content: newComment,
       post: post._id,
     };
-    const { data } = await nest({
-      url: "/comment",
-      method: "POST",
-      data: dataV,
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
-    if (data.status === "success") {
+    const added = await addComment(dataV, token);
+    if (added) {
       setNewComment("");
-      setComments((prev) => [data?.comment, ...prev]);
+      setComments((prev) => [added?.comment, ...prev]);
       dispatch(
         notifierActions.success("You have successfully added a new comment !")
       );
@@ -302,8 +283,8 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
         <Card
           sx={{
             backgroundColor: COLOR["H1d-ui-bg"],
-            maxWidth: maxWidth || "100%",
             marginX: "auto",
+            width: "100%",
             marginBottom: "16px",
             boxShadow: 8,
             borderRadius: 3,
@@ -316,7 +297,7 @@ export const FeedCard: React.FC<Props> = ({ post, maxWidth }) => {
         <Card
           sx={{
             backgroundColor: COLOR["H1d-ui-bg"],
-            maxWidth: maxWidth || "100%",
+            width: "100%",
             marginX: "auto",
             marginBottom: "16px",
             boxShadow: 8,

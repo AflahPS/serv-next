@@ -164,17 +164,20 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         sx={{
           boxShadow: 8,
           borderRadius: 3,
-          // maxWidth: "80%",
-          // width: "100%",
+          // maxWidth: "100%",
+          // ...props.extraSx,
+          width: "100%",
           marginX: "auto",
-          paddingBottom: 3,
+          paddingBottom: 1,
           marginBottom: "16px",
           backgroundColor: COLOR["H1d-ui-bg"],
-          ...props.extraSx,
         }}
       >
         <CardHeader
-          titleTypographyProps={{ textAlign: "center" }}
+          titleTypographyProps={{
+            textAlign: "center",
+            fontSize: { xs: "16px", md: "20px", xl: "24px" },
+          }}
           title="Create Post"
         />
         <Divider variant="fullWidth" />
@@ -183,10 +186,10 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
           flexDirection={"row"}
           justifyContent={"space-around"}
           alignItems={"center"}
-          // width={"100%"}
+          width={"100%"}
           height={"35%"}
           paddingX={4}
-          paddingY={2}
+          paddingY={{ xs: 1, md: 2 }}
         >
           <Box flex={1} sx={{ display: { xs: "none", md: "block" } }}>
             <Avatar
@@ -245,7 +248,8 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         </Stack>
         <Divider variant="middle" sx={{ color: COLOR["H1d-font-primary"] }} />
         <Box
-          padding={3}
+          paddingY={{ xs: 1, sm: 2, md: 3 }}
+          paddingX={3}
           // marginLeft={"auto"}
           // marginRight={5}
           display={"flex"}
@@ -278,7 +282,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         <Stack sx={{ flexDirection: { xs: "column", md: "row" } }} paddingX={3}>
           <Stack
             sx={{ flexDirection: { xs: "column", md: "row" } }}
-            gap={3}
+            gap={{ xs: 1, md: 2 }}
             justifyContent={"space-around"}
             flex={1}
           >
@@ -323,7 +327,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
             display={"flex"}
             justifyContent={"end"}
             marginRight={2}
-            sx={{ marginY: { xs: 3, md: 0 } }}
+            sx={{ marginY: { xs: 1, md: 0 } }}
           >
             <LinkButton
               // style={{ backgroundColor: COLOR["H1d-ui-secondary"] }}
@@ -343,21 +347,17 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
             </LinkButton>
           </Box>
         </Stack>
-        <Typography
-          color={"red"}
-          marginTop={2}
-          textAlign={"center"}
-          variant="body2"
-        >
-          {errMessage}
-        </Typography>
+        {errMessage && (
+          <Typography
+            color={"red"}
+            marginTop={{ xs: 1, md: 2 }}
+            textAlign={"center"}
+            variant="body2"
+          >
+            {errMessage}
+          </Typography>
+        )}
       </Card>
-
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfully created new post !
-        </Alert>
-      </Snackbar>
     </>
   );
 };

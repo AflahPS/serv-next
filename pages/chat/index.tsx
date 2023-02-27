@@ -21,7 +21,7 @@ const Chat = () => {
       <Card
         sx={{
           backgroundColor: COLOR["H1d-ui-bg"],
-          width: "85%",
+          width: "90%",
           marginX: "auto",
           marginBottom: "16px",
           boxShadow: 8,

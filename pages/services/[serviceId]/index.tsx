@@ -1,13 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { nest } from "../../../utils";
 import { Card, Grid } from "@mui/material";
 import { Layout } from "../../../components/common";
 import { COLOR } from "../../../constants";
-import { TabHeader, VendorCard } from "../../../ui";
-import { User, Vendor } from "../../../types";
+import { LocationAutocomplete, TabHeader, VendorCard } from "../../../ui";
+import { User } from "../../../types";
 import { useRouter } from "next/router";
+import { getVendorsByServiceId } from "../../../APIs";
 
-const ServiceId: React.FC<{ users: User[] }> = ({ users }) => {
+interface LocationObject {
+  type: "Point";
+  coordinates: number[];
+}
+
+const initialOption: LocationObject = {
+  type: "Point",
+  coordinates: [0, 0],
+};
+
+const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
+  users,
+  serviceId,
+}) => {
+  const [userArr, setUserArr] = useState<User[]>([]);
+
+  const [location, setLocation] = useState<LocationObject>(initialOption);
+
+  const getAndSetVendors = async (location: LocationObject) => {
+    try {
+      if (!location.coordinates[0]) return;
+      const lnglat = `${location.coordinates[0]},${location.coordinates[1]}`;
+      const vendors = await getVendorsByServiceId(serviceId, lnglat);
+      console.log(
+        "🚀 ~ file: index.tsx:34 ~ getAndSetVendors ~ vendors:",
+        vendors
+      );
+      if (!vendors?.users) return;
+      setUserArr(vendors.users);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    getAndSetVendors(location);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, serviceId]);
+
+  useEffect(() => {
+    setUserArr(users);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const router = useRouter();
   return (
     <Layout>
@@ -23,10 +66,12 @@ const ServiceId: React.FC<{ users: User[] }> = ({ users }) => {
       >
         <TabHeader header="Vendors" />
 
+        <LocationAutocomplete setLocation={setLocation} />
+
         <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
-          {Array.isArray(users) &&
-            users.length > 0 &&
-            users.map((user, index) => (
+          {Array.isArray(userArr) &&
+            userArr.length > 0 &&
+            userArr.map((user, index) => (
               <Grid
                 item
                 xs={12}
@@ -66,9 +111,13 @@ export async function getServerSideProps(context: any) {
   try {
     const serviceId = context.params.serviceId;
     const vendorData = await getVendors(serviceId);
+    const ret = {
+      users: vendorData?.users,
+      serviceId,
+    };
 
     return {
-      props: vendorData,
+      props: ret,
     };
   } catch (err: any) {
     console.log(err.message);
