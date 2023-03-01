@@ -4,6 +4,7 @@ import {
   VideoCallOutlined,
   MoreVertOutlined,
   SendOutlined,
+  WestOutlined,
 } from "@mui/icons-material";
 import {
   Stack,
@@ -16,8 +17,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { COLOR } from "../../constants";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { Chat, ChatMessage } from "../../types";
 import {
   deleteChat,
@@ -30,32 +30,36 @@ import dayjs from "dayjs";
 import { chatActions } from "../../store/chatId.slice";
 import { useConfirm } from "material-ui-confirm";
 import { AxiosError } from "axios";
+import { chatListActions } from "../../store/chatList.slice";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useStore } from "../../customHooks";
+import { SearchComp } from "../common";
+import { ChatLi, TabHeader } from "../../ui";
+import { useRouter } from "next/router";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const confirmer = useConfirm();
-  const socketCurrent = useSelector(
-    (state: StoreState) => state.socket.current
-  );
   const scroll = useRef<HTMLDivElement>();
+  const [animeRef] = useAutoAnimate();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [selectedChat, setSelectedChat] = useState<Chat>();
+  const [currentChat, setCurrentChat] = useState<Chat>();
 
   const [sendMessageIo, setSendMessageIo] = useState<any>(null);
   const [recieveMessageIo, setRecieveMessageIo] = useState<any>(null);
 
-  const chat = useSelector((state: StoreState) => state.chat.chatId);
-  const currentUser = useSelector((state: StoreState) => state.user.data);
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { selectedChat, currentUser, token, socketCurrent, chatList } =
+    useStore();
 
   const getAndSetChat = async () => {
     try {
-      if (!chat) return;
-      const chatDetails = await getSingleChat(chat, token);
-      setSelectedChat(chatDetails?.chat);
-      const chatData = await getMessagesOfChat(chat, token);
+      if (!selectedChat) return;
+      const chatDetails = await getSingleChat(selectedChat, token);
+      setCurrentChat(chatDetails?.chat);
+      const chatData = await getMessagesOfChat(selectedChat, token);
       setMessages(chatData?.messages);
     } catch (err) {
       setMessages([]);
@@ -66,25 +70,11 @@ export const ChatComp = () => {
     }
   };
 
-  // const deleteChatIfNoMessages = async (chatId: string) => {
-  //   try {
-  //     const isDeleted = await deleteChat(chatId, token);
-  //     if (isDeleted) {
-  //       dispatch(chatListActions.removeFromChatList(chatId));
-  //     }
-  //   } catch (err) {
-  //     if (err instanceof AxiosError) {
-  //       console.log(err?.response?.data?.message);
-  //     }
-  //     console.log(err);
-  //   }
-  // };
-
   const checkIfAuthor = (author: string) => author === currentUser._id;
   const getFriendObjectFromChat = () =>
-    selectedChat?.user1._id === currentUser._id
-      ? selectedChat?.user2
-      : selectedChat?.user1;
+    currentChat?.user1._id === currentUser._id
+      ? currentChat?.user2
+      : currentChat?.user1;
 
   // Get chat data from server when mounting
   useEffect(() => {
@@ -96,11 +86,11 @@ export const ChatComp = () => {
   useEffect(() => {
     getAndSetChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat]);
+  }, [selectedChat]);
 
   const handleSend = async () => {
     try {
-      const addedMessage = await sendMessage(chat, token, newMessage);
+      const addedMessage = await sendMessage(selectedChat, token, newMessage);
       setMessages((prev) => [...prev, addedMessage?.message]);
       setNewMessage("");
 
@@ -113,18 +103,22 @@ export const ChatComp = () => {
 
   const handleDeleteChat = async () => {
     try {
-      const isConfirm = await confirmer({
+      await confirmer({
         description: "Do you want to delete this chat?",
       });
-      console.log(isConfirm);
-
-      const isDeleted = await deleteChat(chat, token);
+      const isDeleted = await deleteChat(selectedChat, token);
       if (isDeleted) {
         dispatch(chatActions.removeChat());
+        dispatch(chatListActions.removeFromChatList(selectedChat));
       }
     } catch (err) {
+      if (err === undefined) return;
       console.log(err);
     }
+  };
+
+  const handleBackClick = () => {
+    dispatch(chatActions.removeChat());
   };
 
   // send to socket
@@ -144,7 +138,7 @@ export const ChatComp = () => {
   }, []);
 
   useEffect(() => {
-    if (recieveMessageIo !== null && recieveMessageIo.chat === chat) {
+    if (recieveMessageIo !== null && recieveMessageIo.chat === selectedChat) {
       setMessages((prev) => [...prev, recieveMessageIo]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,18 +150,75 @@ export const ChatComp = () => {
 
   return (
     <Stack height={"85vh"} width={"100%"}>
-      {!chat && (
-        <Box
-          display={"flex"}
-          height={"100%"}
-          width={"100%"}
-          justifyContent={"center"}
-          alignItems={"center"}
-        >
-          <Typography variant="h5">{`Please select a chat !`}</Typography>
-        </Box>
+      {!selectedChat && (
+        <>
+          <Box
+            display={{ xs: "none", lg: "flex" }}
+            height={"100%"}
+            width={"100%"}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
+            <Typography variant="h5">{`Please select a chat !`}</Typography>
+          </Box>
+
+          <Box
+            bgcolor={"transparent"}
+            maxHeight={"90vh"}
+            flex={1}
+            position="sticky"
+            top={72}
+            sx={{
+              display: { xs: "block", lg: "none" },
+              boxShadow: 8,
+              borderRadius: 3,
+            }}
+          >
+            <TabHeader invertColor header="Chats" />
+            <Box
+              overflow={"auto"}
+              bgcolor={"black"}
+              height={"100%"}
+              width={"100%"}
+              p={1}
+              ref={animeRef}
+              sx={{
+                display: { xs: "block", lg: "none" },
+                boxShadow: 8,
+                borderRadius: 3,
+              }}
+            >
+              {chatList.length > 0 &&
+                chatList.map((chat) => <ChatLi key={chat._id} Chat={chat} />)}
+              {chatList.length === 0 && (
+                <Stack
+                  marginY={2}
+                  paddingX={1}
+                  gap={2}
+                  color={COLOR["H1d-font-primary"]}
+                  sx={{
+                    maxWidth: "260px",
+                    backgroundColor: "transparent",
+                  }}
+                >
+                  <Typography
+                    color={COLOR["H1d-ui-primary"]}
+                    align="center"
+                    variant="h6"
+                  >
+                    Connect with...
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    It seems like you have not sent a message yet. Search and
+                    find someone to chat...
+                  </Typography>
+                </Stack>
+              )}
+            </Box>
+          </Box>
+        </>
       )}
-      {chat && (
+      {selectedChat && (
         <>
           {/* Laptop */}
           <Box
@@ -179,6 +230,12 @@ export const ChatComp = () => {
           >
             {/* HEAD-LEFT */}
             <Box display={"flex"} gap={1} alignItems={"center"}>
+              <IconButton
+                sx={{ display: { xs: "block", lg: "none" } }}
+                onClick={handleBackClick}
+              >
+                <WestOutlined />
+              </IconButton>
               <Avatar src={getFriendObjectFromChat()?.image}>
                 {getFriendObjectFromChat()?.name}
               </Avatar>
@@ -207,7 +264,7 @@ export const ChatComp = () => {
           <Box
             bgcolor={COLOR["H1d-ui-secondary"]}
             flex={15}
-            display={{ xs: "none", md: "flex" }}
+            display={"flex"}
             padding={2}
             flexDirection={"column"}
             gap={1}
@@ -246,8 +303,7 @@ export const ChatComp = () => {
             </Button>
           </Box>
 
-          {/* Mobile */}
-
+          {/*
           <Box
             bgcolor={COLOR["H1d-ui-bg"]}
             display={{ xs: "flex", md: "none" }}
@@ -255,7 +311,7 @@ export const ChatComp = () => {
             paddingX={3}
             justifyContent={"space-between"}
           >
-            {/* HEAD-LEFT */}
+       
             <Box display={"flex"} gap={1} alignItems={"center"}>
               <Avatar src={getFriendObjectFromChat()?.image}>
                 {getFriendObjectFromChat()?.name}
@@ -265,7 +321,7 @@ export const ChatComp = () => {
               </Typography>
             </Box>
 
-            {/* HEAD-RIGHT */}
+        
             <Box display={"flex"} gap={1}>
               <IconButton disableRipple onClick={handleDeleteChat}>
                 <DeleteOutlined />
@@ -322,7 +378,7 @@ export const ChatComp = () => {
               <Typography variant="button">Send</Typography>
               <SendOutlined />
             </Button>
-          </Box>
+          </Box> */}
         </>
       )}
     </Stack>

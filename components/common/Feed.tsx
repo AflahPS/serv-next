@@ -3,14 +3,16 @@ import { FeedCard } from "../../ui";
 import { Post } from "../../types/Posts";
 import { useSelector } from "react-redux";
 import { StoreState } from "../../store";
-import { getPosts, getPostsOfUser } from "../../APIs";
-import { axiosThrowerByMessage } from "../../utils";
+import { getPosts, getPostsOfUser, getSavedPost } from "../../APIs";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AxiosError } from "axios";
 import { LinearProgress, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
 
-export const Feed: React.FC<{ user?: string }> = ({ user }) => {
+export const Feed: React.FC<{ user?: string; savedPost?: boolean }> = ({
+  user,
+  savedPost,
+}) => {
   const role = useSelector((state: StoreState) => state.role.currentUser);
   const token = useSelector((state: StoreState) => state.jwt.token);
 
@@ -24,6 +26,8 @@ export const Feed: React.FC<{ user?: string }> = ({ user }) => {
       setPageNum(newPageNum);
       const data = user
         ? await getPostsOfUser(user, newPageNum)
+        : savedPost
+        ? await getSavedPost(token, pageNum)
         : await getPosts(token, newPageNum);
       if (data?.posts?.length > 0) {
         const newData = posts.concat(data.posts);
@@ -45,6 +49,7 @@ export const Feed: React.FC<{ user?: string }> = ({ user }) => {
 
   useEffect(() => {
     getAndSetPosts();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

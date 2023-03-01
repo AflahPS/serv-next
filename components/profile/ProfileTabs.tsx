@@ -46,12 +46,13 @@ export const ProfileTabs = () => {
 
   return (
     <Box
-      height={42}
+      height={{ xs: 32, sm: 34, md: 38, lg: 42 }}
       display={"flex"}
       justifyContent={"space-evenly"}
       alignItems={"center"}
       bgcolor="black"
       sx={{ borderRadius: 3 }}
+      marginBottom={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
     >
       {PROFILE_TABS.map((tab, ind) => (
         <React.Fragment key={ind}>

@@ -44,17 +44,11 @@ export const SIDE_NAV_LINKS = [
     allowedRoles: ["user", "vendor", "admin"],
     mobile: false,
   },
-  // {
-  //   title: "Calendar",
-  //   icon: CalendarMonthOutlined,
-  //   href: "/calendar",
-  //   allowedRoles: ["vendor","admin"],
-  // },
   {
     title: "My Activities",
     icon: AddTaskOutlined,
     href: "/dashboard/user",
-    allowedRoles: ["user", "vendor"],
+    allowedRoles: ["user", "vendor", "admin"],
     mobile: true,
   },
   {

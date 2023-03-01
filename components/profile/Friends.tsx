@@ -97,7 +97,7 @@ export const Friends: React.FC<{
 
   return (
     <Box sx={{ boxShadow: 8, borderRadius: 3 }}>
-      <TabHeader header="Friends" />
+      <TabHeader invertColor header="Friends" />
       <SearchContainer marginBottom={3}>
         <InputBase fullWidth placeholder="Search friends.." />
       </SearchContainer>

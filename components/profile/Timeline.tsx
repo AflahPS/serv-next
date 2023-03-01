@@ -1,12 +1,8 @@
 import { Box } from "@mui/system";
-import React, { useState } from "react";
-import useSWR from "swr";
-import { CreatePost, LoadingCard, TabHeader } from "../../ui";
+import React from "react";
+import { CreatePost, TabHeader } from "../../ui";
 import { Feed } from "../common";
-import { Snackbar, Alert, Typography } from "@mui/material";
-import { axiosThrowerByMessage, nest } from "../../utils";
 import { User } from "../../types";
-import { COLOR } from "../../constants";
 
 export const Timeline: React.FC<{
   user: User;
@@ -17,10 +13,9 @@ export const Timeline: React.FC<{
       sx={{
         boxShadow: 8,
         borderRadius: 3,
-        // marginY: 2,
       }}
     >
-      <TabHeader header="Timeline" />
+      <TabHeader invertColor header="Timeline" />
       {isProfileOwner && <CreatePost />}
 
       <Feed user={user._id} />

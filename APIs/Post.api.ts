@@ -109,17 +109,21 @@ export async function removeFromSavedPost(token: string, postId: string) {
   }
 }
 
-export async function getSavedPost(token: string) {
+export async function getSavedPost(
+  token: string,
+  page: number,
+  limit?: number
+) {
   try {
     const { data } = await nest({
       method: "GET",
-      url: `/user/save-post`,
+      url: `/post/saved/page/${page || 1}/limit/${limit || 10}`,
       headers: {
         Authorization: "Bearer " + token,
       },
     });
     if (data.status === "success") {
-      return data?.user?.savedPosts;
+      return data;
     }
     return false;
   } catch (err) {

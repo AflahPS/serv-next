@@ -27,6 +27,7 @@ export const AboutProfile: React.FC<Props> = ({ user, isProfileOwner }) => {
     >
       {user.role === "user" && isProfileOwner && (
         <Button
+          variant="outlined"
           sx={{ borderRadius: 3 }}
           onClick={() => {
             router.push("/auth/signup/vendor");

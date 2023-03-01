@@ -39,7 +39,7 @@ export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
         marginY={1}
       >
         <SideNav SideNavLinks={sideLinks} />
-        <Box paddingX={0} flex={3.5} paddingY={2}>
+        <Box paddingX={0} flex={3.5} paddingY={{ xs: 0.5, md: 1, lg: 2 }}>
           {isLoading && (
             <Card
               sx={{

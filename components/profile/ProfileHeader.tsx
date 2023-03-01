@@ -9,23 +9,22 @@ import { Box, Stack } from "@mui/system";
 import { COLOR } from "../../constants";
 import { StatStack } from "../../ui";
 import { User } from "../../types";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
-import { checkIfFriends, deepCloneObject, nest } from "../../utils";
+import { useDispatch } from "react-redux";
+import { checkIfFriends, deepCloneObject } from "../../utils";
 import { followFriend, unfollowFriend } from "../../APIs";
 import { userDataActions } from "../../store/user-data.slice";
 import { notifierActions } from "../../store/notifier.slice";
+import { useStore } from "../../customHooks";
 
-export const ProfileHeader: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
+}
+
+export const ProfileHeader: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
   const dispatch = useDispatch();
-  const currentUser = useSelector((state: StoreState) => state.user.data);
-  const currentUserRole = useSelector(
-    (state: StoreState) => state.role.currentUser
-  );
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token, currentUser, role } = useStore();
 
   // Checking if the user and profile owner friends.
   const [isFriend, setIsFriend] = useState(false);
@@ -49,7 +48,7 @@ export const ProfileHeader: React.FC<{
       }
     } catch (err: any) {
       console.log(err);
-      dispatch(notifierActions.error("Something went wrong !"));
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
   const handleRemoveFriend = async () => {
@@ -64,7 +63,6 @@ export const ProfileHeader: React.FC<{
         dispatch(userDataActions.addUserData(clonedUser));
         setIsFriend(false);
         dispatch(notifierActions.success("Successfully unfollowed !"));
-
         return;
       }
     } catch (err: any) {
@@ -78,9 +76,10 @@ export const ProfileHeader: React.FC<{
       {/* ------COVER------- */}
       <Box
         flex={3.5}
+        bgcolor={"rgb(10,113,115)"}
         sx={{
-          backgroundImage:
-            "url('https://hire-one.s3.ap-south-1.amazonaws.com/777be1735c8bf3d4e2d4162802637c0c.jpeg')",
+          background:
+            "linear-gradient(180deg, rgba(10,113,115,1) 0%, rgba(0,0,0,1) 100%)",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           borderRadius: 3,
@@ -111,7 +110,7 @@ export const ProfileHeader: React.FC<{
             <CreateOutlined />
           </IconButton>
         )}
-        {!isProfileOwner && currentUserRole !== "guest" && (
+        {!isProfileOwner && role !== "guest" && (
           <>
             {!isFriend && (
               <IconButton

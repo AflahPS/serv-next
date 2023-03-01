@@ -335,7 +335,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
 
   return (
     <>
-      <TabHeader header="Personal Details" />
+      <TabHeader invertColor header="Personal Details" />
       <Box
         bgcolor={COLOR["H1d-ui-bg"]}
         display={"flex"}

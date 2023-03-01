@@ -196,7 +196,7 @@ export const ProfessionalDetails: React.FC<{
 
   return (
     <>
-      <TabHeader header="Professional Details" />
+      <TabHeader invertColor header="Professional Details" />
 
       <Box
         borderRadius={3}

@@ -2,12 +2,11 @@ import { Stack } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { NotificationAlert } from "../../ui";
 import { getNotification } from "../../APIs";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { Notification } from "../../types";
+import { useStore } from "../../customHooks";
 
 export const Notifications = () => {
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const getAndSetNotifications = async () => {
