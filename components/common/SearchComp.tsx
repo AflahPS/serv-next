@@ -19,7 +19,7 @@ export const SearchComp = () => {
       setShowList(true);
     } catch (err: any) {
       setShowList(false);
-      console.log(err.message);
+      console.error(err.message);
       return;
     }
   };

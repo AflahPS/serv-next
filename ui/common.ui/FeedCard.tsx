@@ -111,16 +111,13 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
         if (!user || !data) return;
         setLikeCount(data?.results);
         if (!data?.results) return;
-        console.log(data?.likes);
-        console.log(user);
-
-        const liked = data?.likes.some(
+        const liked = data?.likes?.some(
           (like: Like) => like?.user?._id?.toString() === user?._id?.toString()
         );
         liked && setIsChecked(liked);
       })();
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
     }
   }, [post, user]);
 
@@ -146,7 +143,7 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
         }
       }
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -234,7 +231,7 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
         dispatch(notifierActions.success("Post removed successfully !!"));
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       if (typeof err === "undefined") return;
       dispatch(notifierActions.somethingWentWrong());
     }

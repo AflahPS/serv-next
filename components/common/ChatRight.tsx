@@ -21,7 +21,7 @@ export const ChatRight = () => {
       dispatch(chatListActions.setChatList(data?.chats));
     } catch (err) {
       dispatch(chatListActions.setChatList([]));
-      console.log(err);
+      console.error(err);
     }
   };
 

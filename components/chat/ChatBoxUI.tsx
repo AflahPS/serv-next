@@ -15,7 +15,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { COLOR } from "../../constants";
 import { useDispatch } from "react-redux";
 import { Chat, ChatMessage } from "../../types";
@@ -33,13 +33,12 @@ import { AxiosError } from "axios";
 import { chatListActions } from "../../store/chatList.slice";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useStore } from "../../customHooks";
-import { SearchComp } from "../common";
 import { ChatLi, TabHeader } from "../../ui";
-import { useRouter } from "next/router";
+import { SocketContext } from "../../utils";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
-  const router = useRouter();
+  // const router = useRouter();
   const confirmer = useConfirm();
   const scroll = useRef<HTMLDivElement>();
   const [animeRef] = useAutoAnimate();
@@ -51,8 +50,9 @@ export const ChatComp = () => {
   const [sendMessageIo, setSendMessageIo] = useState<any>(null);
   const [recieveMessageIo, setRecieveMessageIo] = useState<any>(null);
 
-  const { selectedChat, currentUser, token, socketCurrent, chatList } =
-    useStore();
+  const { selectedChat, currentUser, token, chatList } = useStore();
+
+  const { socket } = useContext(SocketContext);
 
   const getAndSetChat = async () => {
     try {
@@ -64,9 +64,9 @@ export const ChatComp = () => {
     } catch (err) {
       setMessages([]);
       if (err instanceof AxiosError) {
-        console.log(err?.response?.data?.message);
+        console.error(err?.response?.data?.message);
       }
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -97,7 +97,7 @@ export const ChatComp = () => {
       const recieverId = getFriendObjectFromChat()?._id;
       setSendMessageIo({ ...addedMessage?.message, recieverId });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -113,7 +113,7 @@ export const ChatComp = () => {
       }
     } catch (err) {
       if (err === undefined) return;
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -124,14 +124,14 @@ export const ChatComp = () => {
   // send to socket
   useEffect(() => {
     if (sendMessageIo !== null) {
-      socketCurrent?.emit("send-message", sendMessageIo);
+      socket?.emit("send-message", sendMessageIo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendMessageIo]);
 
   // reciieve
   useEffect(() => {
-    socketCurrent?.on("recieve-message", (data: ChatMessage) => {
+    socket?.on("recieve-message", (data: ChatMessage) => {
       setRecieveMessageIo(data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -302,83 +302,6 @@ export const ChatComp = () => {
               <SendOutlined />
             </Button>
           </Box>
-
-          {/*
-          <Box
-            bgcolor={COLOR["H1d-ui-bg"]}
-            display={{ xs: "flex", md: "none" }}
-            flex={2.5}
-            paddingX={3}
-            justifyContent={"space-between"}
-          >
-       
-            <Box display={"flex"} gap={1} alignItems={"center"}>
-              <Avatar src={getFriendObjectFromChat()?.image}>
-                {getFriendObjectFromChat()?.name}
-              </Avatar>
-              <Typography variant="h6">
-                {getFriendObjectFromChat()?.name}
-              </Typography>
-            </Box>
-
-        
-            <Box display={"flex"} gap={1}>
-              <IconButton disableRipple onClick={handleDeleteChat}>
-                <DeleteOutlined />
-              </IconButton>
-              <IconButton disableRipple>
-                <CallOutlined />
-              </IconButton>
-              <IconButton disableRipple>
-                <VideoCallOutlined />
-              </IconButton>
-              <IconButton disableRipple>
-                <MoreVertOutlined />
-              </IconButton>
-            </Box>
-          </Box>
-
-          <Box
-            bgcolor={COLOR["H1d-ui-secondary"]}
-            flex={15}
-            display={"flex"}
-            padding={2}
-            flexDirection={"column"}
-            gap={1}
-            overflow={"auto"}
-          >
-            {messages.map((msg) => (
-              <ChatMessageComp
-                refer={scroll}
-                key={msg._id}
-                isAuthor={checkIfAuthor(msg.author)}
-                text={msg.text}
-                date={dayjs(msg.createdAt).format("LLL")}
-              />
-            ))}
-          </Box>
-
-          <Box
-            bgcolor={COLOR["H1d-ui-bg"]}
-            gap={1}
-            padding={1}
-            flex={2}
-            display={"flex"}
-          >
-            <TextField
-              placeholder="Write a message here.."
-              fullWidth
-              variant="outlined"
-              value={newMessage}
-              onChange={(e) => {
-                setNewMessage(e.target.value);
-              }}
-            />
-            <Button onClick={handleSend} variant="outlined">
-              <Typography variant="button">Send</Typography>
-              <SendOutlined />
-            </Button>
-          </Box> */}
         </>
       )}
     </Stack>

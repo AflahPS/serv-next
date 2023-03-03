@@ -119,7 +119,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         project,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -151,7 +151,7 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
     } catch (err: any) {
       setLoading(false);
       setErrMessage(err.message || "Something went wrong !");
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 

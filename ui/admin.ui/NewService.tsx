@@ -84,7 +84,7 @@ export const NewService = (props: Props) => {
     } catch (err: any) {
       setIsImageUploading(false);
       dispatch(notifierActions.somethingWentWrong());
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -117,7 +117,7 @@ export const NewService = (props: Props) => {
         router.push("/admin/services");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(notifierActions.somethingWentWrong());
     }
   };

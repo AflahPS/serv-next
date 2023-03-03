@@ -32,7 +32,7 @@ export const EmployeeTable: React.FC<Props> = ({ employees, setEmployees }) => {
   //     const employees = await getEmployeesOfVendor(token);
   //     if (employees) setEmployees(employees);
   //   } catch (err) {
-  //     console.log(err);
+  //     console.error(err);
   //   }
   // };
 
@@ -73,7 +73,7 @@ export const EmployeeTable: React.FC<Props> = ({ employees, setEmployees }) => {
             )
           );
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };

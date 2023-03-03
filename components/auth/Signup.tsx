@@ -8,21 +8,25 @@ import {
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
 import { COLOR } from "../../constants";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { lengthChecker, nest, validateEmail } from "../../utils";
-import { useDispatch, useSelector } from "react-redux";
+import { SocketContext, lengthChecker, nest, validateEmail } from "../../utils";
+import { useDispatch } from "react-redux";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { roleActions } from "../../store/role.slice";
 import { userDataActions } from "../../store/user-data.slice";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
+import { initializeSocket } from "../../APIs";
+import { ActiveUser } from "../../types";
+import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 export const Signup = () => {
   const router = useRouter();
+  const { socket, setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
 
   const nameRef = useRef<TextFieldProps>(null);
@@ -94,26 +98,34 @@ export const Signup = () => {
     };
   };
 
+  const signupDeclare = (data: any) => {
+    setOpen(true);
+    dispatch(authActions.login());
+    dispatch(jwtActions.setToken(data?.token));
+    dispatch(roleActions.user());
+    dispatch(userDataActions.addUserData(data?.user));
+    dispatch(sideNavTabActions.push("Posts"));
+    const newSocket = initializeSocket();
+    newSocket?.emit("new-user-add", data?.user?._id);
+    newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
+      dispatch(onlineUsersActions.setUsers(activeUsers));
+    });
+  };
+
   const handleSignup = async (event: any): Promise<void> => {
     event.preventDefault();
 
     setErrMessage("");
-    const data = verifiyData();
-    if (!data) return;
+    const dataV = verifiyData();
+    if (!dataV) return;
     try {
-      const res = await nest({
+      const { data } = await nest({
         url: "auth/signup",
         method: "POST",
-        data,
+        data: dataV,
       });
-      if (res.data?.status === "success") {
-        setOpen(true);
-        dispatch(authActions.login());
-        dispatch(jwtActions.setToken(res.data?.token));
-        dispatch(roleActions.user());
-        dispatch(userDataActions.addUserData(res.data?.user));
-        dispatch(sideNavTabActions.push("Posts"));
-
+      if (data?.status === "success") {
+        signupDeclare(data);
         router.push("/auth/signup/checkpoint");
       }
     } catch (error: any) {
@@ -125,7 +137,7 @@ export const Signup = () => {
           errorResponeMessage = error?.response?.data?.message;
         }
         setErrMessage(errorResponeMessage);
-        return console.log({ errMessage: error?.response?.data?.message });
+        return console.error({ errMessage: error?.response?.data?.message });
       }
       setErrMessage("Something went wrong ! Please try again.");
     }

@@ -100,8 +100,6 @@ export const SignupVendor = () => {
 
   // Generate recaptcha
   const genRecaptcha = () => {
-    console.log(window.recaptchaVerifier);
-
     window.recaptchaVerifier = new RecaptchaVerifier(
       "verify-otp",
       {
@@ -122,7 +120,7 @@ export const SignupVendor = () => {
         window.confirmationResult = res;
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -152,7 +150,7 @@ export const SignupVendor = () => {
   // Get location if user typed a location
   const gatherPLace = async (place: string) => {
     const cords = await geoCords(place);
-    if (!cords) return console.log("Coordinates not found");
+    if (!cords) return console.warn("Coordinates not found");
     if (cords)
       setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
   };
@@ -200,7 +198,7 @@ export const SignupVendor = () => {
         setOptions([]);
         setLocationVerified(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
     gatherSuggestions(place);
@@ -218,13 +216,13 @@ export const SignupVendor = () => {
       let confirmationResult = window.confirmationResult;
       const confObj = await confirmationResult?.confirm(otp);
       if (confObj?.user) {
-        console.log("Verified");
+        dispatch(notifierActions.success("OTP Verified Successfully !"));
         setShowOtpField(false);
         setOtpVerified(true);
       }
     } catch (err: any) {
       setOtpVerified(false);
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -294,7 +292,7 @@ export const SignupVendor = () => {
           errorResponeMessage = error?.response?.data?.message;
         }
         setErrMessage(errorResponeMessage);
-        return console.log({ errMessage: error?.response?.data?.message });
+        return console.warn({ errMessage: error?.response?.data?.message });
       }
       dispatch(notifierActions.somethingWentWrong());
     }
@@ -398,7 +396,6 @@ export const SignupVendor = () => {
                   );
                 }}
                 renderOption={(props, option, state) => {
-                  console.log(state);
                   const label = getOptionLabel(option);
                   return (
                     <li {...props}>

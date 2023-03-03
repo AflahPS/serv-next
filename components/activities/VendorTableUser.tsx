@@ -24,7 +24,7 @@ export const VendorTableUser = () => {
       if (users) setUsers(users);
       if (serviceData) setServices(serviceData?.services);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -87,8 +87,6 @@ export const VendorTableUser = () => {
         headerName: "Projects",
         width: 150,
         valueGetter(params) {
-          console.log({ user: params.row?.name, proj: params.row?.vendor });
-
           return params.row?.vendor?.projects?.length;
         },
       },

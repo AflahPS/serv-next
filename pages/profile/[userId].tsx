@@ -32,14 +32,13 @@ export async function getServerSideProps(ctx: any) {
       url: `/user/single/${userId}`,
       method: "GET",
     });
-    console.log("🚀 ~ file: [userId].tsx:34 ~ getServerSideProps ~ data", data);
     if (data.status === "success") {
       return {
         props: data,
       };
     }
   } catch (err: any) {
-    console.log(err?.message);
+    console.error(err?.message);
     return { props: { user: null } };
   }
 }

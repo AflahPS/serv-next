@@ -114,7 +114,7 @@ export const EditAppoModal: React.FC<Props> = (props) => {
         setOpenModal(false);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(notifierActions.somethingWentWrong());
       setOpenModal(false);
     }

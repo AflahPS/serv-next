@@ -28,7 +28,7 @@ export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
       if (!followers) return setFollowers([]);
       setFollowers(followers);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {
@@ -41,7 +41,6 @@ export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
     user: User
   ): boolean => {
     const foundUser = employees.find((e) => e.emp?._id === user._id);
-    console.log(foundUser);
     return !!foundUser;
   };
 
@@ -67,7 +66,7 @@ export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
         },
       ]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(notifierActions.somethingWentWrong());
     }
   };

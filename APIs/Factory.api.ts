@@ -7,7 +7,7 @@ export const lastWeekMadeDocs = async (
   try {
     const { data } = await nest({
       method: "GET",
-      url: `${model}/weekly`,
+      url: `/${model}/weekly`,
       headers: {
         Authorization: "Bearer " + token,
       },
@@ -25,7 +25,7 @@ export const monthlyMade = async (
   try {
     const { data } = await nest({
       method: "GET",
-      url: `${model}/monthly`,
+      url: `/${model}/monthly`,
       headers: {
         Authorization: "Bearer " + token,
       },

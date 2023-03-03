@@ -53,7 +53,7 @@ export const ProjectsTable: React.FC<Props> = ({ setProjects, projects }) => {
         } catch (err) {
           if (typeof err !== "undefined")
             dispatch(notifierActions.somethingWentWrong());
-          console.log(err);
+          console.error(err);
         }
       };
 

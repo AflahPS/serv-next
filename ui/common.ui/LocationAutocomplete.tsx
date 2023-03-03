@@ -70,12 +70,8 @@ export const LocationAutocomplete: FC<{ setLocation: SetLocation }> = ({
       try {
         const suggestions = await geoCordsAutoComplete(place);
         const suggArr = suggestions?.features?.map((el: any) => {
-          const placeSplitArr = el?.place_name.split(",");
-
           return {
-            place: `${placeSplitArr[0]}, ${
-              placeSplitArr[placeSplitArr.length - 1]
-            }`,
+            place: el?.place_name,
             location: el?.geometry,
           };
         });
@@ -86,7 +82,7 @@ export const LocationAutocomplete: FC<{ setLocation: SetLocation }> = ({
         setOptions([]);
         setLocationVerified(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
     gatherSuggestions(place);
@@ -141,7 +137,6 @@ export const LocationAutocomplete: FC<{ setLocation: SetLocation }> = ({
         );
       }}
       renderOption={(props, option, state) => {
-        console.log(state);
         const label = getOptionLabel(option);
         return (
           <li {...props}>

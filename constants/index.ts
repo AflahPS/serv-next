@@ -18,3 +18,4 @@ export * from "./LineChartData";
 export * from "./PIE_DATA";
 export * from "./MONTHS";
 export * from "./ANCHOR_MENU";
+export * from "./AVATAR";

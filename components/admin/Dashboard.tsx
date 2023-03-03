@@ -51,7 +51,7 @@ export const Dashboard = () => {
       setWeeklyProjects(projCount || 0);
       setWeeklySignups(signupCount || 0);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -117,7 +117,7 @@ export const Dashboard = () => {
 
       setLineData(lineDataSet);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

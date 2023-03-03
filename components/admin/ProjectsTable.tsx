@@ -23,7 +23,7 @@ export const ProjectTable = () => {
       const projectData = await getAllProjects(token);
       if (projectData) setProjects(projectData?.projects);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -74,7 +74,7 @@ export const ProjectTable = () => {
         } catch (err) {
           if (typeof err !== "undefined")
             dispatch(notifierActions.somethingWentWrong());
-          console.log(err);
+          console.error(err);
         }
       };
 

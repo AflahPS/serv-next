@@ -33,7 +33,7 @@ export const UserTable = () => {
       const users = await getUsersByRole("user", token);
       if (users) setUsers(users);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -75,7 +75,7 @@ export const UserTable = () => {
           setUsers(clonnedUsers);
           dispatch(notifierActions.info(`Successfully ${action}ned !`));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };
@@ -118,7 +118,7 @@ export const UserTable = () => {
             )
           );
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };
@@ -144,7 +144,7 @@ export const UserTable = () => {
           setUsers((prev) => prev.filter((user) => user._id !== userId));
           dispatch(notifierActions.info("Successfully deleted the user !"));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };

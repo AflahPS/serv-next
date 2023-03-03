@@ -16,6 +16,7 @@ import { StoreState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 import { followFriend, unfollowFriend } from "../../APIs";
 import { userDataActions } from "../../store/user-data.slice";
+import { AVATAR } from "../../constants";
 
 export const Friends: React.FC<{
   user: User;
@@ -39,7 +40,7 @@ export const Friends: React.FC<{
         setFollowers(data?.followers);
       }
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -53,13 +54,8 @@ export const Friends: React.FC<{
       dispatch(userDataActions.addUserData(clonedUser));
       user?.followers;
       await getFollwers();
-      // if (isProfileOwner) setFollowers([...followers, user]);
-
-      // currentUser.followers?.push(user._id);
-      // dispatch(userDataActions.addUserData(currentUser));
-      // await getFollwers();
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
     }
   };
   const handleUnfollowClick = async (userId: string) => {
@@ -70,23 +66,13 @@ export const Friends: React.FC<{
       const removeIndex = clonedUser.followers?.indexOf(userId);
       if (removeIndex !== undefined && removeIndex > -1) {
         clonedUser.followers?.splice(removeIndex, 1);
-        console.log(
-          "🚀 ~ file: Friends.tsx:71 ~ handleUnfollowClick ~ clonedUser",
-          clonedUser
-        );
         dispatch(userDataActions.addUserData(clonedUser));
         isProfileOwner &&
           setFollowers(followers.filter((el) => el._id !== userId));
         return;
       }
-      // const removeIndex = currentUser.followers?.indexOf(userId);
-      // if (removeIndex !== undefined && removeIndex > -1) {
-      //   currentUser.followers?.splice(removeIndex, 1);
-      //   dispatch(userDataActions.addUserData(currentUser));
-      //   isProfileOwner && (await getFollwers());
-      // }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -124,8 +110,12 @@ export const Friends: React.FC<{
                   width: "35%",
                   objectFit: "cover",
                 }}
-                image={follower.image}
-                alt="Live from space album cover"
+                image={
+                  follower.image?.includes("hire-one.s3")
+                    ? follower.image
+                    : AVATAR
+                }
+                alt={follower.name}
               />
 
               {/* FOLLOWER's Details -on right */}

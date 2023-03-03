@@ -1,37 +1,34 @@
-import { Snackbar, Alert, useStepperContext } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { Snackbar, Alert } from "@mui/material";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../../store";
 import { notifierActions } from "../../store/notifier.slice";
-import { Notification, User } from "../../types";
-import { Socket } from "socket.io-client";
+import { ActiveUser, Notification, User } from "../../types";
 import { getMeAdmin, getMeUser, initializeSocket } from "../../APIs";
 import { authActions } from "../../store/auth.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
 import { roleActions } from "../../store/role.slice";
-import { socketActions } from "../../store/socket.slice";
 import { userDataActions } from "../../store/user-data.slice";
+import { SocketContext } from "../../utils";
 
 export const Notifier = () => {
   const dispatch = useDispatch();
-  const socketCurrent = useSelector(
-    (state: StoreState) => state.socket.current
-  );
+  const { socket, setSocket } = useContext(SocketContext);
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
   const [notification, setNotification] = useState<Notification>();
 
   // Receive Notification from socket server
   useEffect(() => {
-    if (isAuth && socketCurrent) {
-      socketCurrent?.on("receive-notification", (data: Notification) => {
+    if (isAuth && socket) {
+      socket?.on("receive-notification", (data: Notification) => {
         if (!data) return;
         setNotification(data);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketCurrent]);
+  }, [socket]);
 
   // Dispatch notifications received from the socket server
   useEffect(() => {
@@ -45,7 +42,7 @@ export const Notifier = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notification]);
 
-  const socket = useRef<Socket>();
+  // const socket = useRef<Socket>();
 
   const acknowledgeAdmin = (token: string, user: User) => {
     dispatch(authActions.login()); // login the user
@@ -58,12 +55,12 @@ export const Notifier = () => {
         : roleActions.guest()
     ); // set the role
     dispatch(userDataActions.addUserData(user)); // set the user data
-    socket.current = initializeSocket();
-    socket.current.emit("new-user-add", user?._id);
-    socket.current.on("get-users", (activeUsers) =>
-      dispatch(onlineUsersActions.setUsers(activeUsers))
-    );
-    dispatch(socketActions.setSocket(socket.current));
+    const newSocket = initializeSocket();
+    newSocket?.emit("new-user-add", user?._id);
+    newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
+      dispatch(onlineUsersActions.setUsers(activeUsers));
+    });
+    setSocket(newSocket);
   };
 
   const acknowledgeUser = (token: string, user: User) => {
@@ -73,12 +70,12 @@ export const Notifier = () => {
       user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
     ); // set the role
     dispatch(userDataActions.addUserData(user)); // set the user data
-    socket.current = initializeSocket();
-    socket.current.emit("new-user-add", user?._id);
-    socket.current.on("get-users", (activeUsers) =>
-      dispatch(onlineUsersActions.setUsers(activeUsers))
-    );
-    dispatch(socketActions.setSocket(socket.current));
+    const newSocket = initializeSocket();
+    newSocket?.emit("new-user-add", user?._id);
+    newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
+      dispatch(onlineUsersActions.setUsers(activeUsers));
+    });
+    setSocket(newSocket);
   };
 
   const handleToken = async (token: string) => {
@@ -95,7 +92,7 @@ export const Notifier = () => {
         }
       }
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
       dispatch(roleActions.guest());
     }
   };

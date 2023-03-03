@@ -8,7 +8,7 @@ import {
   ListItemAvatar,
   ListItemText,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { COLOR } from "../../constants";
 import { Chat, User } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,8 @@ import { StoreState } from "../../store";
 import { useRouter } from "next/router";
 import { chatActions } from "../../store/chatId.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
+import { SocketContext } from "../../utils";
+// import { SocketContext } from "../../utils";
 
 interface ActiveUsers {
   userId: string;
@@ -27,9 +29,7 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
-  const socketCurrent = useSelector(
-    (state: StoreState) => state.socket.current
-  );
+  const { socket } = useContext(SocketContext);
 
   const onlineUsers = useSelector(
     (state: StoreState) => state.onlineUsers.users
@@ -39,19 +39,19 @@ export const ChatLi: React.FC<{ Chat: Chat }> = ({ Chat }) => {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    if (isAuth && socketCurrent) {
-      socketCurrent?.on("get-users", (activeUsers: ActiveUsers[]) => {
+    if (isAuth && socket) {
+      socket?.on("get-users", (activeUsers: ActiveUsers[]) => {
         if (!activeUsers) return;
         dispatch(onlineUsersActions.setUsers(activeUsers));
         // setOnlineUsers(activeUsers);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketCurrent]);
+  }, [socket]);
 
   useEffect(() => {
-    if (isAuth && socketCurrent) {
-      socketCurrent?.on("get-users", (activeUsers: ActiveUsers[]) => {
+    if (isAuth && socket) {
+      socket?.on("get-users", (activeUsers: ActiveUsers[]) => {
         if (!activeUsers) return;
         dispatch(onlineUsersActions.setUsers(activeUsers));
         // setOnlineUsers(activeUsers);

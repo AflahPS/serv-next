@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Box,
@@ -17,6 +17,7 @@ import { COLOR } from "../../constants";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
+  SocketContext,
   facebookAuth,
   firebaseAuth,
   googleAuth,
@@ -32,12 +33,11 @@ import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 import { AxiosError } from "axios";
 import { notifierActions } from "../../store/notifier.slice";
 import { initializeSocket, signinUser, signinWithProvider } from "../../APIs";
-import { Socket } from "socket.io-client";
-import { socketActions } from "../../store/socket.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";
 import { FacebookOutlined } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
 import { signInWithPopup } from "firebase/auth";
+import { ActiveUser } from "../../types";
 
 interface Props {
   isAdmin?: boolean;
@@ -46,7 +46,7 @@ interface Props {
 export const Signin: React.FC<Props> = ({ isAdmin }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const socket = useRef<Socket>();
+  const { socket, setSocket } = useContext(SocketContext);
 
   const [emailVeriied, setEmailVeriied] = useState(true);
   const [passwordVeriied, setPasswordVeriied] = useState(true);
@@ -63,13 +63,13 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
       data?.user?.role === "vendor" ? roleActions.vendor() : roleActions.user()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = initializeSocket();
-    socket.current.emit("new-user-add", data?.user?._id);
-    socket.current.on("get-users", (activeUsers) =>
-      dispatch(onlineUsersActions.setUsers(activeUsers))
-    );
-    dispatch(socketActions.setSocket(socket.current));
+    const newSocket = initializeSocket();
+    newSocket?.emit("new-user-add", data?.user?._id);
+    newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
+      dispatch(onlineUsersActions.setUsers(activeUsers));
+    });
     dispatch(sideNavTabActions.push("Posts")); //If this is user or vendor
+    setSocket(newSocket);
   };
 
   const adminSigninSuccessDeclare = (data: any) => {
@@ -85,13 +85,13 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
         : roleActions.guest()
     ); // set the role
     dispatch(userDataActions.addUserData(data?.user)); // set the user data
-    socket.current = initializeSocket();
-    socket.current.emit("new-user-add", data?.user?._id);
-    socket.current.on("get-users", (activeUsers) =>
-      dispatch(onlineUsersActions.setUsers(activeUsers))
-    );
-    dispatch(socketActions.setSocket(socket.current));
+    const newSocket = initializeSocket();
+    newSocket?.emit("new-user-add", data?.user?._id);
+    newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
+      dispatch(onlineUsersActions.setUsers(activeUsers));
+    });
     dispatch(sideNavTabActions.push("Dashboard")); //If the user is admin
+    setSocket(newSocket);
   };
 
   const errorSafetyNet = (err: any) => {
@@ -104,9 +104,9 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
         errorResponeMessage = err.response?.data?.message;
       }
       dispatch(notifierActions.error(errorResponeMessage));
-      return console.log({ errMessage: err?.response?.data?.message });
+      return console.error({ errMessage: err?.response?.data?.message });
     }
-    console.log(err?.message);
+    console.error(err?.message);
     dispatch(notifierActions.somethingWentWrong());
   };
 
@@ -196,7 +196,6 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
       dispatch(
         notifierActions.error("Authentication failed, Please try again !")
       );
-      // console.log({ googleData: data });
     } catch (err: any) {
       if (
         (err?.message as string).includes(

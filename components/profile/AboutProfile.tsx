@@ -4,8 +4,6 @@ import { StatStack } from "../../ui";
 import { Button, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
 import { User } from "../../types";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { useRouter } from "next/router";
 
 interface Props {

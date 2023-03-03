@@ -1,16 +1,16 @@
-import { Alert, Autocomplete, Box, MenuItem, Snackbar } from "@mui/material";
+import { Box, MenuItem } from "@mui/material";
 import React, { MouseEvent, useEffect, useState } from "react";
-import useSWR from "swr";
-import { COLOR, USERS } from "../../constants";
+import { COLOR } from "../../constants";
 import { LinkButton } from "../common.ui";
 import { TabHeader } from "./TabHeader";
 import { StyledTextField } from "./StyledTextField";
 import { IsValidString, nest } from "../../utils";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { userDataActions } from "../../store/user-data.slice";
 import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
 import { Service, User } from "../../types";
+import { useStore } from "../../customHooks";
+import { notifierActions } from "../../store/notifier.slice";
 
 const LoadingServiceDummy = {
   title: "Loading..",
@@ -26,13 +26,15 @@ interface ReturnData {
   about: string;
 }
 
-export const ProfessionalDetails: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
+}
+
+export const ProfessionalDetails: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
   const dispatch = useDispatch();
-  const token = useSelector((state: StoreState) => state.jwt.token);
-  // const user = useSelector((state: StoreState) => state.user.data);
+  const { token } = useStore();
 
   const [serviceVerified, setServiceVerified] = useState(true);
   const [workingDaysVerified, setWorkingDaysVerified] = useState(true);
@@ -57,34 +59,6 @@ export const ProfessionalDetails: React.FC<{
   const [allServices, setAllServices] = useState<any[]>([]);
 
   const [isEditable, setIsEditable] = useState(false);
-
-  //----- ERROR, Success message Snackbar related properties
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [openError, setOpenError] = useState(false);
-  const [openSuccess, setOpenSuccess] = useState(false);
-  const handleCloseError = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenError(false);
-  };
-  const handleCloseSuccess = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSuccess(false);
-  };
-  const errorSetter = (message: string) => {
-    setErrMessage(message);
-    setOpenError(true);
-  };
 
   // Data Verification
 
@@ -124,9 +98,7 @@ export const ProfessionalDetails: React.FC<{
         return;
       }
       const dataV = verifyData();
-
       if (!dataV) return;
-      console.log(dataV);
       const { data } = await nest({
         url: "/vendor/professional",
         method: "PATCH",
@@ -136,17 +108,22 @@ export const ProfessionalDetails: React.FC<{
         },
       });
       if (!data || data?.status !== "success") {
-        errorSetter(
-          "Something went wrong while updating the professional informations !"
+        dispatch(
+          notifierActions.error(
+            "Something went wrong while updating the professional informations !"
+          )
         );
         return;
       }
       dispatch(userDataActions.addUserData(data?.user));
-      setSuccessMessage("Successfully updated the professional informations !");
-      setOpenSuccess(true);
+      dispatch(
+        notifierActions.success(
+          "Successfully updated the professional informations !"
+        )
+      );
       setIsEditable(false);
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
       if (
         err?.message.match(/service/) ||
         err?.message.match(/workingDays/) ||
@@ -154,10 +131,10 @@ export const ProfessionalDetails: React.FC<{
         err?.message.match(/experience/) ||
         err?.message.match(/about/)
       ) {
-        errorSetter(err?.message);
+        dispatch(notifierActions.error(err?.message));
         return;
       }
-      errorSetter("Sorry, something went wrong !");
+      dispatch(notifierActions.somethingWentWrong());
     }
   };
 
@@ -186,7 +163,7 @@ export const ProfessionalDetails: React.FC<{
         setService(userService);
       }
     } catch (err: any) {
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
   useEffect(() => {
@@ -335,38 +312,6 @@ export const ProfessionalDetails: React.FC<{
           </LinkButton>
         )}
       </Box>
-
-      {/* Error Message */}
-
-      <Snackbar
-        open={openError}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errMessage}
-        </Alert>
-      </Snackbar>
-
-      {/* Success message */}
-
-      <Snackbar
-        open={openSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccess}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

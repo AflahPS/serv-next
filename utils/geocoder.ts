@@ -12,7 +12,7 @@ export async function geoLocator(lon: number, lat: number) {
     // place = place.split(",")[0];
     return place || "Not Found";
   } catch (err: any) {
-    console.log(err?.message);
+    console.error(err?.message);
   }
 }
 
@@ -28,7 +28,7 @@ export async function geoCords(place: string) {
     const cords: number[] = loc[0]?.geometry?.coordinates;
     return cords;
   } catch (err: any) {
-    console.log(err?.message);
+    console.error(err?.message);
   }
 }
 
@@ -44,6 +44,6 @@ export async function geoCordsAutoComplete(place: string) {
     return data;
   } catch (err: any) {
     if (axios.isCancel(err)) return;
-    console.log(err?.message);
+    console.error(err?.message);
   }
 }

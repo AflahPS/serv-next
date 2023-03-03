@@ -29,7 +29,7 @@ export const AdminTable = () => {
         return ret;
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -71,7 +71,7 @@ export const AdminTable = () => {
           setUsers(clonnedUsers);
           dispatch(notifierActions.info(`Successfully promoted ${row.name} !`));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };
@@ -113,7 +113,7 @@ export const AdminTable = () => {
           setUsers(clonnedUsers);
           dispatch(notifierActions.info(`Successfully demoted ${row.name} !`));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };

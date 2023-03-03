@@ -42,7 +42,7 @@ export const CreateProject: React.FC<Props> = (props) => {
       const employees = await getEmployeesOfVendor(token);
       if (employees) setAllEmployees(employees);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {
@@ -57,7 +57,7 @@ export const CreateProject: React.FC<Props> = (props) => {
       if (!followers) return setFollowers([]);
       setFollowers(followers);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {
@@ -122,7 +122,7 @@ export const CreateProject: React.FC<Props> = (props) => {
     const cords = await geoCords(place);
     if (!cords) {
       setLocationVerified(false);
-      return console.log("Coordinates not found");
+      return console.warn("Coordinates not found");
     }
     if (cords)
       setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
@@ -192,11 +192,9 @@ export const CreateProject: React.FC<Props> = (props) => {
         return false;
       }
       returnObj = Object.assign(returnObj, { place, location });
-      console.log(returnObj);
-
       return returnObj;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -216,7 +214,7 @@ export const CreateProject: React.FC<Props> = (props) => {
     } catch (err: any) {
       setLoading(false);
       dispatch(notifierActions.somethingWentWrong());
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -406,31 +404,9 @@ export const CreateProject: React.FC<Props> = (props) => {
                 ),
               }}
             />
-
-            {/* COST
-
-            <StyledTextField
-              value={cost}
-              fullWidth
-              onChange={(e) => {
-                setCost(e.target.value);
-              }}
-              type={"number"}
-              defaultValue={""}
-              label="Cost"
-              size="small"
-              sx={{ minWidth: 98 }}
-            ></StyledTextField> */}
           </LocalizationProvider>
         </Box>
       </Stack>
-
-      {/* <Stack sx={{ flexDirection: { xs: "column", md: "row" } }} paddingX={3}>
-        <Stack gap={3} justifyContent={"space-around"} flex={1}> */}
-      {/* STATUS */}
-
-      {/* </Stack>
-      </Stack> */}
 
       <Box
         flex={1}
@@ -455,14 +431,6 @@ export const CreateProject: React.FC<Props> = (props) => {
           Post
         </LinkButton>
       </Box>
-      {/* <Typography
-        color={"red"}
-        marginTop={2}
-        textAlign={"center"}
-        variant="body2"
-      >
-        {errMessage}
-      </Typography> */}
     </Card>
   );
 };

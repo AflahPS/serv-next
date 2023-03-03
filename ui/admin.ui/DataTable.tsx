@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
 import { useState } from "react";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
   columns,
@@ -10,8 +9,6 @@ export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
 }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(1);
-
-  const [dataTableRef] = useAutoAnimate();
 
   const handleChangeRowsPerPage = (pageSize: number) => {
     setRowsPerPage(pageSize);

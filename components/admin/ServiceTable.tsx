@@ -54,7 +54,7 @@ export const ServiceTable = (props: Props) => {
           setServices((prev) => prev.filter((serv) => serv._id !== serviceId));
           dispatch(notifierActions.info("Successfully deleted the service !"));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };

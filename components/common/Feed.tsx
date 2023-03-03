@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FeedCard } from "../../ui";
 import { Post } from "../../types/Posts";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { getPosts, getPostsOfUser, getSavedPost } from "../../APIs";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AxiosError } from "axios";
 import { LinearProgress, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
+import { useStore } from "../../customHooks";
 
-export const Feed: React.FC<{ user?: string; savedPost?: boolean }> = ({
-  user,
-  savedPost,
-}) => {
-  const role = useSelector((state: StoreState) => state.role.currentUser);
-  const token = useSelector((state: StoreState) => state.jwt.token);
+interface Props {
+  user?: string;
+  savedPost?: boolean;
+}
+
+export const Feed: React.FC<Props> = (props) => {
+  const { user, savedPost } = props;
+  const { token } = useStore();
 
   const [pageNum, setPageNum] = useState(0);
   const [totalPosts, setTotalPosts] = useState(1);
@@ -37,13 +38,13 @@ export const Feed: React.FC<{ user?: string; savedPost?: boolean }> = ({
     } catch (err: any) {
       if (err instanceof AxiosError) {
         if (err?.response?.data?.message == "Post not found !!") {
-          console.log(err?.response?.data?.message);
+          console.warn(err?.response?.data?.message);
           setPosts([]);
           setTotalPosts(0);
           return;
         }
       }
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -80,10 +81,14 @@ export const Feed: React.FC<{ user?: string; savedPost?: boolean }> = ({
       pullDownToRefresh
       pullDownToRefreshThreshold={50}
       pullDownToRefreshContent={
-        <h3 style={{ textAlign: "center" }}>&#8595; Pull down to refresh</h3>
+        <Typography variant="h6" align="center" color={COLOR["H1d-ui-primary"]}>
+          &#8595; Pull down to refresh
+        </Typography>
       }
       releaseToRefreshContent={
-        <h3 style={{ textAlign: "center" }}>&#8593; Release to refresh</h3>
+        <Typography variant="h6" align="center" color={COLOR["H1d-ui-primary"]}>
+          &#8593; Release to refresh
+        </Typography>
       }
     >
       {posts?.map((post) => (

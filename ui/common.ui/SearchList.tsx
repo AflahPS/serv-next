@@ -43,7 +43,7 @@ export const SearchList: React.FC<{ results: any[]; Positions?: Pos }> = ({
       dispatch(chatActions.setChat(newChat?.chat?._id));
       router.push("/chat");
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

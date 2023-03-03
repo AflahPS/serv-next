@@ -34,7 +34,7 @@ export const VendorTable = () => {
       if (users) setUsers(users);
       if (serviceData) setServices(serviceData?.services);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -80,7 +80,7 @@ export const VendorTable = () => {
           setUsers(clonnedUsers);
           dispatch(notifierActions.info(`Successfully ${action}ned !`));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };
@@ -110,7 +110,7 @@ export const VendorTable = () => {
           setUsers((prev) => prev.filter((user) => user._id !== userId));
           dispatch(notifierActions.info("Successfully deleted the user !"));
         } catch (err) {
-          console.log(err);
+          console.error(err);
           if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
         }
       };

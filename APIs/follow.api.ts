@@ -15,7 +15,7 @@ export const followFriend = async (userId: string | User, token: string) => {
     }
     return false;
   } catch (err: any) {
-    console.log(err?.messgae);
+    console.error(err?.messgae);
     return false;
   }
 };
@@ -34,7 +34,7 @@ export const unfollowFriend = async (userId: string | User, token: string) => {
     }
     return false;
   } catch (err: any) {
-    console.log(err?.messgae);
+    console.error(err?.messgae);
     return false;
   }
 };

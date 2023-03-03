@@ -25,7 +25,7 @@ export const Comments: React.FC<Props> = (props) => {
           setComments(commentsFetched);
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
     fetcher();

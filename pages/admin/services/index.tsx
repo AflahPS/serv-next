@@ -41,7 +41,7 @@ const Index = () => {
       const serviceData = await getAllServices();
       if (serviceData) setServices(serviceData?.services);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   const getAndSetVendorCount = async () => {
@@ -49,7 +49,7 @@ const Index = () => {
       const count = await getVendorCountByService(token);
       if (count) setVendorCount(count);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

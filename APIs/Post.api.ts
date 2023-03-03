@@ -5,7 +5,7 @@ export async function getPosts(token: string, page: number, limit?: number) {
     const { data } = await nest({
       url: Boolean(token)
         ? `/post/user/page/${page || 1}/limit/${limit || 10}`
-        : `/post/page/${page || 1}/limit/${limit || 1}`,
+        : `/post/page/${page || 1}/limit/${limit || 10}`,
       method: "GET",
       headers: {
         Authorization: "Bearer " + token,
@@ -147,7 +147,7 @@ export const likePost = async (
     });
     return data?.status === "success";
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return false;
   }
 };
@@ -163,7 +163,7 @@ export const reportPost = async (postId: string, token: string) => {
     });
     return data?.status === "success";
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return false;
   }
 };
@@ -188,7 +188,7 @@ export const addComment = async (dataV: AddComment, token: string) => {
     }
     return null;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return null;
   }
 };
@@ -204,7 +204,7 @@ export const getCommentsOfPost = async (postId: string) => {
     }
     return null;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return null;
   }
 };

@@ -72,7 +72,7 @@ export const CommentCard: React.FC<{
         removeComment(comment._id);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   const handleLikeComment = async () => {
@@ -92,7 +92,7 @@ export const CommentCard: React.FC<{
       setIsLiked(true);
       setCommentLikes((prev) => [...prev, isSuccess?.like]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

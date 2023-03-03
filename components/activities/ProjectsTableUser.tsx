@@ -28,7 +28,7 @@ export const ProjectsTableUser: React.FC = () => {
       const projects = await getProjectsOfUser(token);
       if (projects) setProjects(projects);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -83,7 +83,7 @@ export const ProjectsTableUser: React.FC = () => {
         } catch (err) {
           if (typeof err !== "undefined")
             dispatch(notifierActions.somethingWentWrong());
-          console.log(err);
+          console.error(err);
         }
       };
 

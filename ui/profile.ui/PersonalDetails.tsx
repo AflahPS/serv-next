@@ -133,7 +133,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
     } catch (err: any) {
       setIsDpUploading(false);
       dispatch(notifierActions.somethingWentWrong());
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -156,18 +156,12 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
     try {
       genRecaptcha();
       const phoneNum = `+91${num}`;
-      console.log({ phoneNum });
-
       const appVerifier = window.recaptchaVerifier;
-      console.log({ appVerifier });
       signInWithPhoneNumber(firebaseAuth, phoneNum, appVerifier).then((res) => {
-        console.log({ res });
-
         window.confirmationResult = res;
       });
     } catch (err) {
-      console.log(123);
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -196,13 +190,13 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
       let confirmationResult = window.confirmationResult;
       const confObj = await confirmationResult?.confirm(otp);
       if (confObj?.user) {
-        console.log("Verified");
+        dispatch(notifierActions.success(`OTP Verified Successfully !`));
         setShowOtpField(false);
         setOtpVerified(true);
       }
     } catch (err: any) {
       setOtpVerified(false);
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -255,7 +249,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
         setOptions([]);
         setLocationVerified(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
     gatherSuggestions(place);
@@ -329,7 +323,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
       dispatch(
         notifierActions.error("Something went wrong while updating profile !")
       );
-      console.log(err?.message);
+      console.error(err?.message);
     }
   };
 
@@ -541,7 +535,6 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
               );
             }}
             renderOption={(props, option, state) => {
-              console.log(state);
               const label = getOptionLabel(option);
               return (
                 <li {...props}>

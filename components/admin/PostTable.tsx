@@ -22,7 +22,7 @@ export const PostTable = () => {
       const postData = await getAllPosts(token);
       if (postData) setPosts(postData?.posts);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -55,7 +55,7 @@ export const PostTable = () => {
         } catch (err) {
           if (typeof err !== "undefined")
             dispatch(notifierActions.somethingWentWrong());
-          console.log(err);
+          console.error(err);
         }
       };
 

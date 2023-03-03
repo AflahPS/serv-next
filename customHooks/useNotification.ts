@@ -1,25 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
 import { StoreState } from "../store";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Notification } from "../types";
 import { notifierActions } from "../store/notifier.slice";
 import { makeNotification } from "../APIs";
+import { SocketContext } from "../utils";
 
 export function useNotification() {
   const dispatch = useDispatch();
-  const socketCurrent = useSelector(
-    (state: StoreState) => state.socket.current
-  );
+  const { socket } = useContext(SocketContext);
   const token = useSelector((state: StoreState) => state.jwt.token);
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
   const [notification, setNotification] = useState<Notification>();
 
   const isValid = () => {
     return (
-      isAuth &&
-      !!token &&
-      notification !== undefined &&
-      socketCurrent !== undefined
+      isAuth && !!token && notification !== undefined && socket !== undefined
     );
   };
 
@@ -28,12 +24,12 @@ export function useNotification() {
       if (isValid()) {
         const newNotification = await makeNotification(notification, token);
         if (newNotification) {
-          socketCurrent?.emit("send-notification", notification);
+          socket?.emit("send-notification", notification);
           setNotification(undefined);
         }
       }
-    } catch (err) {
-      console.log({ err });
+    } catch (err: any) {
+      console.warn(err?.message);
       dispatch(
         notifierActions.error(
           `Something went wrong when creating notification !`

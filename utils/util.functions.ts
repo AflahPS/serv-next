@@ -34,9 +34,9 @@ export const axiosThrowerByMessage = (
 ) => {
   if (err instanceof AxiosError) {
     if (err?.response?.data?.message == message) return cb();
-    console.log(err?.response?.data?.message);
+    console.error(err?.response?.data?.message);
   }
-  console.log(err?.message);
+  console.error(err?.message);
 };
 
 export const checkIfFriends = (currentUser: User, candidateUser: User) => {

@@ -94,7 +94,7 @@ export async function getServerSideProps() {
     const data = await getAllServices();
     return { props: data };
   } catch (err: any) {
-    console.log(err?.message);
+    console.error(err?.message);
     return { props: {} };
   }
 }

@@ -51,7 +51,7 @@ export const AppointmentsTable: React.FC = () => {
       const appos = await getAppointments(token, "vendor"); ///////////////////
       setAppointments(appos);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {
@@ -78,7 +78,7 @@ export const AppointmentsTable: React.FC = () => {
       }
     } catch (err) {
       dispatch(notifierActions.error("Something went wrong"));
-      console.log(err);
+      console.error(err);
     }
   };
 

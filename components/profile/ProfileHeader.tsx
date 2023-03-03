@@ -47,13 +47,12 @@ export const ProfileHeader: React.FC<Props> = (props) => {
         dispatch(notifierActions.success("Successfully followed !"));
       }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
       dispatch(notifierActions.somethingWentWrong());
     }
   };
   const handleRemoveFriend = async () => {
     try {
-      console.log(currentUser.followers);
       const isRemoved = await unfollowFriend(user._id, token);
       if (!isRemoved) throw new Error("Something went wrong");
       const clonedUser = deepCloneObject(currentUser);
@@ -66,7 +65,7 @@ export const ProfileHeader: React.FC<Props> = (props) => {
         return;
       }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
       dispatch(notifierActions.error("Something went wrong !"));
     }
   };

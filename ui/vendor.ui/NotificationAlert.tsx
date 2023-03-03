@@ -33,7 +33,7 @@ export const NotificationAlert: React.FC<Props> = ({ notification }) => {
       );
       if (isSuccess) setOpen(false);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

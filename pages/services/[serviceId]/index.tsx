@@ -23,7 +23,6 @@ const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
   serviceId,
 }) => {
   const [userArr, setUserArr] = useState<User[]>([]);
-
   const [location, setLocation] = useState<LocationObject>(initialOption);
 
   const getAndSetVendors = async (location: LocationObject) => {
@@ -31,14 +30,10 @@ const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
       if (!location.coordinates[0]) return;
       const lnglat = `${location.coordinates[0]},${location.coordinates[1]}`;
       const vendors = await getVendorsByServiceId(serviceId, lnglat);
-      console.log(
-        "🚀 ~ file: index.tsx:34 ~ getAndSetVendors ~ vendors:",
-        vendors
-      );
       if (!vendors?.users) return;
       setUserArr(vendors.users);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -57,15 +52,15 @@ const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
       <Card
         sx={{
           backgroundColor: COLOR["H1d-ui-bg"],
-          maxWidth: "80%",
+          maxWidth: "85%",
           marginX: "auto",
           marginBottom: "16px",
+          paddingBottom: "16px",
           boxShadow: 8,
           borderRadius: 3,
         }}
       >
         <TabHeader header="Vendors" />
-
         <LocationAutocomplete setLocation={setLocation} />
 
         <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
@@ -102,7 +97,7 @@ async function getVendors(id: string) {
       return data;
     }
   } catch (err: any) {
-    console.log(err?.message);
+    console.error(err?.message);
   }
 }
 
@@ -120,7 +115,7 @@ export async function getServerSideProps(context: any) {
       props: ret,
     };
   } catch (err: any) {
-    console.log(err.message);
+    console.error(err.message);
   }
 }
 

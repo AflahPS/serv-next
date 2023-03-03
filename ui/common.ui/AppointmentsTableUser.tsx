@@ -52,7 +52,7 @@ export const AppointmentsTableUser: React.FC = () => {
       const appos = await getAppointments(token, "user");
       setAppointments(appos);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {
@@ -75,7 +75,7 @@ export const AppointmentsTableUser: React.FC = () => {
         setAppointments((prev) => prev.filter((app) => app._id !== appoId));
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       if (err !== undefined) dispatch(notifierActions.somethingWentWrong());
     }
   };

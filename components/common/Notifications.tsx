@@ -14,7 +14,7 @@ export const Notifications = () => {
       const notifications = await getNotification(token);
       if (notifications) setNotifications(notifications);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

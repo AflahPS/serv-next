@@ -19,7 +19,7 @@ export const Projects = () => {
       setProjects([]);
     } catch (err) {
       displatch;
-      console.log(err);
+      console.error(err);
     }
   };
 

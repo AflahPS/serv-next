@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ExitToAppOutlined,
   HomeOutlined,
@@ -40,6 +40,7 @@ import { useRouter } from "next/router";
 import { doSearch } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
 import { socketActions } from "../../store/socket.slice";
+import { SocketContext } from "../../utils";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -77,9 +78,7 @@ export const NavBar = () => {
   );
   const currentUser = useSelector((state: StoreState) => state.user.data);
   const role = useSelector((state: StoreState) => state.role.currentUser);
-  const socketCurrent = useSelector(
-    (state: StoreState) => state.socket.current
-  );
+  const { socket } = useContext(SocketContext);
 
   const handleMenuClick = (route: string) => {
     setOpenAnchor(false);
@@ -93,7 +92,7 @@ export const NavBar = () => {
     dispatch(jwtActions.setToken(null));
     dispatch(userDataActions.removeUserData());
     dispatch(notifierActions.info("Logged out successfully !"));
-    socketCurrent?.disconnect();
+    socket?.disconnect();
     localStorage.removeItem("token");
     dispatch(socketActions.removeSocket());
     if (["admin", "super-admin"].some((r) => r === role)) {
@@ -117,7 +116,7 @@ export const NavBar = () => {
       setShowList(true);
     } catch (err: any) {
       setShowList(false);
-      console.log(err.message);
+      console.error(err.message);
       return;
     }
   };

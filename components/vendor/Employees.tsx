@@ -17,7 +17,7 @@ export const Employees = () => {
       const employees = await getEmployeesOfVendor(token);
       if (employees) setEmployees(employees);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
   useEffect(() => {

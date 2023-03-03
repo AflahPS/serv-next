@@ -7,7 +7,6 @@ export const IsAuthProtection = (props: PropsWithChildren) => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log({ isAuthWith: isAuth });
     if (isAuth) {
       router.push("/");
       return;
@@ -16,7 +15,6 @@ export const IsAuthProtection = (props: PropsWithChildren) => {
   }, [isAuth]);
 
   useEffect(() => {
-    console.log({ isAuth });
     if (isAuth) {
       router.push("/");
       return;

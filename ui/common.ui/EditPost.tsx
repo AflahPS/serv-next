@@ -125,7 +125,7 @@ export const EditPost: React.FC<{
         project,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -160,7 +160,7 @@ export const EditPost: React.FC<{
     } catch (err: any) {
       setLoading(false);
       setErrMessage("Something went wrong !");
-      console.log(err);
+      console.error(err);
     }
   };
 
