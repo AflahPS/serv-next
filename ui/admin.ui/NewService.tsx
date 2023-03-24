@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { notifierActions } from "../../store/notifier.slice";
 import { lengthChecker, uploadImages } from "../../utils";
 import { createService } from "../../APIs";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { useRouter } from "next/router";
 import { Service } from "../../types";
 

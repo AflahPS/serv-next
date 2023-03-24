@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { DataTable, MakeAppoModal } from "../../ui";
-import { Service, User } from "../../types";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
-import { getAllServices, getVendorFollowers } from "../../APIs";
-import { Avatar, Box, Button, IconButton, Tooltip } from "@mui/material";
+import { Avatar, Box, Button, IconButton } from "@mui/material";
 import { BookmarkBorderOutlined } from "@mui/icons-material";
 import { GridColDef } from "@mui/x-data-grid";
+import { useStore } from "../../customHooks";
+import { DataTable, MakeAppoModal } from "../../ui";
+import { Service, User } from "../../types";
+import { getAllServices, getVendorFollowers } from "../../APIs";
+import { useDispatch } from "react-redux";
+import { notifierActions } from "../../store";
+import Scrollbars from "rc-scrollbars";
 
 export const VendorTableUser = () => {
+  const dispatch = useDispatch();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<Service[]>([]);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<User>();
 
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
 
   const getAndSetUsersAndServices = async () => {
     try {
@@ -24,6 +27,7 @@ export const VendorTableUser = () => {
       if (users) setUsers(users);
       if (serviceData) setServices(serviceData?.services);
     } catch (err) {
+      dispatch(notifierActions.somethingWentWrong());
       console.error(err);
     }
   };

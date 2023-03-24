@@ -36,6 +36,7 @@
     "material-ui-confirm": "^3.0.8",
     "next": "13.1.1",
     "node-geocoder": "^4.2.0",
+    "rc-scrollbars": "^1.1.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",

@@ -1,7 +1,7 @@
 import { Snackbar, Alert } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { notifierActions } from "../../store/notifier.slice";
 import { ActiveUser, Notification, User } from "../../types";
 import { getMeAdmin, getMeUser, initializeSocket } from "../../APIs";

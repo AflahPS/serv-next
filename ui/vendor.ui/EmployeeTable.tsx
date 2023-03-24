@@ -1,19 +1,15 @@
-import {
-  DeleteOutlineOutlined,
-  DoDisturbAltOutlined,
-} from "@mui/icons-material";
+import { DeleteOutlineOutlined } from "@mui/icons-material";
 import { IconButton, Avatar, Tooltip } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { EMPLOYEES } from "../../constants";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useDispatch } from "react-redux";
 import { useConfirm } from "material-ui-confirm";
-import { Employee, Project, User } from "../../types";
-import { StoreState } from "../../store";
-import { getEmployeesOfVendor, removeEmployee } from "../../APIs";
+import { Employee } from "../../types";
+import { removeEmployee } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
 import { GridColDef } from "@mui/x-data-grid";
 import { DataTable } from "../admin.ui";
 import { Box } from "@mui/system";
+import { useStore } from "../../customHooks";
 
 interface Props {
   employees: Employee[];
@@ -23,18 +19,7 @@ interface Props {
 export const EmployeeTable: React.FC<Props> = ({ employees, setEmployees }) => {
   const dispatch = useDispatch();
   const confirmer = useConfirm();
-  // const [employees, setEmployees] = useState<Employee[]>([]);
-
-  const token = useSelector((state: StoreState) => state.jwt.token);
-
-  // const getAndSetEmployees = async () => {
-  //   try {
-  //     const employees = await getEmployeesOfVendor(token);
-  //     if (employees) setEmployees(employees);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+  const { token } = useStore();
 
   function userDataFormatter(employees: Employee[]) {
     function renderAvatar(row: Employee) {

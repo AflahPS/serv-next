@@ -39,6 +39,47 @@ export async function getPostsOfUser(
   }
 }
 
+export async function getPostsCountOfUser(userId: string) {
+  try {
+    const { data } = await nest({
+      url: `/post/count/owner/${userId}`,
+      method: "GET",
+    });
+    if (data.status === "success") {
+      return data;
+    }
+  } catch (err) {
+    throw err;
+  }
+}
+
+interface CreatePostDataV {
+  mediaType: string;
+  media: (string | void | File)[];
+  caption: string;
+  tagged: any[];
+  project: string;
+}
+
+export async function createPost(dataV: CreatePostDataV, token: string) {
+  try {
+    const { data } = await nest({
+      method: "POST",
+      url: `post`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data.status === "success") {
+      return data;
+    }
+    throw new Error(data?.message || "Something went wrong !");
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function deletePost(postId: string, token: string) {
   try {
     const { data } = await nest({
@@ -206,5 +247,42 @@ export const getCommentsOfPost = async (postId: string) => {
   } catch (err) {
     console.error(err);
     return null;
+  }
+};
+
+export const getLikesOfPost = async (postId: string) => {
+  try {
+    const { data } = await nest({
+      url: `/post/like/${postId}`,
+      method: "GET",
+    });
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+interface editDatatV {
+  _id: string;
+  mediaType: string;
+  media: (string | void | File)[];
+  caption: string;
+  tagged: any[];
+  project: string;
+}
+
+export const editPost = async (dataV: editDatatV, token: string) => {
+  try {
+    const { data } = await nest({
+      method: "PATCH",
+      url: `post`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data.status === "success") return data;
+  } catch (err) {
+    throw err;
   }
 };

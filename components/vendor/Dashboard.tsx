@@ -1,8 +1,7 @@
-import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import { COLOR } from "../../constants";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useStore } from "../../customHooks";
 
 const DetailPair: React.FC<{ title: string; value: string }> = ({
   title,
@@ -25,13 +24,13 @@ const DetailPair: React.FC<{ title: string; value: string }> = ({
 };
 
 export const VendorPanel = () => {
-  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const { currentUser } = useStore();
   return (
     <>
       {/* @Parent Container BOX */}
       <Box>
         {/* @Avatar + Details BOX */}
-        <Box display={"flex"} width={"100%"} marginY={3}>
+        <Box display={"flex"} width={"100%"} marginY={2}>
           {/* @Avatar box */}
           <Box
             display={"flex"}
@@ -51,7 +50,7 @@ export const VendorPanel = () => {
             display={"flex"}
             bgcolor={COLOR["H1d-ui-bg"]}
             borderRadius={3}
-            flex={2}
+            flex={3}
           >
             {/* Details left STACK */}
             <Stack bgcolor={"transparent"} flex={1}>

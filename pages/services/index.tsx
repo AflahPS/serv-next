@@ -14,7 +14,6 @@ import {
   CardActionArea,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { nest } from "../../utils";
 import { getAllServices } from "../../APIs";
 
 const Services: React.FC<{ services: {} }> = ({ services }) => {

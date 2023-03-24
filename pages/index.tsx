@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Feed, Layout } from "../components/common";
-import { StoreState } from "../store";
+import { StoreState } from "../store/store";
 import { layoutLoadingActions } from "../store/layout-loading.slice";
 import { sideNavTabActions } from "../store/sidenav-tab.slice";
 import { CreatePost } from "../ui";

@@ -2,7 +2,7 @@ import { Provider } from "react-redux";
 import { ConfirmProvider } from "material-ui-confirm";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import store from "../store";
+import store from "../store/store";
 import { ThemeProvider } from "@mui/material";
 import { Notifier } from "../components";
 import Head from "next/head";

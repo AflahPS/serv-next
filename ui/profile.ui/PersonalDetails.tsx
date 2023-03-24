@@ -9,7 +9,6 @@ import {
   IconButton,
   InputAdornment,
   Stack,
-  TextField,
   TextFieldProps,
   Typography,
 } from "@mui/material";
@@ -34,11 +33,12 @@ import {
   validatePhone,
 } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { userDataActions } from "../../store/user-data.slice";
 import { User } from "../../types";
 import { notifierActions } from "../../store/notifier.slice";
-import { editPersonal } from "../../APIs";
+import { changeProfileImage, editPersonal } from "../../APIs";
+import { useStore } from "../../customHooks";
 
 interface Props {
   user: User;
@@ -53,9 +53,10 @@ interface OptionObject {
   };
 }
 
-export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
+export const PersonalDetails: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
   const dispatch = useDispatch();
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
 
   const [isDpUploading, setIsDpUploading] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
@@ -77,6 +78,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
 
+  // for Location autocomplete
   const [options, setOptions] = useState<OptionObject[]>([]);
   const [selectedOption, setSelectedOption] = useState<OptionObject>({
     place: user?.place,
@@ -108,15 +110,9 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
         );
         return;
       }
-      const { data } = await nest({
-        method: "PATCH",
-        url: `/user/image`,
-        data: { image: newDp },
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (!data || data?.status !== "success") {
+      const dataV = { image: newDp };
+      const isUpdated = await changeProfileImage(dataV, token);
+      if (!isUpdated) {
         dispatch(
           notifierActions.error(
             "Something went wrong while updating profile image !"
@@ -124,12 +120,11 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
         );
         return;
       }
-      dispatch(userDataActions.addUserData(data?.user));
+      dispatch(userDataActions.addUserData(isUpdated?.user));
       setIsDpUploading(false);
       dispatch(
         notifierActions.success("Successfully uploaded profile image !")
       );
-      return;
     } catch (err: any) {
       setIsDpUploading(false);
       dispatch(notifierActions.somethingWentWrong());
@@ -236,7 +231,7 @@ export const PersonalDetails: React.FC<Props> = ({ user, isProfileOwner }) => {
           const placeSplitArr = el?.place_name.split(",");
 
           return {
-            place: `${placeSplitArr[0]}, ${
+            place: `${placeSplitArr[0]}, ${placeSplitArr[1]},  ${
               placeSplitArr[placeSplitArr.length - 1]
             }`,
             location: el?.geometry,

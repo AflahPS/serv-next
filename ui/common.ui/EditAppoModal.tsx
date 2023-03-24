@@ -7,19 +7,18 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { Appointment, Vendor } from "../../types";
+import { Appointment } from "../../types";
 import { TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { COLOR } from "../../constants";
-import { editAppointment, makeAppointment } from "../../APIs";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { editAppointment } from "../../APIs";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { useNotification } from "../../customHooks";
-import { notifierActions } from "../../store/notifier.slice";
+import { useNotification, useStore } from "../../customHooks";
+import { notifierActions } from "../../store";
 import { lengthChecker } from "../../utils";
 
 interface Props {
@@ -39,11 +38,9 @@ export const EditAppoModal: React.FC<Props> = (props) => {
 
   const setNotification = useNotification();
   const dispatch = useDispatch();
+  const { token, currentUser } = useStore();
 
-  const token = useSelector((state: StoreState) => state.jwt.token);
-  const currentUser = useSelector((state: StoreState) => state.user.data);
-
-  const [dateTime, setDateTime] = React.useState<string | null>(
+  const [dateTime, setDateTime] = useState<string | null>(
     dayjs(appointment?.date).toISOString()
   );
   const [description, setDescription] = useState(appointment?.description);

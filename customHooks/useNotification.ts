@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../store";
+import { StoreState } from "../store/store";
 import { useContext, useEffect, useState } from "react";
 import { Notification } from "../types";
 import { notifierActions } from "../store/notifier.slice";

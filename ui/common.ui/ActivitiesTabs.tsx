@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import { Box, Divider, Typography } from "@mui/material";
 import React from "react";
 import { ACTIVITIES_TABS, COLOR } from "../../constants";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
-import { activitiesTabActions } from "../../store/activities-tabs.slice";
+import { useDispatch } from "react-redux";
+import { activitiesTabActions } from "../../store";
+import { useStore } from "../../customHooks";
 
 const StyledBox = styled(Box)({
   color: COLOR["H1d-font-primary"],
@@ -19,9 +19,7 @@ const StyledBox = styled(Box)({
 
 export const ActivitiesTabs = () => {
   const dispatch = useDispatch();
-  const currentTab = useSelector(
-    (state: StoreState) => state.activitiesTab.currentTab
-  );
+  const { activitiesTab } = useStore();
 
   return (
     <Box
@@ -32,7 +30,7 @@ export const ActivitiesTabs = () => {
       bgcolor="black"
       sx={{ borderRadius: 3 }}
     >
-      {ACTIVITIES_TABS.map((tab) => (
+      {ACTIVITIES_TABS.map((tab, ind, arr) => (
         <>
           <StyledBox
             key={tab.value}
@@ -40,14 +38,16 @@ export const ActivitiesTabs = () => {
               e.preventDefault();
               dispatch(activitiesTabActions.push(tab.value));
             }}
-            bgcolor={currentTab === tab.value ? COLOR["H1d-ui-primary"] : ""}
+            bgcolor={activitiesTab === tab.value ? COLOR["H1d-ui-primary"] : ""}
             flex={1}
           >
-            <Typography color={currentTab === tab.value ? "black" : ""}>
+            <Typography color={activitiesTab === tab.value ? "black" : ""}>
               {tab.title}
             </Typography>
-          </StyledBox>
-          <Divider variant="middle" orientation="vertical" />
+          </StyledBox>{" "}
+          {ind !== arr.length - 1 && (
+            <Divider variant="middle" orientation="vertical" />
+          )}
         </>
       ))}
     </Box>

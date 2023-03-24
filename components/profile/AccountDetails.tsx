@@ -3,11 +3,13 @@ import React from "react";
 import { PersonalDetails, ProfessionalDetails } from "../../ui";
 import { User } from "../../types";
 
-export const AccountDetails: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
-  const role = user?.role;
+}
+export const AccountDetails: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
+  const { role } = user;
 
   return (
     <Box

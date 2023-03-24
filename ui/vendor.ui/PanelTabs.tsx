@@ -3,10 +3,10 @@ import styled from "@emotion/styled";
 import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { COLOR } from "../../constants";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { panelTabActions } from "../../store/panel-tab.slice";
 import { PANEL_TABS } from "../../constants/PANEL_TABS";
+import { useStore } from "../../customHooks";
 
 const StyledBox = styled(Box)({
   color: COLOR["H1d-font-primary"],
@@ -21,9 +21,7 @@ const StyledBox = styled(Box)({
 
 export const PanelTabs = () => {
   const dispatch = useDispatch();
-  const currentTab = useSelector(
-    (state: StoreState) => state.panelTab.currentTab
-  );
+  const { panelTab } = useStore();
 
   return (
     <Box
@@ -34,7 +32,7 @@ export const PanelTabs = () => {
       bgcolor="black"
       sx={{ borderRadius: 3 }}
     >
-      {PANEL_TABS.map((tab) => (
+      {PANEL_TABS.map((tab, ind, arr) => (
         <>
           <StyledBox
             key={tab.value}
@@ -42,14 +40,16 @@ export const PanelTabs = () => {
               e.preventDefault();
               dispatch(panelTabActions.push(tab.value));
             }}
-            bgcolor={currentTab === tab.value ? COLOR["H1d-ui-primary"] : ""}
+            bgcolor={panelTab === tab.value ? COLOR["H1d-ui-primary"] : ""}
             flex={1}
           >
-            <Typography color={currentTab === tab.value ? "black" : ""}>
+            <Typography color={panelTab === tab.value ? "black" : ""}>
               {tab.title}
             </Typography>
           </StyledBox>
-          <Divider variant="middle" orientation="vertical" />
+          {ind !== arr.length - 1 && (
+            <Divider variant="middle" orientation="vertical" />
+          )}
         </>
       ))}
     </Box>

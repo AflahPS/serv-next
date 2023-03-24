@@ -11,7 +11,7 @@ import { StatStack } from "../../ui";
 import { User } from "../../types";
 import { useDispatch } from "react-redux";
 import { checkIfFriends, deepCloneObject } from "../../utils";
-import { followFriend, unfollowFriend } from "../../APIs";
+import { followFriend, getPostsCountOfUser, unfollowFriend } from "../../APIs";
 import { userDataActions } from "../../store/user-data.slice";
 import { notifierActions } from "../../store/notifier.slice";
 import { useStore } from "../../customHooks";
@@ -28,12 +28,29 @@ export const ProfileHeader: React.FC<Props> = (props) => {
 
   // Checking if the user and profile owner friends.
   const [isFriend, setIsFriend] = useState(false);
+  //TODO:
+  const [postCount, setPostCount] = useState(0);
+
   useEffect(() => {
     if (checkIfFriends(currentUser, user)) {
       setIsFriend(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const getAndSetPostsCount = async () => {
+    try {
+      const { posts } = await getPostsCountOfUser(user._id);
+      if (posts) setPostCount(posts);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    getAndSetPostsCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // FOLLOW & UNFOLLOW
   const handleAddFriend = async () => {
@@ -88,7 +105,7 @@ export const ProfileHeader: React.FC<Props> = (props) => {
         alignItems={"end"}
       >
         <Avatar
-          sx={{ marginLeft: 2, marginBottom: 1, height: 96, width: 96 }}
+          sx={{ marginLeft: 2, marginBottom: 2, height: 96, width: 96 }}
           src={user.image || ""}
         >
           {user.name || ""}
@@ -161,17 +178,16 @@ export const ProfileHeader: React.FC<Props> = (props) => {
       >
         <Stack marginLeft={2}>
           <Typography variant="h6" color={COLOR["H1d-font-primary"]}>
-            {user.name || ""}
+            {user.name || "User Name"}
           </Typography>
           <div></div>
         </Stack>
         <Box display={"flex"} gap={1} marginRight={2}>
-          <StatStack name="Posts" stat="0" />
+          <StatStack name="Posts" stat={`${postCount}`} />
           <StatStack
             name="Follwers"
-            stat={(user.followers && String(user.followers?.length)) || "0"}
+            stat={(user.followers && `${user.followers?.length}`) || "0"}
           />
-          <StatStack name="Following" stat="0" />
         </Box>
       </Box>
     </Stack>

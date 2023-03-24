@@ -12,7 +12,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { COLOR } from "../../constants";
 import { Chat, User } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { useRouter } from "next/router";
 import { chatActions } from "../../store/chatId.slice";
 import { onlineUsersActions } from "../../store/onlineUsers.slice";

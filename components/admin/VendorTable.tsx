@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
 import { Service, User } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import {
   banUser,
   deleteUser,

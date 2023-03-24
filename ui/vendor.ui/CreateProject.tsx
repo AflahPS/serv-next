@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LocationOnOutlined, SendOutlined } from "@mui/icons-material";
 import {
-  Alert,
   Autocomplete,
   Card,
   CardHeader,
@@ -10,21 +9,28 @@ import {
   IconButton,
   InputAdornment,
   MenuItem,
-  Snackbar,
   Typography,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { Box, Stack } from "@mui/system";
-import { useDispatch, useSelector } from "react-redux";
-import { geoCords, geoLocator, lengthChecker, nest } from "../../utils";
+import { useDispatch } from "react-redux";
+import { geoCordsAutoComplete, geoLocator, lengthChecker } from "../../utils";
 import { LinkButton, StyledTextField } from "..";
-import { COLOR, PROJ_STATUSES, USERS } from "../../constants";
+import { COLOR, PROJ_STATUSES } from "../../constants";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { notifierActions } from "../../store/notifier.slice";
+import { notifierActions } from "../../store";
 import { Employee, Project, User } from "../../types";
 import { createProject, getEmployeesOfVendor, getFollowers } from "../../APIs";
-import { StoreState } from "../../store";
+import { useStore } from "../../customHooks";
+
+interface OptionObject {
+  place: string;
+  location: {
+    type: "Point";
+    coordinates: number[];
+  };
+}
 
 interface Props {
   extraSx?: {};
@@ -33,9 +39,23 @@ interface Props {
 
 export const CreateProject: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
-  const token = useSelector((state: any) => state.jwt?.token);
-  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const { token, currentUser } = useStore();
 
+  // FORM STATES
+  const [title, setTitle] = useState("");
+  const [caption, setCaption] = useState("");
+  const [employees, setEmployees] = useState([]);
+  const [client, setClient] = useState("");
+  const [status, setStatus] = useState("");
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [place, setPlace] = useState("");
+  const [location, setLocation] = useState({
+    type: "Ponit",
+    coordinates: [0, 0],
+  });
+
+  // EMPLOYEES MANAGEMENT
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const getAndSetEmployees = async () => {
     try {
@@ -50,6 +70,7 @@ export const CreateProject: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // FOLLOWERS MANAGEMENT
   const [followers, setFollowers] = useState<User[]>([]);
   const getAndSetFollowers = async () => {
     try {
@@ -65,68 +86,69 @@ export const CreateProject: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [title, setTitle] = useState("");
-  const [client, setClient] = useState("");
-  const [status, setStatus] = useState("");
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [place, setPlace] = useState("");
-  const [location, setLocation] = useState({
-    type: "Ponit",
-    coordinates: [0, 0],
+  const [options, setOptions] = useState<OptionObject[]>([]);
+  const [selectedOption, setSelectedOption] = useState<OptionObject>({
+    place: "",
+    location: { type: "Point", coordinates: [0, 0] },
   });
-  const [employees, setEmployees] = useState([]);
-  const [errMessage, setErrMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [caption, setCaption] = useState("");
-
-  const clearFields = () => {
-    setTitle("");
-    setCaption("");
-    setClient("");
-    setStatus("");
-    setStartDate(null);
-    setEndDate;
-    setPlace("");
-    setLocation({
-      type: "Ponit",
-      coordinates: [0, 0],
-    });
-    setEmployees([]);
-  };
 
   const [locationVerified, setLocationVerified] = useState(true);
 
-  // ---- Location finder using MAPBOX
-
-  // Get the coordinates of the location
+  // ---- Location finder using MAPBOX ------ //
+  // Get the coordinates of the location by ICON click
   const getLocation = async () => {
-    navigator.geolocation.getCurrentPosition(function (position) {
+    navigator.geolocation.getCurrentPosition(async function (position) {
       if (position)
-        setLocation({
+        var loc = await geoLocator(
+          position.coords.longitude,
+          position.coords.latitude
+        );
+      if (!loc) return setLocationVerified(false);
+      // setPlace(loc);
+      setSelectedOption({
+        place: loc,
+        location: {
           type: "Point",
           coordinates: [position.coords.longitude, position.coords.latitude],
-        });
+        },
+      });
+      setLocationVerified(true);
     });
-    const loc: any = await geoLocator(
-      location.coordinates[0],
-      location.coordinates[1]
-    );
-    if (!loc) return setLocationVerified(false);
-    setPlace(loc);
-    setLocationVerified(true);
   };
 
-  // Get location if user typed a location
-  const gatherPLace = async (place: string) => {
-    const cords = await geoCords(place);
-    if (!cords) {
-      setLocationVerified(false);
-      return console.warn("Coordinates not found");
-    }
-    if (cords)
-      setLocation({ type: "Point", coordinates: [cords[0], cords[1]] });
-  };
+  // Get the coordinates of the location AutoCompleted
+  useEffect(() => {
+    const gatherSuggestions = async (place: string) => {
+      try {
+        const suggestions = await geoCordsAutoComplete(place);
+        const suggArr = suggestions?.features?.map((el: any) => {
+          const placeSplitArr = el?.place_name.split(",");
+
+          return {
+            place: `${placeSplitArr[0]}, ${
+              placeSplitArr[placeSplitArr.length - 1]
+            }`,
+            location: el?.geometry,
+          };
+        });
+        if (suggArr) {
+          setOptions(suggArr);
+          return;
+        }
+        setOptions([]);
+        setLocationVerified(false);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    gatherSuggestions(place);
+  }, [place]);
+
+  // MISC Functions
+  const getOptionLabel = (option: string | OptionObject) =>
+    (option as OptionObject).place;
+
+  const onSelectValue = (val: OptionObject) => setSelectedOption(val);
 
   const handleStartDateChange = (newValue: Dayjs | null) => {
     setStartDate(newValue);
@@ -139,6 +161,8 @@ export const CreateProject: React.FC<Props> = (props) => {
     dispatch(notifierActions.error(`Invalid data for the field ${field}`));
   }
 
+  // Data validations
+  const [loading, setLoading] = useState(false);
   const verifyData = () => {
     try {
       setLoading(true);
@@ -198,6 +222,22 @@ export const CreateProject: React.FC<Props> = (props) => {
     }
   };
 
+  const clearFields = () => {
+    setTitle("");
+    setCaption("");
+    setClient("");
+    setStatus("");
+    setStartDate(null);
+    setEndDate;
+    setPlace("");
+    setLocation({
+      type: "Ponit",
+      coordinates: [0, 0],
+    });
+    setEmployees([]);
+  };
+
+  // Making the API request
   const handlePost = async () => {
     try {
       if (loading) return;
@@ -210,6 +250,7 @@ export const CreateProject: React.FC<Props> = (props) => {
       if (!addedProject) return dispatch(notifierActions.somethingWentWrong());
       setLoading(false);
       clearFields();
+      props.setProjects((prev) => [...prev, addedProject?.project]);
       dispatch(notifierActions.success("success"));
     } catch (err: any) {
       setLoading(false);
@@ -220,9 +261,6 @@ export const CreateProject: React.FC<Props> = (props) => {
 
   return (
     <Card
-      onClick={() => {
-        setErrMessage("");
-      }}
       sx={{
         boxShadow: 8,
         borderRadius: 3,
@@ -375,33 +413,55 @@ export const CreateProject: React.FC<Props> = (props) => {
 
             {/* LOCATION */}
 
-            <StyledTextField
+            <Autocomplete
+              id="mapbox"
+              getOptionLabel={getOptionLabel}
+              disablePortal
+              freeSolo
               size="small"
-              fullWidth
-              label="Location *"
-              error={!locationVerified}
-              // defaultValue={user.place}
-              helperText={
-                !locationVerified
-                  ? "Sorry, Couldn't locate you. Try the pin icon after 10 seconds or type your location properly."
-                  : ""
-              }
-              onChange={(e: any) => {
-                setLocationVerified(true);
-                setPlace(e?.target?.value);
+              options={options}
+              // loading={l}
+              popupIcon={null}
+              value={selectedOption}
+              onChange={(event: any, newValue: any) => {
+                onSelectValue(newValue);
               }}
-              onBlur={() => {
-                gatherPLace(place);
+              onInputChange={(event, newInputValue) => {
+                setPlace(newInputValue);
               }}
-              value={place}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={getLocation}>
-                      <LocationOnOutlined />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              renderInput={({ InputProps, ...params }) => {
+                return (
+                  <StyledTextField
+                    {...params}
+                    label={"Location"}
+                    fullWidth
+                    size="small"
+                    error={!locationVerified}
+                    helperText={!locationVerified && "Couldn't find location !"}
+                    InputProps={{
+                      ...InputProps,
+
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={getLocation}>
+                            <LocationOnOutlined />
+                          </IconButton>
+                          {InputProps.endAdornment}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                );
+              }}
+              renderOption={(props, option, state) => {
+                const label = getOptionLabel(option);
+                return (
+                  <li {...props}>
+                    <Typography variant="body2" color="text.secondary">
+                      {label}
+                    </Typography>
+                  </li>
+                );
               }}
             />
           </LocalizationProvider>

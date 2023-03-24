@@ -16,7 +16,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { COLOR } from "../../constants";
 import { makeAppointment } from "../../APIs";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { useState } from "react";
 import { useNotification } from "../../customHooks";
 import { notifierActions } from "../../store/notifier.slice";

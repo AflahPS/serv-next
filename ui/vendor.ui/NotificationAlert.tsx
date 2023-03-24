@@ -9,8 +9,9 @@ import { Notification } from "../../types";
 import { useRouter } from "next/router";
 import { removeNotification } from "../../APIs";
 import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import dayjs from "dayjs";
+import { useStore } from "../../customHooks";
 
 interface Props {
   notification: Notification;
@@ -18,7 +19,7 @@ interface Props {
 
 export const NotificationAlert: React.FC<Props> = ({ notification }) => {
   const router = useRouter();
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
   const [open, setOpen] = React.useState(true);
 
   const handleNotificationClick = () => {
@@ -43,7 +44,11 @@ export const NotificationAlert: React.FC<Props> = ({ notification }) => {
         <Alert
           severity={notification?.type}
           onClick={handleNotificationClick}
-          sx={!!notification?.href ? { cursor: "pointer" } : {}}
+          sx={
+            !!notification?.href
+              ? { cursor: "pointer", border: "1px solid #777" }
+              : {}
+          }
           action={
             <IconButton
               aria-label="close"

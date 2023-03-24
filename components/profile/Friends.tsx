@@ -11,34 +11,36 @@ import {
 import { CheckOutlined, ClearOutlined } from "@mui/icons-material";
 import { LinkButton, SearchContainer, TabHeader } from "../../ui";
 import { User } from "../../types";
-import { checkIfFriends, deepCloneObject, nest } from "../../utils";
-import { StoreState } from "../../store";
-import { useDispatch, useSelector } from "react-redux";
-import { followFriend, unfollowFriend } from "../../APIs";
+import {
+  checkIfFriends,
+  deepCloneObject,
+  findCommonInArrays,
+} from "../../utils";
+import { useDispatch } from "react-redux";
+import { followFriend, getFollowers, unfollowFriend } from "../../APIs";
 import { userDataActions } from "../../store/user-data.slice";
 import { AVATAR } from "../../constants";
+import { useStore } from "../../customHooks";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
-export const Friends: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
+}
+
+export const Friends: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
   const dispatch = useDispatch();
-  const currentUser = useSelector((state: StoreState) => state.user.data);
-  const token = useSelector((state: StoreState) => state.jwt.token);
-  const isAuth = useSelector((state: StoreState) => state.auth.isAuth);
+  const [animationRef] = useAutoAnimate();
+  const { currentUser, token, isAuth } = useStore();
 
   const [followers, setFollowers] = useState<User[]>([]);
 
   // Populates the followers details when mounting
-  const getFollwers = async () => {
+  const getAndSetFollowers = async () => {
     try {
-      const { data } = await nest({
-        method: "GET",
-        url: `/user/followers/${user._id}`,
-      });
-      if (data.status === "success") {
-        setFollowers(data?.followers);
-      }
+      const data = await getFollowers(user._id);
+      setFollowers(data ? data : []);
     } catch (err: any) {
       console.error(err?.message);
     }
@@ -53,7 +55,7 @@ export const Friends: React.FC<{
       clonedUser.followers?.push(user._id);
       dispatch(userDataActions.addUserData(clonedUser));
       user?.followers;
-      await getFollwers();
+      await getAndSetFollowers();
     } catch (err: any) {
       console.error(err);
     }
@@ -77,7 +79,7 @@ export const Friends: React.FC<{
   };
 
   useEffect(() => {
-    getFollwers();
+    getAndSetFollowers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -89,7 +91,12 @@ export const Friends: React.FC<{
       </SearchContainer>
 
       {/* GRID Container */}
-      <Grid color={"white"} container spacing={{ xs: 1, md: 2, lg: 3 }}>
+      <Grid
+        color={"white"}
+        ref={animationRef}
+        container
+        spacing={{ xs: 1, md: 2, lg: 3 }}
+      >
         {followers.map((follower, index) => (
           // GRID Items
           <Grid
@@ -145,7 +152,8 @@ export const Friends: React.FC<{
                   color="text.secondary"
                   component="div"
                 >
-                  12 Mutual Friends
+                  {findCommonInArrays(follower.followers!, followers)} Mutual
+                  Friends
                 </Typography>
 
                 {/* Follow & Unfollow Button */}

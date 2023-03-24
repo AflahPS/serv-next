@@ -7,6 +7,8 @@ import { AxiosError } from "axios";
 import { LinearProgress, Typography } from "@mui/material";
 import { COLOR } from "../../constants";
 import { useStore } from "../../customHooks";
+import { notifierActions } from "../../store";
+import { useDispatch } from "react-redux";
 
 interface Props {
   user?: string;
@@ -16,6 +18,7 @@ interface Props {
 export const Feed: React.FC<Props> = (props) => {
   const { user, savedPost } = props;
   const { token } = useStore();
+  const dispatch = useDispatch();
 
   const [pageNum, setPageNum] = useState(0);
   const [totalPosts, setTotalPosts] = useState(1);
@@ -38,19 +41,29 @@ export const Feed: React.FC<Props> = (props) => {
     } catch (err: any) {
       if (err instanceof AxiosError) {
         if (err?.response?.data?.message == "Post not found !!") {
-          console.warn(err?.response?.data?.message);
+          console.warn(err.response.data.message);
           setPosts([]);
           setTotalPosts(0);
           return;
         }
+        if (err?.response?.data?.message == "Unauthorized") {
+          setPosts([]);
+          setTotalPosts(0);
+          dispatch(
+            notifierActions.error(
+              "Something went wrong ! Please logout and login again!"
+            )
+          );
+        }
       }
+      setPosts([]);
+      setTotalPosts(0);
       console.error(err);
     }
   };
 
   useEffect(() => {
     getAndSetPosts();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import Router from "next/router";
 import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 
 const checkIsAdmin = (role: string) => {
   // if (!role) return false;

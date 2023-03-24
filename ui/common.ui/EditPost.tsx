@@ -1,41 +1,38 @@
 import React, { useState } from "react";
+import { CancelOutlined, SendOutlined } from "@mui/icons-material";
 import {
-  CancelOutlined,
-  DeleteOutlineOutlined,
-  PermMediaOutlined,
-  SendOutlined,
-} from "@mui/icons-material";
-import {
-  Alert,
   Autocomplete,
   Avatar,
-  Button,
   Card,
   CardHeader,
   CircularProgress,
   Divider,
-  IconButton,
   ImageList,
   ImageListItem,
-  ImageListItemBar,
   MenuItem,
-  Snackbar,
   Typography,
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import Image from "next/image";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { nest, uploadImages } from "../../utils";
 import { LinkButton, TextFieldCustom2 } from "..";
-import { COLOR, USERS, PROJECTS } from "../../constants";
+import { COLOR, PROJECTS, USERS } from "../../constants";
 import { Post } from "../../types";
-import { StoreState } from "../../store";
+import { useStore } from "../../customHooks";
+import { notifierActions } from "../../store";
+import { editPost } from "../../APIs";
 
-export const EditPost: React.FC<{
+interface Props {
   extraSx?: {};
   post: Post;
   setIsEditable: (input: boolean) => void;
-}> = ({ extraSx, post, setIsEditable }) => {
+}
+
+export const EditPost: React.FC<Props> = (props) => {
+  const { extraSx, post, setIsEditable } = props;
+  const dispatch = useDispatch();
+
   const [tags, setTags] = useState([]);
   const [medias, setMedias] = useState<(File | string)[]>(post.media || []);
   const [previewUrl, setPreviewUrl] = useState<string[]>(post.media || []);
@@ -44,18 +41,7 @@ export const EditPost: React.FC<{
   const [caption, setCaption] = useState(post.caption || "");
   const [project, setProject] = useState(post.project || "");
 
-  const token = useSelector((state: StoreState) => state.jwt.token);
-
-  const [open, setOpen] = useState(false);
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+  const { token } = useStore();
 
   const handleMediaSelected = async (
     event: React.FormEvent<HTMLInputElement>
@@ -129,33 +115,29 @@ export const EditPost: React.FC<{
     }
   };
 
+  const clearFields = () => {
+    setCaption("");
+    setProject("");
+    setTags([]);
+    setMedias([]);
+    setPreviewUrl([]);
+    setErrMessage("");
+  };
+
   const handlePost = async () => {
     try {
-      const data = await verifyData();
-      if (!data) {
+      const dataV = await verifyData();
+      if (!dataV) {
         setLoading(false);
         return;
       }
 
-      const res = await nest({
-        method: "PATCH",
-        url: `post`,
-        data,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (res.data?.status === "success") {
+      const data = await editPost(dataV, token);
+      if (data) {
         setLoading(false);
-        setOpen(true);
-        setCaption("");
-        setProject("");
-        setTags([]);
-        setMedias([]);
-        setPreviewUrl([]);
-        setErrMessage("");
+        dispatch(notifierActions.success(`Successfully updated !`));
+        clearFields();
         setIsEditable(false);
-        // return props.setIsEditable(false);
       }
     } catch (err: any) {
       setLoading(false);
@@ -205,7 +187,7 @@ export const EditPost: React.FC<{
                 setCaption(e.target.value);
               }}
               multiline
-              maxRows={3}
+              maxRows={5}
               placeholder="Write something here..."
               fullWidth
             ></TextFieldCustom2>
@@ -226,19 +208,6 @@ export const EditPost: React.FC<{
                     width={90}
                     height={90}
                     className="my-auto"
-                  />
-                  <ImageListItemBar
-                    sx={{ backgroundColor: "transparent" }}
-                    actionIcon={
-                      <IconButton
-                        onClick={() => {
-                          handleRemoveSelected(ind);
-                        }}
-                        sx={{ color: "red" }}
-                      >
-                        <DeleteOutlineOutlined />
-                      </IconButton>
-                    }
                   />
                 </ImageListItem>
               ))}
@@ -273,28 +242,10 @@ export const EditPost: React.FC<{
         <Stack sx={{ flexDirection: { xs: "column", md: "row" } }} paddingX={3}>
           <Stack
             sx={{ flexDirection: { xs: "column", md: "row" } }}
-            gap={3}
-            justifyContent={"space-around"}
+            paddingX={3}
+            // justifyContent={"start"}
             flex={1}
           >
-            <Button
-              className="bg-H1d-ui-secondary "
-              color="uiBgLight"
-              variant="contained"
-              component="label"
-              startIcon={<PermMediaOutlined />}
-              sx={{ color: COLOR["H1d-font-primary"] }}
-            >
-              Media
-              <input
-                accept="image/*"
-                hidden
-                multiple
-                type="file"
-                onChange={handleMediaSelected}
-              />
-            </Button>
-
             <TextFieldCustom2
               value={project}
               onChange={(e) => {
@@ -318,7 +269,7 @@ export const EditPost: React.FC<{
             display={"flex"}
             justifyContent={"end"}
             gap={2}
-            marginRight={2}
+            paddingX={3}
             sx={{ marginY: { xs: 3, md: 0 } }}
           >
             <LinkButton
@@ -360,12 +311,6 @@ export const EditPost: React.FC<{
           {errMessage}
         </Typography>
       </Card>
-
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfullyupdated the post, changes will be in effect soon !
-        </Alert>
-      </Snackbar>
     </>
   );
 };

@@ -23,6 +23,8 @@ const UserProfile: React.FC<{ user: User }> = ({ user }) => {
 
 export default UserProfile;
 
+// FOR SERVER-SIDE-RENDERING
+
 export async function getServerSideProps(ctx: any) {
   try {
     const userId = ctx.params?.userId;

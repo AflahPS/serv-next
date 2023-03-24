@@ -6,7 +6,6 @@ import { AuthHeading, SimpleCard } from "../../ui";
 export const Checkpoint = () => {
   return (
     <Box
-      // flex={2}
       sx={{ flex: { xs: 1, md: 2 } }}
       bgcolor="black"
       height={"100vh"}

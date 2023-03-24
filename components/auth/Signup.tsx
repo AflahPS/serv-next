@@ -1,32 +1,34 @@
+import React, { useContext, useRef, useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Divider,
-  Snackbar,
   TextFieldProps,
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import React, { useContext, useRef, useState } from "react";
-import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
-import { COLOR } from "../../constants";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { SocketContext, lengthChecker, nest, validateEmail } from "../../utils";
 import { useDispatch } from "react-redux";
-import { authActions } from "../../store/auth.slice";
-import { jwtActions } from "../../store/jwt.slice";
-import { roleActions } from "../../store/role.slice";
-import { userDataActions } from "../../store/user-data.slice";
-import { sideNavTabActions } from "../../store/sidenav-tab.slice";
-import { initializeSocket } from "../../APIs";
+import Link from "next/link";
+
+import {
+  notifierActions,
+  onlineUsersActions,
+  sideNavTabActions,
+  userDataActions,
+  roleActions,
+  jwtActions,
+  authActions,
+} from "../../store";
+import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
+import { SocketContext, lengthChecker, validateEmail } from "../../utils";
+import { COLOR } from "../../constants";
+import { useRouter } from "next/router";
+import { SignupUserReturn, initializeSocket, signupUser } from "../../APIs";
 import { ActiveUser } from "../../types";
-import { onlineUsersActions } from "../../store/onlineUsers.slice";
 
 export const Signup = () => {
   const router = useRouter();
-  const { socket, setSocket } = useContext(SocketContext);
+  const { setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
 
   const nameRef = useRef<TextFieldProps>(null);
@@ -40,18 +42,6 @@ export const Signup = () => {
   const [repeatPasswordVerified, setRepeatPasswordVerified] = useState(true);
 
   const [errMessage, setErrMessage] = useState("");
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
 
   const verifiyData = () => {
     const nameInput = nameRef.current?.value;
@@ -98,8 +88,7 @@ export const Signup = () => {
     };
   };
 
-  const signupDeclare = (data: any) => {
-    setOpen(true);
+  const signupDeclare = (data: SignupUserReturn) => {
     dispatch(authActions.login());
     dispatch(jwtActions.setToken(data?.token));
     dispatch(roleActions.user());
@@ -110,24 +99,21 @@ export const Signup = () => {
     newSocket?.on("get-users", (activeUsers: ActiveUser[]) => {
       dispatch(onlineUsersActions.setUsers(activeUsers));
     });
+    setSocket(newSocket);
+    dispatch(notifierActions.success("Successfully signed up !"));
   };
 
   const handleSignup = async (event: any): Promise<void> => {
-    event.preventDefault();
-
-    setErrMessage("");
-    const dataV = verifiyData();
-    if (!dataV) return;
     try {
-      const { data } = await nest({
-        url: "auth/signup",
-        method: "POST",
-        data: dataV,
-      });
-      if (data?.status === "success") {
-        signupDeclare(data);
-        router.push("/auth/signup/checkpoint");
-      }
+      event.preventDefault();
+      setErrMessage("");
+      // Verifies & Validates the data
+      const dataV = verifiyData();
+      if (!dataV) return;
+      // Make the API request
+      const data = await signupUser(dataV);
+      signupDeclare(data);
+      router.push("/auth/signup/checkpoint");
     } catch (error: any) {
       if (error?.response) {
         let errorResponeMessage = "";
@@ -256,11 +242,6 @@ export const Signup = () => {
           </Box>
         </Box>
       </Stack>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          Successfully signed up !
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

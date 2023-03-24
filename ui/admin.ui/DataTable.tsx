@@ -2,6 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
 import { useState } from "react";
+import Scrollbars from "rc-scrollbars";
 
 export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
   columns,
@@ -41,7 +42,7 @@ export const DataTable: React.FC<{ columns: GridColDef[]; rows: any[] }> = ({
         onPageSizeChange={handleChangeRowsPerPage}
         onPageChange={handlePageChange}
         page={page}
-        // disableSelectionOnClick
+        disableSelectionOnClick
         experimentalFeatures={{ newEditingApi: true }}
         getRowId={(row) => row?._id!}
         rowSpacingType="margin"

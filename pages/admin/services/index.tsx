@@ -11,7 +11,7 @@ import { layoutLoadingActions } from "../../../store/layout-loading.slice";
 import { sideNavTabActions } from "../../../store/sidenav-tab.slice";
 import { AdminTabHeader, NewService } from "../../../ui";
 import { getAllServices, getVendorCountByService } from "../../../APIs";
-import { StoreState } from "../../../store";
+import { StoreState } from "../../../store/store";
 import { Service } from "../../../types";
 import { Box } from "@mui/system";
 

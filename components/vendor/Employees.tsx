@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-
 import { AddEmployee, EmployeeTable } from "../../ui";
-import { Autocomplete } from "@mui/material";
-import { doSearch, getEmployeesOfVendor, getFollowers } from "../../APIs";
-import { Employee, User } from "../../types";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { getEmployeesOfVendor } from "../../APIs";
+import { Employee } from "../../types";
+import { useStore } from "../../customHooks";
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
 
-  const token = useSelector((state: StoreState) => state.jwt.token);
-
+  const { token } = useStore();
   const getAndSetEmployees = async () => {
     try {
       const employees = await getEmployeesOfVendor(token);
