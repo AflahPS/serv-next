@@ -17,6 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>HireOne</title>
+        <link rel="manifest" href="/manifest.json" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Find services available near you !" />
       </Head>
