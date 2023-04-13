@@ -4,10 +4,13 @@ import { CreatePost, TabHeader } from "../../ui";
 import { Feed } from "../common";
 import { User } from "../../types";
 
-export const Timeline: React.FC<{
+interface Props {
   user: User;
   isProfileOwner: boolean;
-}> = ({ user, isProfileOwner }) => {
+}
+
+export const Timeline: React.FC<Props> = (props) => {
+  const { user, isProfileOwner } = props;
   return (
     <Box
       sx={{

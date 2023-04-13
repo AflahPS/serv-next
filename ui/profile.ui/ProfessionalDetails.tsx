@@ -11,6 +11,7 @@ import { SaveAltOutlined, CreateOutlined } from "@mui/icons-material";
 import { Service, User } from "../../types";
 import { useStore } from "../../customHooks";
 import { notifierActions } from "../../store/notifier.slice";
+import { getAllServices, updateProfessionalDetails } from "../../APIs";
 
 const LoadingServiceDummy = {
   title: "Loading..",
@@ -99,15 +100,8 @@ export const ProfessionalDetails: React.FC<Props> = (props) => {
       }
       const dataV = verifyData();
       if (!dataV) return;
-      const { data } = await nest({
-        url: "/vendor/professional",
-        method: "PATCH",
-        data: dataV,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (!data || data?.status !== "success") {
+      const data = await updateProfessionalDetails(dataV, token);
+      if (!data) {
         dispatch(
           notifierActions.error(
             "Something went wrong while updating the professional informations !"
@@ -147,21 +141,16 @@ export const ProfessionalDetails: React.FC<Props> = (props) => {
   };
 
   // For fetching services from backend and setting it
-  // at the mounting time with thw help of useEffect
+  // at the mounting time with the help of useEffect
   const servicesFetcher = async () => {
     try {
-      const { data } = await nest({
-        url: "/service",
-        method: "GET",
-      });
-      if (data?.status === "success") {
-        setAllServices(data?.services);
-        const userService = getServiceById(
-          user?.vendor?.service?._id as string,
-          data?.services
-        );
-        setService(userService);
-      }
+      const data = await getAllServices();
+      setAllServices(data?.services);
+      const userService = getServiceById(
+        user?.vendor?.service?._id as string,
+        data?.services
+      );
+      setService(userService);
     } catch (err: any) {
       console.error(err?.message);
     }

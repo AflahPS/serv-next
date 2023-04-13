@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { StoreState } from "../store";
+import { StoreState } from "../store/store";
 
 export const useStore = () => {
   const isAuth = useSelector((state: StoreState) => state.auth.isAuth);

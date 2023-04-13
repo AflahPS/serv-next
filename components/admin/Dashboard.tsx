@@ -9,7 +9,7 @@ import {
   monthlyMade,
 } from "../../APIs";
 import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { firstLetterCapitalizer } from "../../utils";
 
 interface PieData {

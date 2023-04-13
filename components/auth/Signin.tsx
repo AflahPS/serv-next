@@ -1,5 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   Box,
   Button,
@@ -12,30 +14,30 @@ import {
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
+import { AxiosError } from "axios";
+import { FacebookOutlined } from "@mui/icons-material";
+import GoogleIcon from "@mui/icons-material/Google";
+
 import { AuthHeading, LinkButton, TextFieldCustom2 } from "../../ui";
 import { COLOR } from "../../constants";
-import Link from "next/link";
-import { useRouter } from "next/router";
 import {
   SocketContext,
   facebookAuth,
   firebaseAuth,
   googleAuth,
   lengthChecker,
-  nest,
   validateEmail,
 } from "../../utils";
-import { authActions } from "../../store/auth.slice";
-import { jwtActions } from "../../store/jwt.slice";
-import { roleActions } from "../../store/role.slice";
-import { userDataActions } from "../../store/user-data.slice";
-import { sideNavTabActions } from "../../store/sidenav-tab.slice";
-import { AxiosError } from "axios";
-import { notifierActions } from "../../store/notifier.slice";
+import {
+  authActions,
+  jwtActions,
+  roleActions,
+  userDataActions,
+  sideNavTabActions,
+  notifierActions,
+  onlineUsersActions,
+} from "../../store";
 import { initializeSocket, signinUser, signinWithProvider } from "../../APIs";
-import { onlineUsersActions } from "../../store/onlineUsers.slice";
-import { FacebookOutlined } from "@mui/icons-material";
-import GoogleIcon from "@mui/icons-material/Google";
 import { signInWithPopup } from "firebase/auth";
 import { ActiveUser } from "../../types";
 
@@ -46,7 +48,7 @@ interface Props {
 export const Signin: React.FC<Props> = ({ isAdmin }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { socket, setSocket } = useContext(SocketContext);
+  const { setSocket } = useContext(SocketContext);
 
   const [emailVeriied, setEmailVeriied] = useState(true);
   const [passwordVeriied, setPasswordVeriied] = useState(true);
@@ -296,9 +298,6 @@ export const Signin: React.FC<Props> = ({ isAdmin }) => {
                 justifyContent={"space-around"}
                 height={"18%"}
               >
-                {/* <Typography color={"red"} textAlign={"center"} variant="body2">
-                  {errMessage}
-                </Typography> */}
                 <Typography sx={{ color: COLOR["H1d-font-primary"] }}>
                   {"Sign in with   "}
                   <IconButton

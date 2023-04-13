@@ -8,7 +8,7 @@ import {
   getUsersByRole,
 } from "../../APIs/User.api";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { User } from "../../types";
 import { GridColDef } from "@mui/x-data-grid";
 import { Avatar, IconButton, Tooltip } from "@mui/material";

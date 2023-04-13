@@ -1,14 +1,11 @@
 import { Box } from "@mui/material";
 import React from "react";
 import { PanelTabs } from "../../ui";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { Appointments, Employees, Projects, VendorPanel } from ".";
+import { useStore } from "../../customHooks";
 
 export const Panel = () => {
-  const currentTab = useSelector(
-    (state: StoreState) => state.panelTab.currentTab
-  );
+  const { panelTab } = useStore();
 
   return (
     <Box
@@ -20,10 +17,10 @@ export const Panel = () => {
       }}
     >
       <PanelTabs />
-      {currentTab === "dashboard" && <VendorPanel />}
-      {currentTab === "appointments" && <Appointments />}
-      {currentTab === "employees" && <Employees />}
-      {currentTab === "projects" && <Projects />}
+      {panelTab === "dashboard" && <VendorPanel />}
+      {panelTab === "appointments" && <Appointments />}
+      {panelTab === "employees" && <Employees />}
+      {panelTab === "projects" && <Projects />}
       {/* {currentTab === "jobs" && <Jobs />} */}
     </Box>
   );

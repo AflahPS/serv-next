@@ -27,10 +27,9 @@ import {
 } from "../../APIs";
 import { ChatMessageComp } from "./ChatMessage";
 import dayjs from "dayjs";
-import { chatActions } from "../../store/chatId.slice";
+import { chatActions, chatListActions } from "../../store";
 import { useConfirm } from "material-ui-confirm";
 import { AxiosError } from "axios";
-import { chatListActions } from "../../store/chatList.slice";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useStore } from "../../customHooks";
 import { ChatLi, TabHeader } from "../../ui";
@@ -38,21 +37,17 @@ import { SocketContext } from "../../utils";
 
 export const ChatComp = () => {
   const dispatch = useDispatch();
-  // const router = useRouter();
   const confirmer = useConfirm();
+  const { selectedChat, currentUser, token, chatList } = useStore();
+  const { socket } = useContext(SocketContext);
   const scroll = useRef<HTMLDivElement>();
   const [animeRef] = useAutoAnimate();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [currentChat, setCurrentChat] = useState<Chat>();
-
   const [sendMessageIo, setSendMessageIo] = useState<any>(null);
   const [recieveMessageIo, setRecieveMessageIo] = useState<any>(null);
-
-  const { selectedChat, currentUser, token, chatList } = useStore();
-
-  const { socket } = useContext(SocketContext);
 
   const getAndSetChat = async () => {
     try {
@@ -275,6 +270,11 @@ export const ChatComp = () => {
                 refer={scroll}
                 key={msg._id}
                 isAuthor={checkIfAuthor(msg.author)}
+                avatar={
+                  checkIfAuthor(msg.author)
+                    ? currentUser?.image
+                    : getFriendObjectFromChat()?.image
+                }
                 text={msg.text}
                 date={dayjs(msg.createdAt).format("LLL")}
               />

@@ -35,7 +35,7 @@ import { roleActions } from "../../store/role.slice";
 import { jwtActions } from "../../store/jwt.slice";
 import { SearchContainer, SearchList } from "../../ui";
 import { userDataActions } from "../../store/user-data.slice";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { useRouter } from "next/router";
 import { doSearch } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";

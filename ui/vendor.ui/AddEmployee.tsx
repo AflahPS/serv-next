@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addNewEmployee, getFollowers } from "../../APIs";
-import { StoreState } from "../../store";
 import { Stack } from "@mui/system";
 import { TextFieldCustom2 } from "../common.ui";
 import { Autocomplete, Button, Typography } from "@mui/material";
 import { AddOutlined } from "@mui/icons-material";
 import { Employee, User } from "../../types";
 import { notifierActions } from "../../store/notifier.slice";
+import { useStore } from "../../customHooks";
 
 interface Props {
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
@@ -15,12 +15,11 @@ interface Props {
 }
 
 export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
+  const { currentUser, token } = useStore();
   const dispatch = useDispatch();
+
   const [followers, setFollowers] = useState<User[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<User>();
-
-  const currentUser = useSelector((state: StoreState) => state.user.data);
-  const token = useSelector((state: StoreState) => state.jwt.token);
 
   const getAndSetFollowers = async () => {
     try {
@@ -72,7 +71,7 @@ export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
   };
 
   return (
-    <Stack direction={"row"} gap={3} paddingX={2} marginTop={3}>
+    <Stack direction={"row"} gap={3} paddingX={2} marginTop={2}>
       <Autocomplete
         multiple={false}
         onChange={(event: any, value: any) => {
@@ -83,6 +82,12 @@ export const AddEmployee: React.FC<Props> = ({ setEmployees, employees }) => {
         id="multiple-limit-tags"
         options={followers}
         getOptionLabel={(option) => option.name}
+        // renderOption={(props, opt) => (
+        //   <option key={opt?.name}>
+        //     <Avatar src={opt?.image}></Avatar>
+        //     <Typography variant="subtitle1">{opt?.name}</Typography>
+        //   </option>
+        // )}
         // defaultValue={""}
         renderInput={(params) => (
           <TextFieldCustom2

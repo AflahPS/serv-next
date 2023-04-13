@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
 import { Post } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { deletePost, getAllPosts, getAllServices } from "../../APIs";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
 import { DeleteOutlineOutlined } from "@mui/icons-material";

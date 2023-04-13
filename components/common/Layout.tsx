@@ -5,9 +5,8 @@ import { NavBar } from "./NavBar";
 import { SideNav } from "./SideNav";
 import { LoadingCard } from "../../ui";
 import { COLOR, SIDE_NAV_LINKS } from "../../constants";
-import { StoreState } from "../../store";
 import { SideNavLink } from "../../types";
-import { useSelector } from "react-redux";
+import { useStore } from "../../customHooks";
 
 interface Props {
   SideNavLinks?: SideNavLink[];
@@ -15,11 +14,7 @@ interface Props {
 }
 
 export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
-  const isLoading = useSelector(
-    (state: StoreState) => state.layoutLoading.isLayoutLoading
-  );
-
-  const role = useSelector((state: StoreState) => state.role.currentUser);
+  const { layoutLoading } = useStore();
 
   // Selecting sidenavLinks according to user/admin layout settings
   let sideLinks;
@@ -40,7 +35,7 @@ export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
       >
         <SideNav SideNavLinks={sideLinks} />
         <Box paddingX={0} flex={3.5} paddingY={{ xs: 0.5, md: 1, lg: 2 }}>
-          {isLoading && (
+          {layoutLoading && (
             <Card
               sx={{
                 backgroundColor: COLOR["H1d-ui-bg"],
@@ -56,9 +51,9 @@ export const Layout: React.FC<Props> = ({ children, SideNavLinks }) => {
               <LoadingCard />
             </Card>
           )}
-          {!isLoading && children}
+          {!layoutLoading && children}
         </Box>
-        {role !== "guest" && <ChatRight />}
+        <ChatRight />
       </Stack>
     </>
   );

@@ -2,7 +2,7 @@ import { Provider } from "react-redux";
 import { ConfirmProvider } from "material-ui-confirm";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import store from "../store";
+import store from "../store/store";
 import { ThemeProvider } from "@mui/material";
 import { Notifier } from "../components";
 import Head from "next/head";
@@ -17,6 +17,8 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>HireOne</title>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#50B5FF" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Find services available near you !" />
       </Head>

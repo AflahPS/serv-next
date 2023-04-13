@@ -18,10 +18,13 @@ const initialOption: LocationObject = {
   coordinates: [0, 0],
 };
 
-const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
-  users,
-  serviceId,
-}) => {
+interface Props {
+  users: User[];
+  serviceId: string;
+}
+
+const ServiceId: React.FC<Props> = (props) => {
+  const { users, serviceId } = props;
   const [userArr, setUserArr] = useState<User[]>([]);
   const [location, setLocation] = useState<LocationObject>(initialOption);
 
@@ -87,6 +90,8 @@ const ServiceId: React.FC<{ users: User[]; serviceId: string }> = ({
   );
 };
 
+//// For Server-side-rendering ////
+
 async function getVendors(id: string) {
   try {
     const { data } = await nest({
@@ -104,15 +109,13 @@ async function getVendors(id: string) {
 export async function getServerSideProps(context: any) {
   // Fetch data from the server or API
   try {
-    const serviceId = context.params.serviceId;
+    const serviceId: string = context.params.serviceId;
     const vendorData = await getVendors(serviceId);
-    const ret = {
-      users: vendorData?.users,
-      serviceId,
-    };
-
     return {
-      props: ret,
+      props: {
+        users: vendorData?.users,
+        serviceId,
+      },
     };
   } catch (err: any) {
     console.error(err.message);

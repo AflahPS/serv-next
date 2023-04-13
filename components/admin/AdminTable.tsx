@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { DataTable } from "../../ui";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { RoleDataV, changeRole, getUsersByRole } from "../../APIs";
 import { User } from "../../types";
 import { Avatar, IconButton, Tooltip } from "@mui/material";

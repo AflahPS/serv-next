@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Layout } from "../../components/common";
 import { ProfileComplete } from "../../components/profile";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
 import { useRouter } from "next/router";
 

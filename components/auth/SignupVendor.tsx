@@ -1,5 +1,5 @@
+import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Autocomplete,
   Box,
   Button,
@@ -7,21 +7,22 @@ import {
   IconButton,
   InputAdornment,
   MenuItem,
-  Snackbar,
   Typography,
 } from "@mui/material";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Stack } from "@mui/system";
-import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import {
   AuthHeading,
   LinkButton,
   TextFieldCustom2,
-  LabelCustom,
   StyledTextField,
 } from "../../ui";
-import { ChevronRightOutlined, LocationOnOutlined } from "@mui/icons-material";
-import Link from "next/link";
 import {
   firebaseAuth,
   geoCords,
@@ -29,18 +30,15 @@ import {
   geoLocator,
   nest,
 } from "../../utils";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
-import { userDataActions } from "../../store/user-data.slice";
-import { roleActions } from "../../store/role.slice";
-import { jwtActions } from "../../store/jwt.slice";
+import {
+  userDataActions,
+  roleActions,
+  jwtActions,
+  sideNavTabActions,
+  notifierActions,
+} from "../../store";
 import { Service } from "../../types";
-import { sideNavTabActions } from "../../store/sidenav-tab.slice";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { notifierActions } from "../../store/notifier.slice";
-import { User } from "aws-sdk/clients/budgets";
-import { signupUser } from "../../APIs";
+import { signupVendor } from "../../APIs";
 
 interface OptionObject {
   place: string;
@@ -54,7 +52,7 @@ export const SignupVendor = () => {
   const dispatch = useDispatch();
 
   const serviceRef = useRef<HTMLInputElement>();
-  const locationRef = useRef<HTMLInputElement>();
+  // const locationRef = useRef<HTMLInputElement>();
   const phoneRef = useRef<HTMLInputElement>();
   const aboutRef = useRef<HTMLInputElement>();
 
@@ -274,7 +272,7 @@ export const SignupVendor = () => {
     const verified = verifyBeforeSignup();
     if (!verified) return;
     try {
-      const newData = await signupUser(verified, token);
+      const newData = await signupVendor(verified, token);
       if (newData?.status === "success") {
         dispatch(notifierActions.success("You have successfully signed up!"));
         dispatch(jwtActions.setToken(newData?.token));

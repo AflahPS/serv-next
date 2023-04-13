@@ -1,13 +1,17 @@
 import { Box, Card, CardContent, Typography, Avatar } from "@mui/material";
-import React from "react";
+import React, { FC } from "react";
 import { COLOR } from "../../constants";
 
-export const ChatMessageComp: React.FC<{
+interface Props {
   isAuthor?: boolean;
   text: string;
   date: string;
   refer: any;
-}> = ({ isAuthor, date, text, refer }) => {
+  avatar?: string;
+}
+
+export const ChatMessageComp: FC<Props> = (props) => {
+  const { isAuthor, date, text, refer, avatar } = props;
   return (
     <Box
       ref={refer}
@@ -16,7 +20,7 @@ export const ChatMessageComp: React.FC<{
       alignItems={"center"}
       gap={1}
     >
-      {!isAuthor && <Avatar></Avatar>}
+      {!isAuthor && <Avatar src={avatar}></Avatar>}
       <Card
         sx={{
           borderRadius: 3,
@@ -35,7 +39,7 @@ export const ChatMessageComp: React.FC<{
           </Typography>
         </CardContent>
       </Card>
-      {isAuthor && <Avatar></Avatar>}
+      {isAuthor && <Avatar src={avatar}></Avatar>}
     </Box>
   );
 };

@@ -3,12 +3,9 @@ import { AppointmentsTableUser } from "../../ui";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
-import { sideNavTabActions } from "../../store/sidenav-tab.slice";
 
 export const AppointmentsUser = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const handleNewClick = () => {
     router.push("/services");
   };
@@ -21,7 +18,7 @@ export const AppointmentsUser = () => {
         display={"flex"}
         justifyContent={"center"}
       >
-        <Button variant="outlined" onClick={handleNewClick}>
+        <Button variant="outlined" fullWidth onClick={handleNewClick}>
           <Typography variant="button" fontSize={16}>
             <Stack direction={"row"} gap={1}>
               {`Create New Appointment`}
@@ -30,6 +27,7 @@ export const AppointmentsUser = () => {
           </Typography>
         </Button>
       </Box>
+
       <AppointmentsTableUser />
     </>
   );

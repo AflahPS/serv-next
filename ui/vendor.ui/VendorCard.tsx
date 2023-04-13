@@ -20,7 +20,7 @@ import {
 } from "@mui/icons-material";
 import { MakeAppoModal } from "./MakeAppoModal";
 import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import Link from "next/link";
 import { COLOR } from "../../constants";
 

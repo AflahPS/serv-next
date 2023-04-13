@@ -7,7 +7,7 @@ import { GridColDef } from "@mui/x-data-grid";
 import { deleteService } from "../../APIs";
 import { useConfirm } from "material-ui-confirm";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { notifierActions } from "../../store/notifier.slice";
 
 interface Props {

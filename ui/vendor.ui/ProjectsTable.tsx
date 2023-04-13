@@ -5,11 +5,12 @@ import { Project } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { useConfirm } from "material-ui-confirm";
 import { deleteProject } from "../../APIs";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { notifierActions } from "../../store/notifier.slice";
 import { GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { DataTable } from "../admin.ui";
+import { useStore } from "../../customHooks";
 
 interface Props {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -19,8 +20,7 @@ interface Props {
 export const ProjectsTable: React.FC<Props> = ({ setProjects, projects }) => {
   const dispatch = useDispatch();
   const confirmer = useConfirm();
-
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
 
   function dataFormatter(projects: Project[]) {
     function renderClientAvatar(row: Project) {

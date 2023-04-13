@@ -12,20 +12,21 @@ import {
   TablePagination,
 } from "@mui/material";
 import { useRouter } from "next/router";
+import { Scrollbars } from "rc-scrollbars";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { Appointment } from "../../types";
 import { getAppointments, deleteAppointments } from "../../APIs";
 import dayjs from "dayjs";
 import { firstLetterCapitalizer } from "../../utils";
-import { notifierActions } from "../../store/notifier.slice";
+import { notifierActions } from "../../store";
 import { useConfirm } from "material-ui-confirm";
 import { EditAppoModal } from "./EditAppoModal";
+import { useStore } from "../../customHooks";
 
 export const AppointmentsTableUser: React.FC = () => {
   const router = useRouter();
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
   const confirmer = useConfirm();
 
   // Pagination
@@ -108,83 +109,88 @@ export const AppointmentsTableUser: React.FC = () => {
     edit: JSX.Element;
     action: JSX.Element;
   }
-  const rows: Data[] = appointments.map((appo) => {
-    return {
-      image: (
-        <IconButton
-          onClick={() => {
-            router.push(`/profile/${appo.vendor?._id}`);
-          }}
-        >
-          <Avatar src={appo.vendor?.image}>{appo.vendor?.name}</Avatar>
-        </IconButton>
-      ),
+  const rows: Data[] = !appointments
+    ? []
+    : appointments.map((appo) => {
+        return {
+          image: (
+            <IconButton
+              onClick={() => {
+                router.push(`/profile/${appo.vendor?._id}`);
+              }}
+            >
+              <Avatar src={appo.vendor?.image}>{appo.vendor?.name}</Avatar>
+            </IconButton>
+          ),
 
-      name: String(appo.vendor?.name),
-      place: String(appo.vendor?.place),
-      description: String(`${appo?.description?.slice(0, 35)}...`),
-      date: dayjs(appo.date).format("LLL"),
-      status: firstLetterCapitalizer(appo.status),
-      edit: (
-        <IconButton
-          onClick={() => {
-            handleEdit(appo);
-          }}
-        >
-          <EditOutlined color="info" />
-        </IconButton>
-      ),
-      action: (
-        <IconButton
-          onClick={() => {
-            handleDelete(appo._id, token);
-          }}
-        >
-          <DeleteOutlineOutlined color="error" />
-        </IconButton>
-      ),
-    };
-  });
+          name: String(appo.vendor?.name),
+          place: String(appo.vendor?.place),
+          description: String(`${appo?.description?.slice(0, 35)}...`),
+          date: dayjs(appo.date).format("LLL"),
+          status: firstLetterCapitalizer(appo.status),
+          edit: (
+            <IconButton
+              onClick={() => {
+                handleEdit(appo);
+              }}
+            >
+              <EditOutlined color="info" />
+            </IconButton>
+          ),
+          action: (
+            <IconButton
+              onClick={() => {
+                handleDelete(appo._id, token);
+              }}
+            >
+              <DeleteOutlineOutlined color="error" />
+            </IconButton>
+          ),
+        };
+      });
 
   return (
     <Paper
-      sx={{ width: "100%", overflow: "hidden", marginY: 5, borderRadius: 3 }}
+      sx={{ width: "100%", overflow: "hidden", marginY: 2, borderRadius: 3 }}
     >
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {HEADERS.map((h) => (
-                <TableCell sx={{ backgroundColor: "black" }} key={h.id}>
-                  {h.title}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any, ind) => {
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row?.date || ind}
-                  >
-                    {HEADERS.map((column: Header) => {
-                      return (
-                        <TableCell key={column.id} align="left">
-                          {row[column.id]}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
+      <TableContainer sx={{ maxHeight: 520 }}>
+        <Scrollbars style={{ height: 520 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {HEADERS.map((h) => (
+                  <TableCell sx={{ backgroundColor: "black" }} key={h.id}>
+                    {h.title}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.map((row: any, ind) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row?.date || ind}
+                    >
+                      {HEADERS?.map((column: Header) => {
+                        return (
+                          <TableCell key={column.id} align="left">
+                            {row[column.id]}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </Scrollbars>
       </TableContainer>
+
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"

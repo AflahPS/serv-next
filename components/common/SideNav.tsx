@@ -20,7 +20,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AnyAction, Dispatch } from "@reduxjs/toolkit";
 import { sideNavTabActions } from "../../store/sidenav-tab.slice";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
 import { SideNavLink } from "../../types";
 

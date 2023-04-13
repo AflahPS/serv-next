@@ -18,7 +18,7 @@ import {
   ThumbUpAltOutlined,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { deleteCommentById, getCommentLikes, likeComment } from "../../APIs";
 import { useConfirm } from "material-ui-confirm";
 

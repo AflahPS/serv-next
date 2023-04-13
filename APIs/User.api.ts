@@ -173,3 +173,56 @@ export const editPersonal = async (token: string, dataV: EditPersonal) => {
     throw err;
   }
 };
+
+interface ChangeImage {
+  image: string;
+}
+
+export const changeProfileImage = async (dataV: ChangeImage, token: string) => {
+  try {
+    const { data } = await nest({
+      method: "PATCH",
+      url: `/user/image`,
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data;
+    }
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};
+
+interface ProfessionalData {
+  service: string;
+  workingDays: string;
+  workRadius: string;
+  experience: string;
+  about: string;
+}
+
+export const updateProfessionalDetails = async (
+  dataV: ProfessionalData,
+  token: string
+) => {
+  try {
+    const { data } = await nest({
+      url: "/vendor/professional",
+      method: "PATCH",
+      data: dataV,
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    if (data?.status === "success") {
+      return data;
+    }
+    return null;
+  } catch (err) {
+    throw err;
+  }
+};

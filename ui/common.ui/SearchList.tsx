@@ -13,7 +13,7 @@ import { COLOR } from "../../constants";
 import { Pose } from "aws-sdk/clients/rekognition";
 import { ChatBubbleOutline } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
 import { getSingleChat, startChat } from "../../APIs";
 import { chatActions } from "../../store/chatId.slice";
 import { chatListActions } from "../../store/chatList.slice";

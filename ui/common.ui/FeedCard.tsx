@@ -6,8 +6,8 @@ import {
   SendOutlined,
 } from "@mui/icons-material";
 import {
-  Alert,
   Avatar,
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -20,19 +20,16 @@ import {
   InputAdornment,
   Menu,
   MenuItem,
-  Snackbar,
   Typography,
   styled,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { COLOR } from "../../constants";
 import Carousel from "react-material-ui-carousel";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { TextFieldCustom2 } from "./TextFieldCustom2";
 import { LinkButton, EditPost } from ".";
 import { Comments } from "../../components/common";
-import { nest } from "../../utils";
 import { Like, Post } from "../../types";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
@@ -41,13 +38,15 @@ import {
   addComment,
   addToSavedPost,
   deletePost,
+  getLikesOfPost,
   likePost,
   removeFromSavedPost,
   reportPost,
 } from "../../APIs";
 import { notifierActions } from "../../store/notifier.slice";
-import { useNotification } from "../../customHooks";
+import { useNotification, useStore } from "../../customHooks";
 import { userDataActions } from "../../store/user-data.slice";
+import Image from "next/image";
 // import { EditPost } from "./EditPost";
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -75,9 +74,7 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
   const dispatch = useDispatch();
   const setNotification = useNotification();
 
-  const role = useSelector((state: StoreState) => state.role.currentUser);
-  const user = useSelector((state: StoreState) => state.user.data);
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { role, currentUser: user, token } = useStore();
 
   const isOwner =
     user?.name && post.owner?._id?.toString() === user?._id?.toString();
@@ -104,14 +101,11 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
   useEffect(() => {
     try {
       (async () => {
-        const { data } = await nest({
-          url: `/post/like/${post._id}`,
-          method: "GET",
-        });
-        if (!user || !data) return;
-        setLikeCount(data?.results);
-        if (!data?.results) return;
-        const liked = data?.likes?.some(
+        const likeData = await getLikesOfPost(post._id);
+        if (!user || !likeData) return;
+        setLikeCount(likeData?.results);
+        if (!likeData?.results) return;
+        const liked = likeData?.likes?.some(
           (like: Like) => like?.user?._id?.toString() === user?._id?.toString()
         );
         liked && setIsChecked(liked);
@@ -376,16 +370,32 @@ export const FeedCard: React.FC<Props> = ({ post }) => {
           {/*  Image carousel  */}
 
           {post.media.length > 0 && (
-            <Carousel autoPlay={false}>
-              {post.media.map((image, ind) => (
-                <CardMedia
-                  key={ind}
-                  component={"img"}
-                  image={image}
-                  alt={`Post image`}
-                />
-              ))}
-            </Carousel>
+            <CardMedia>
+              <Carousel autoPlay={false}>
+                {post.media.map((image, ind) => (
+                  <Box
+                    position={"relative"}
+                    height={{
+                      xs: "100vw",
+                      sm: "75vw",
+                      md: "50vw",
+                      lg: "600px",
+                    }}
+                    key={ind}
+                  >
+                    <Image
+                      src={image}
+                      alt={`Post image`}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      sizes="(max-width: 768px) 100vw,
+                    (max-width: 1200px) 50vw,
+                    33vw"
+                    />
+                  </Box>
+                ))}
+              </Carousel>
+            </CardMedia>
           )}
 
           {/*  CAPTION */}

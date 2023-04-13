@@ -64,3 +64,13 @@ export const deepCloneObject = (obj: {}) => JSON.parse(JSON.stringify(obj));
 export const checkIfAdmin = (user: User): boolean => {
   return user.role === "admin" || user.role === "super-admin";
 };
+
+export const findCommonInArrays = (arr1: any[], arr2: any[]): number => {
+  let count = 0;
+  for (let i = 0; i < arr1.length; i++) {
+    for (let j = 0; j < arr2.length; j++) {
+      if (arr1[i] === arr2[j]) count++;
+    }
+  }
+  return count;
+};

@@ -5,7 +5,6 @@ import {
   SendOutlined,
 } from "@mui/icons-material";
 import {
-  Alert,
   Autocomplete,
   Avatar,
   Button,
@@ -18,16 +17,17 @@ import {
   ImageListItem,
   ImageListItemBar,
   MenuItem,
-  Snackbar,
   Typography,
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import Image from "next/image";
 import { useSelector } from "react-redux";
-import { nest, uploadImages } from "../../utils";
+import { lengthChecker, nest, uploadImages } from "../../utils";
 import { LinkButton, TextFieldCustom2 } from "..";
 import { COLOR, USERS, PROJECTS } from "../../constants";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
+import { useStore } from "../../customHooks";
+import { createPost } from "../../APIs";
 
 export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [tags, setTags] = useState([]);
@@ -38,19 +38,18 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
   const [caption, setCaption] = useState("");
   const [project, setProject] = useState("");
 
-  const token = useSelector((state: StoreState) => state.jwt.token);
-  const currentUser = useSelector((state: StoreState) => state.user.data);
+  const { token, currentUser } = useStore();
 
-  const [open, setOpen] = useState(false);
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
+  // const [open, setOpen] = useState(false);
+  // const handleClose = (
+  //   event?: React.SyntheticEvent | Event,
+  //   reason?: string
+  // ) => {
+  //   if (reason === "clickaway") {
+  //     return;
+  //   }
+  //   setOpen(false);
+  // };
 
   const handleMediaSelected = async (
     event: React.FormEvent<HTMLInputElement>
@@ -99,18 +98,17 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
       setLoading(true);
       const uploadedUrls = await uploadImages(medias);
       const tagged = tags.map((tag: any) => tag._id);
-
       const captionInput = caption;
-      if (captionInput.length < 2) {
-        setErrMessage("Please write something about this post !");
+      if (!lengthChecker(captionInput, 2, 500)) {
+        setErrMessage(
+          "Please write something about this post (in 2-500 letters) !"
+        );
         return false;
       }
-
       if (!project) {
         setErrMessage("Please select the project related to this post !");
         return false;
       }
-
       return {
         mediaType: "image",
         media: uploadedUrls,
@@ -123,31 +121,26 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
     }
   };
 
+  const clearFields = () => {
+    setLoading(false);
+    // setOpen(true);
+    setCaption("");
+    setProject("");
+    setTags([]);
+    setMedias([]);
+    setPreviewUrl([]);
+    setErrMessage("");
+  };
+
   const handlePost = async () => {
     try {
-      const data = await verifyData();
-      if (!data) {
+      const dataV = await verifyData();
+      if (!dataV || dataV === undefined) {
         setLoading(false);
         return;
       }
-      const res = await nest({
-        method: "POST",
-        url: "post",
-        data,
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (res.data?.status === "success") {
-        setLoading(false);
-        setOpen(true);
-        setCaption("");
-        setProject("");
-        setTags([]);
-        setMedias([]);
-        setPreviewUrl([]);
-        setErrMessage("");
-      }
+      const data = await createPost(dataV, token);
+      if (data) clearFields();
     } catch (err: any) {
       setLoading(false);
       setErrMessage(err.message || "Something went wrong !");
@@ -164,8 +157,6 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         sx={{
           boxShadow: 8,
           borderRadius: 3,
-          // maxWidth: "100%",
-          // ...props.extraSx,
           width: "100%",
           marginX: "auto",
           paddingBottom: 1,
@@ -206,6 +197,16 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
               multiline
               maxRows={3}
               placeholder="Write something here..."
+              helperText={caption?.length ? `${caption.length}/ (2-500)` : ""}
+              FormHelperTextProps={{
+                sx: {
+                  color:
+                    caption?.length > 500 || caption?.length < 2
+                      ? "red"
+                      : "inherit",
+                  textAlign: "right",
+                },
+              }}
               fullWidth
             ></TextFieldCustom2>
           </Box>
@@ -250,11 +251,8 @@ export const CreatePost: React.FC<{ extraSx?: {} }> = (props) => {
         <Box
           paddingY={{ xs: 1, sm: 2, md: 3 }}
           paddingX={3}
-          // marginLeft={"auto"}
-          // marginRight={5}
           display={"flex"}
           justifyContent={"center"}
-          // alignItems={"center"}
         >
           <Autocomplete
             multiple

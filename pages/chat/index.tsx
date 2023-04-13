@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { Layout } from "../../components/common";
 import { useDispatch } from "react-redux";
-import { layoutLoadingActions } from "../../store/layout-loading.slice";
 import { Card } from "@mui/material";
 import { COLOR } from "../../constants";
-import { sideNavTabActions } from "../../store/sidenav-tab.slice";
+import { sideNavTabActions, layoutLoadingActions } from "../../store";
 
 import { ChatComp } from "../../components";
 

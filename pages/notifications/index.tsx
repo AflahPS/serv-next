@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
 import { Layout, Notifications } from "../../components/common";
-import { LoadingCard, TabHeader } from "../../ui";
-import { useDispatch, useSelector } from "react-redux";
+import { TabHeader } from "../../ui";
+import { useDispatch } from "react-redux";
 import { layoutLoadingActions } from "../../store/layout-loading.slice";
-import { Card, CardHeader, CardContent, Typography } from "@mui/material";
+import { Card } from "@mui/material";
 import { COLOR } from "../../constants";
-import { StoreState } from "../../store";
 
 const Index = () => {
   const dispatch = useDispatch();

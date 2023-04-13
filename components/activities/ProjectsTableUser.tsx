@@ -1,25 +1,23 @@
 import {
-  DeleteOutlineOutlined,
   DoneOutlineOutlined,
   ReportGmailerrorredOutlined,
 } from "@mui/icons-material";
 import { IconButton, Avatar, Tooltip, Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { Project } from "../../types";
-import { useDispatch, useSelector } from "react-redux";
-import { useConfirm } from "material-ui-confirm";
-import { getProjectsOfUser, reportProject, unreportProject } from "../../APIs";
-import { StoreState } from "../../store";
-import { notifierActions } from "../../store/notifier.slice";
 import { GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useConfirm } from "material-ui-confirm";
+import { Project } from "../../types";
+import { getProjectsOfUser, reportProject, unreportProject } from "../../APIs";
+import { notifierActions } from "../../store";
 import { DataTable } from "../../ui";
+import { useStore } from "../../customHooks";
 
 export const ProjectsTableUser: React.FC = () => {
   const dispatch = useDispatch();
   const confirmer = useConfirm();
-
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
 
   const [projects, setProjects] = useState<Project[]>();
 

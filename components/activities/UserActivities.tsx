@@ -1,15 +1,12 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { StoreState } from "../../store";
 import { Box } from "@mui/material";
 import { ActivitiesTabs } from "../../ui";
 import { AppointmentsUser, VendorTableUser } from "../common";
 import { ProjectsTableUser } from "./ProjectsTableUser";
+import { useStore } from "../../customHooks";
 
 export const UserActivities = () => {
-  const currentTab = useSelector(
-    (state: StoreState) => state.activitiesTab.currentTab
-  );
+  const { activitiesTab } = useStore();
 
   return (
     <Box
@@ -21,9 +18,9 @@ export const UserActivities = () => {
       }}
     >
       <ActivitiesTabs />
-      {currentTab === "appointments" && <AppointmentsUser />}
-      {currentTab === "vendors" && <VendorTableUser />}
-      {currentTab === "projects" && <ProjectsTableUser />}
+      {activitiesTab === "appointments" && <AppointmentsUser />}
+      {activitiesTab === "vendors" && <VendorTableUser />}
+      {activitiesTab === "projects" && <ProjectsTableUser />}
     </Box>
   );
 };

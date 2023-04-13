@@ -5,7 +5,8 @@ import React, { MouseEvent } from "react";
 import { COLOR, PROFILE_TABS } from "../../constants";
 import { profileTabActions } from "../../store/profile-tab.slice";
 import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { StoreState } from "../../store/store";
+import { useStore } from "../../customHooks";
 
 const StyledBox = styled(Box)({
   color: COLOR["H1d-font-primary"],
@@ -20,9 +21,7 @@ const StyledBox = styled(Box)({
 
 export const ProfileTabs = () => {
   const dispatch = useDispatch();
-  const currentTab = useSelector(
-    (state: StoreState) => state.profileTab.currentTab
-  );
+  const { profileTab: currentTab } = useStore();
 
   const handleTabClick = (event: MouseEvent, tab: string) => {
     event.preventDefault();
@@ -54,7 +53,7 @@ export const ProfileTabs = () => {
       sx={{ borderRadius: 3 }}
       marginBottom={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
     >
-      {PROFILE_TABS.map((tab, ind) => (
+      {PROFILE_TABS.map((tab, ind, arr) => (
         <React.Fragment key={ind}>
           <StyledBox
             onClick={(e) => {
@@ -68,7 +67,9 @@ export const ProfileTabs = () => {
             </Typography>
           </StyledBox>
 
-          <Divider variant="middle" orientation="vertical" />
+          {ind !== arr.length - 1 && (
+            <Divider variant="middle" orientation="vertical" />
+          )}
         </React.Fragment>
       ))}
     </Box>

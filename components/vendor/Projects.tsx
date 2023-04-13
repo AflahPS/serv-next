@@ -2,16 +2,15 @@ import React, { useEffect, useState } from "react";
 import { CreateProject, ProjectsTable } from "../../ui";
 import { Box } from "@mui/material";
 import { Project } from "../../types";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreState } from "../../store";
+import { useDispatch } from "react-redux";
 import { getProjectsOfVendor } from "../../APIs";
+import { useStore } from "../../customHooks";
 
 export const Projects = () => {
   const displatch = useDispatch();
-  const token = useSelector((state: StoreState) => state.jwt.token);
+  const { token } = useStore();
 
   const [projects, setProjects] = useState<Project[]>([]);
-
   const getAndSetProjects = async () => {
     try {
       const projects = await getProjectsOfVendor(token);
